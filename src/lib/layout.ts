@@ -1,16 +1,23 @@
-import dagre from '@dagrejs/dagre'
+import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY } from 'd3-force'
 import { getLibraryEntry } from './library'
 import type { GraphEdge, GraphNode } from '../types'
 
 const MAX_ADVANTAGE = 5
 const SUBMISSION_RANK_OFFSET = MAX_ADVANTAGE + 1
 
-// dagre already accounts for each node's actual width/height when spacing
-// ranks/rows — these are the extra gaps on top of that.
-const RANK_SEP = 70 // horizontal gap between advantage columns
-const NODE_SEP = 130 // vertical gap between nodes within a column
+const COLUMN_WIDTH = 260 // horizontal distance between advantage columns
 const DEFAULT_NODE_WIDTH = 130
 const DEFAULT_NODE_HEIGHT = 40
+const SIMULATION_TICKS = 300
+
+interface SimNode {
+  id: string
+  rank: number
+  radius: number
+  x: number
+  y: number
+  index?: number
+}
 
 /**
  * Rank (column index) for a node's advantage: disadvantageous
@@ -31,19 +38,17 @@ export interface NodeDimensions {
 }
 
 /**
- * Layered (Sugiyama-style) layout via dagre. dagre's own minRank/maxRank
- * node constraints turned out to NOT reliably pin a node's rank once the
- * graph has enough edges/nodes for its ranking algorithm to renumber ranks
- * — verified with a repro before writing this workaround, so don't
- * reintroduce minRank/maxRank pinning without re-testing against a dense,
- * multi-parent graph like the one in that repro.
- *
- * Instead: let dagre assign ranks and coordinates completely on its own
- * (which still gives good, crossing-minimized y-ordering from its usual
- * algorithm), then overwrite x for every node using our own rank derived
- * directly from positional advantage. Since x is a simple linear function
- * of rank, this guarantees the left-to-right priority ordering holds
- * exactly, independent of whatever dagre decided internally.
+ * Hybrid force-directed layout: nodes repel each other, connected nodes
+ * pull together, and collision prevents overlap — all standard d3-force
+ * behavior, which gives organic spacing that actively pushes adjacent
+ * nodes apart (something dagre's crossing-minimization heuristic doesn't
+ * optimize for). The left-to-right priority ordering by advantage is kept
+ * exactly, in two ways: a strong forceX pulls each node toward its column
+ * throughout the simulation (so nodes settle near the right place before
+ * the collision/repulsion forces are even relevant), AND x is hard
+ * overwritten to the exact column value in the final output — so the
+ * ordering holds by construction even if the simulation hasn't fully
+ * converged, not merely because the pull force usually wins.
  */
 export function computeAutoLayout(
   nodes: GraphNode[],
@@ -52,35 +57,59 @@ export function computeAutoLayout(
 ): Map<string, { x: number; y: number }> {
   if (nodes.length === 0) return new Map()
 
-  const graph = new dagre.graphlib.Graph()
-  graph.setGraph({ rankdir: 'LR', nodesep: NODE_SEP, ranksep: RANK_SEP })
-  graph.setDefaultEdgeLabel(() => ({}))
-
-  for (const n of nodes) {
+  const simNodes: SimNode[] = nodes.map((n) => {
     const dims = dimensions?.get(n.id)
-    graph.setNode(n.id, {
-      width: dims?.width ?? DEFAULT_NODE_WIDTH,
-      height: dims?.height ?? DEFAULT_NODE_HEIGHT,
-    })
-  }
+    const width = dims?.width ?? DEFAULT_NODE_WIDTH
+    const height = dims?.height ?? DEFAULT_NODE_HEIGHT
+    const rank = nodeRank(n)
+    return {
+      id: n.id,
+      rank,
+      radius: Math.max(width, height) * 0.75,
+      // Seed at the target column so nodes start roughly separated by
+      // advantage even before the pin force has had a chance to act.
+      x: rank * COLUMN_WIDTH,
+      y: (Math.random() - 0.5) * 60,
+    }
+  })
 
   const nodeIds = new Set(nodes.map((n) => n.id))
-  for (const e of edges) {
-    if (!nodeIds.has(e.sourceId) || !nodeIds.has(e.targetId)) continue
-    // Self-loops (a node connected to itself) aren't meaningful positions
-    // here and dagre doesn't need them for layout.
-    if (e.sourceId === e.targetId) continue
-    graph.setEdge(e.sourceId, e.targetId)
-  }
+  const links = edges
+    .filter((e) => nodeIds.has(e.sourceId) && nodeIds.has(e.targetId) && e.sourceId !== e.targetId)
+    .map((e) => ({ source: e.sourceId, target: e.targetId }))
 
-  dagre.layout(graph)
+  const simulation = forceSimulation(simNodes)
+    .force('charge', forceManyBody().strength(-300))
+    .force(
+      'link',
+      forceLink(links)
+        .id((d) => (d as SimNode).id)
+        .distance(150)
+        .strength(0.3)
+    )
+    .force(
+      'collide',
+      forceCollide<SimNode>((d) => d.radius).strength(1)
+    )
+    // Strong pull toward the exact column x — acts almost like a
+    // constraint during the simulation, while still letting collision and
+    // link forces determine y organically.
+    .force(
+      'x',
+      forceX<SimNode>((d) => d.rank * COLUMN_WIDTH).strength(1)
+    )
+    .force('y', forceY(0).strength(0.02))
+    .stop()
 
-  const columnWidth = RANK_SEP + DEFAULT_NODE_WIDTH
+  for (let i = 0; i < SIMULATION_TICKS; i++) simulation.tick()
+
   const result = new Map<string, { x: number; y: number }>()
-  for (const n of nodes) {
-    const placed = graph.node(n.id)
-    if (!placed) continue
-    result.set(n.id, { x: nodeRank(n) * columnWidth, y: placed.y })
+  for (const n of simNodes) {
+    // Hard-set x to the exact column value regardless of simulation
+    // drift — this is what actually guarantees the ordering, not the pull
+    // force above (which only makes convergence fast and the y-spread
+    // physically realistic).
+    result.set(n.id, { x: n.rank * COLUMN_WIDTH, y: n.y })
   }
   return result
 }

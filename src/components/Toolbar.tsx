@@ -160,6 +160,7 @@ export function Toolbar({
           title="Sign Out"
           message="Are you sure you want to sign out?"
           confirmLabel="Sign Out"
+          danger
           onConfirm={() => {
             setConfirmingSignOut(false)
             void signOut()
