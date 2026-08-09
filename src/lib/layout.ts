@@ -2,9 +2,6 @@ import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY
 import { getLibraryEntry } from './library'
 import type { GraphEdge, GraphNode } from '../types'
 
-const MAX_ADVANTAGE = 5
-const SUBMISSION_RANK_OFFSET = MAX_ADVANTAGE + 1
-
 const COLUMN_WIDTH = 260 // horizontal distance between advantage columns
 const DEFAULT_NODE_WIDTH = 130
 const DEFAULT_NODE_HEIGHT = 40
@@ -12,24 +9,11 @@ const SIMULATION_TICKS = 300
 
 interface SimNode {
   id: string
-  rank: number
+  columnX: number | null // null = no horizontal pin (submissions)
   radius: number
   x: number
   y: number
   index?: number
-}
-
-/**
- * Rank (column index) for a node's advantage: disadvantageous
- * (bottom-of-control) positions rank lowest (leftmost), neutral positions
- * sit at the zero-shifted middle, advantageous (top-of-control) positions
- * rank higher, and submissions — the ultimate winning outcome — always
- * rank beyond even the most dominant (+5) position.
- */
-function nodeRank(node: GraphNode): number {
-  if (node.type === 'submission') return MAX_ADVANTAGE + SUBMISSION_RANK_OFFSET
-  const entry = getLibraryEntry(node.libraryId)
-  return (entry?.advantage ?? 0) + MAX_ADVANTAGE
 }
 
 export interface NodeDimensions {
@@ -38,17 +22,44 @@ export interface NodeDimensions {
 }
 
 /**
+ * Position nodes get a relative column: only the distinct advantage values
+ * actually present on the graph get a column, densely packed left to
+ * right in ascending order. Two positions three advantage-points apart
+ * still land in adjacent columns if nothing with an in-between value is on
+ * the graph yet — a node with an intermediate value inserts its own
+ * column between them once it's added, rather than columns being fixed to
+ * the absolute -5..5 advantage scale regardless of what's actually there.
+ *
+ * Submissions don't participate in this at all: they can be reached from
+ * almost any position (an armbar works as well from bottom side control
+ * as from top mount), so forcing them into a column would misrepresent
+ * them as "more advantageous" than whatever they're attacking from. They
+ * get no horizontal pin and are placed purely by their link springs to
+ * whatever position(s) they connect to.
+ */
+function buildColumnLookup(nodes: GraphNode[]): Map<number, number> {
+  const advantages = new Set<number>()
+  for (const n of nodes) {
+    if (n.type === 'submission') continue
+    const entry = getLibraryEntry(n.libraryId)
+    advantages.add(entry?.advantage ?? 0)
+  }
+  const sorted = [...advantages].sort((a, b) => a - b)
+  return new Map(sorted.map((adv, i) => [adv, i]))
+}
+
+/**
  * Hybrid force-directed layout: nodes repel each other, connected nodes
  * pull together, and collision prevents overlap — all standard d3-force
  * behavior, which gives organic spacing that actively pushes adjacent
- * nodes apart (something dagre's crossing-minimization heuristic doesn't
- * optimize for). The left-to-right priority ordering by advantage is kept
- * exactly, in two ways: a strong forceX pulls each node toward its column
- * throughout the simulation (so nodes settle near the right place before
- * the collision/repulsion forces are even relevant), AND x is hard
- * overwritten to the exact column value in the final output — so the
- * ordering holds by construction even if the simulation hasn't fully
- * converged, not merely because the pull force usually wins.
+ * nodes apart (something a pure crossing-minimization heuristic doesn't
+ * optimize for). Position nodes keep a strict left-to-right ordering by
+ * relative advantage column, enforced two ways: a strong forceX pulls
+ * each position toward its column throughout the simulation, AND x is
+ * hard overwritten to the exact column value for positions in the final
+ * output — so the ordering holds by construction even if the simulation
+ * hasn't fully converged. Submissions have no such pin and settle purely
+ * from link/collision forces.
  */
 export function computeAutoLayout(
   nodes: GraphNode[],
@@ -57,18 +68,29 @@ export function computeAutoLayout(
 ): Map<string, { x: number; y: number }> {
   if (nodes.length === 0) return new Map()
 
+  const columnOf = buildColumnLookup(nodes)
+  const columnCount = columnOf.size
+
   const simNodes: SimNode[] = nodes.map((n) => {
     const dims = dimensions?.get(n.id)
     const width = dims?.width ?? DEFAULT_NODE_WIDTH
     const height = dims?.height ?? DEFAULT_NODE_HEIGHT
-    const rank = nodeRank(n)
+
+    let columnX: number | null = null
+    if (n.type !== 'submission') {
+      const entry = getLibraryEntry(n.libraryId)
+      const column = columnOf.get(entry?.advantage ?? 0) ?? 0
+      columnX = column * COLUMN_WIDTH
+    }
+
     return {
       id: n.id,
-      rank,
+      columnX,
       radius: Math.max(width, height) * 0.75,
-      // Seed at the target column so nodes start roughly separated by
-      // advantage even before the pin force has had a chance to act.
-      x: rank * COLUMN_WIDTH,
+      // Seed positions at their target column; seed submissions roughly
+      // centered over the column span so they start near the graph
+      // instead of at a meaningless x=0 default.
+      x: columnX ?? ((columnCount - 1) / 2) * COLUMN_WIDTH,
       y: (Math.random() - 0.5) * 60,
     }
   })
@@ -91,12 +113,12 @@ export function computeAutoLayout(
       'collide',
       forceCollide<SimNode>((d) => d.radius).strength(1)
     )
-    // Strong pull toward the exact column x — acts almost like a
-    // constraint during the simulation, while still letting collision and
-    // link forces determine y organically.
+    // Strong pull toward the exact column x for positions only — acts
+    // almost like a constraint during the simulation. Submissions (null
+    // columnX) get no horizontal pin at all, just link/collision forces.
     .force(
       'x',
-      forceX<SimNode>((d) => d.rank * COLUMN_WIDTH).strength(1)
+      forceX<SimNode>((d) => d.columnX ?? d.x).strength((d) => (d.columnX === null ? 0 : 1))
     )
     .force('y', forceY(0).strength(0.02))
     .stop()
@@ -105,11 +127,10 @@ export function computeAutoLayout(
 
   const result = new Map<string, { x: number; y: number }>()
   for (const n of simNodes) {
-    // Hard-set x to the exact column value regardless of simulation
-    // drift — this is what actually guarantees the ordering, not the pull
-    // force above (which only makes convergence fast and the y-spread
-    // physically realistic).
-    result.set(n.id, { x: n.rank * COLUMN_WIDTH, y: n.y })
+    // Hard-set x to the exact column value for positions regardless of
+    // simulation drift — this is what actually guarantees the ordering.
+    // Submissions keep whatever x the simulation settled on.
+    result.set(n.id, { x: n.columnX ?? n.x, y: n.y })
   }
   return result
 }
