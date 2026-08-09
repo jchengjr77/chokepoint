@@ -108,11 +108,16 @@ export function GraphCanvas({
   useEffect(() => {
     if (autoLayoutToken !== prevLayoutToken.current) {
       prevLayoutToken.current = autoLayoutToken
-      const positions = computeAutoLayout(nodes, edges)
+
+      const dimensions = new Map<string, { width: number; height: number }>()
+      for (const n of nodes) {
+        const rfNode = getNode(n.id)
+        dimensions.set(n.id, { width: rfNode?.width ?? 130, height: rfNode?.height ?? 40 })
+      }
+
+      const positions = computeAutoLayout(nodes, edges, dimensions)
       for (const [id, pos] of positions.entries()) {
-        const rfNode = getNode(id)
-        const width = rfNode?.width ?? 110
-        const height = rfNode?.height ?? 36
+        const { width, height } = dimensions.get(id)!
         void updateNodePosition(id, pos.x - width / 2, pos.y - height / 2)
       }
       window.requestAnimationFrame(() => fitView({ padding: 0.2, duration: 200 }))
