@@ -92,7 +92,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
       <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col border border-border bg-bg-surface"
+        className="flex h-[600px] max-h-[85vh] w-full max-w-lg flex-col border border-border bg-bg-surface"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
