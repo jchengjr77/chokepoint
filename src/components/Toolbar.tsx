@@ -13,6 +13,7 @@ interface ToolbarProps {
   onAddNode: () => void
   onResetView: () => void
   onAutoLayout: () => void
+  onOpenJournal: () => void
   theme: ThemeId
   themeMode: ThemeMode
   onThemeChange: (theme: ThemeId) => void
@@ -27,6 +28,7 @@ export function Toolbar({
   onAddNode,
   onResetView,
   onAutoLayout,
+  onOpenJournal,
   theme,
   themeMode,
   onThemeChange,
@@ -77,6 +79,13 @@ export function Toolbar({
         className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
       >
         Reset View
+      </button>
+
+      <button
+        onClick={onOpenJournal}
+        className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+      >
+        Journal
       </button>
 
       {confirmingLayout ? (

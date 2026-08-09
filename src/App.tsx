@@ -12,6 +12,7 @@ import { NLPreviewModal } from './components/NLPreviewModal'
 import { ImportExportModal } from './components/ImportExportModal'
 import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './components/OnboardingOverlay'
 import { Legend } from './components/Legend'
+import { CalendarModal } from './components/CalendarModal'
 import { placeNearContext } from './lib/layout'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
@@ -48,6 +49,7 @@ function MainApp() {
 
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
+  const [showJournal, setShowJournal] = useState(false)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -143,6 +145,7 @@ function MainApp() {
         onAddNode={() => setShowLibraryPicker(true)}
         onResetView={() => setResetViewToken((t) => t + 1)}
         onAutoLayout={() => setAutoLayoutToken((t) => t + 1)}
+        onOpenJournal={() => setShowJournal(true)}
         theme={theme}
         themeMode={themeMode}
         onThemeChange={(t) => void setTheme(t)}
@@ -231,6 +234,28 @@ function MainApp() {
       )}
 
       {showImportExport && <ImportExportModal onClose={() => setShowImportExport(false)} />}
+
+      {showJournal && (
+        <CalendarModal
+          nodes={nodes}
+          edges={edges}
+          onClose={() => setShowJournal(false)}
+          onSelectNode={(id) => {
+            const n = nodes.find((node) => node.id === id)
+            if (n) {
+              handleNodeClick(n)
+              setShowJournal(false)
+            }
+          }}
+          onSelectEdge={(id) => {
+            const e = edges.find((edge) => edge.id === id)
+            if (e) {
+              handleEdgeClick(e)
+              setShowJournal(false)
+            }
+          }}
+        />
+      )}
 
       {nlResult && (
         <NLPreviewModal

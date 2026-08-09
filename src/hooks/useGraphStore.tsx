@@ -193,6 +193,7 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
       if (error || !data) return null
       const node = rowToNode(data)
       setNodes((prev) => [...prev, node])
+      await supabase.from('training_log').insert({ user_id: user.id, node_id: node.id })
       return node
     },
     [user]
@@ -210,13 +211,15 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
 
   const incrementNodeProficiency = useCallback(
     async (id: string) => {
+      if (!user) return
       const node = nodes.find((n) => n.id === id)
       if (!node) return
       const proficiency = node.proficiency + 1
       setNodes((prev) => prev.map((n) => (n.id === id ? { ...n, proficiency } : n)))
       await supabase.from('user_nodes').update({ proficiency }).eq('id', id)
+      await supabase.from('training_log').insert({ user_id: user.id, node_id: id })
     },
-    [nodes]
+    [nodes, user]
   )
 
   const deleteNode = useCallback(async (id: string) => {
@@ -244,6 +247,7 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
       if (error || !data) return null
       const edge = rowToEdge(data)
       setEdges((prev) => [...prev, edge])
+      await supabase.from('training_log').insert({ user_id: user.id, edge_id: edge.id })
       return edge
     },
     [user]
@@ -259,13 +263,15 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
 
   const incrementEdgeProficiency = useCallback(
     async (id: string) => {
+      if (!user) return
       const edge = edges.find((e) => e.id === id)
       if (!edge) return
       const proficiency = edge.proficiency + 1
       setEdges((prev) => prev.map((e) => (e.id === id ? { ...e, proficiency } : e)))
       await supabase.from('user_edges').update({ proficiency }).eq('id', id)
+      await supabase.from('training_log').insert({ user_id: user.id, edge_id: id })
     },
-    [edges]
+    [edges, user]
   )
 
   const deleteEdge = useCallback(async (id: string) => {
