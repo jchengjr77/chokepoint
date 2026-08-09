@@ -30,7 +30,7 @@ interface GraphCanvasProps {
   connectMode: boolean
   connectSourceId: string | null
   onNodeClick: (node: GraphNode) => void
-  onEdgeClick: (edge: GraphEdge) => void
+  onEdgePairClick: (pair: { sourceId: string; targetId: string }) => void
   onCanvasClick: () => void
   onConnectComplete: () => void
   resetViewToken: number
@@ -78,7 +78,7 @@ export function GraphCanvas({
   connectMode,
   connectSourceId,
   onNodeClick,
-  onEdgeClick,
+  onEdgePairClick,
   onCanvasClick,
   onConnectComplete,
   resetViewToken,
@@ -160,33 +160,61 @@ export function GraphCanvas({
     [nodes, rulesetFilter, connectMode, connectSourceId, searchMatchSet, dragPositions]
   )
 
+  // Multiple logged techniques between the same two nodes render as a
+  // single visual edge (thickness reflects how many), rather than several
+  // separately-clickable overlapping arrows. Group by the unordered node
+  // pair; the group is treated as bidirectional if any technique is
+  // explicitly marked bidirectional, or if techniques exist going in both
+  // directions between the pair (real separate rows, not just the flag).
+  const edgeGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      { sourceId: string; targetId: string; techniques: GraphEdge[]; bidirectional: boolean }
+    >()
+    for (const e of edges) {
+      const pairKey = [e.sourceId, e.targetId].sort().join('|')
+      let group = groups.get(pairKey)
+      if (!group) {
+        group = { sourceId: e.sourceId, targetId: e.targetId, techniques: [], bidirectional: false }
+        groups.set(pairKey, group)
+      }
+      group.techniques.push(e)
+      if (e.bidirectional) group.bidirectional = true
+      if (e.sourceId === group.targetId && e.targetId === group.sourceId) group.bidirectional = true
+    }
+    return [...groups.values()]
+  }, [edges])
+
   const rfEdges: Edge[] = useMemo(
     () =>
-      edges.map((e) => {
-        const sourceNode = nodes.find((n) => n.id === e.sourceId)
-        const targetNode = nodes.find((n) => n.id === e.targetId)
+      edgeGroups.map((group) => {
+        const sourceNode = nodes.find((n) => n.id === group.sourceId)
+        const targetNode = nodes.find((n) => n.id === group.targetId)
         const isSubmissionEntry = targetNode?.type === 'submission'
         const { sourceHandle, targetHandle } = pickHandlePair(sourceNode, targetNode)
         const searchMatch = searchMatchSet
-          ? searchMatchSet.has(e.sourceId) || searchMatchSet.has(e.targetId)
+          ? searchMatchSet.has(group.sourceId) || searchMatchSet.has(group.targetId)
           : null
+        // Stable id for the merged edge so React Flow doesn't remount it
+        // every time technique membership changes order.
+        const groupId = [group.sourceId, group.targetId].sort().join('|')
         return {
-          id: e.id,
-          source: e.sourceId,
-          target: e.targetId,
+          id: groupId,
+          source: group.sourceId,
+          target: group.targetId,
           sourceHandle,
           targetHandle,
           type: 'transition',
           data: {
-            label: e.label,
-            bidirectional: e.bidirectional,
+            soleLabel: group.techniques.length === 1 ? group.techniques[0].label : '',
+            techniqueCount: group.techniques.length,
+            bidirectional: group.bidirectional,
             isSubmissionEntry,
             searchMatch,
-            proficiency: e.proficiency,
           },
         }
       }),
-    [edges, nodes, searchMatchSet]
+    [edgeGroups, nodes, searchMatchSet]
   )
 
   const handleNodeClick: NodeMouseHandler = useCallback(
@@ -209,10 +237,10 @@ export function GraphCanvas({
 
   const handleEdgeClick: EdgeMouseHandler = useCallback(
     (_evt, rfEdge) => {
-      const edge = edges.find((e) => e.id === rfEdge.id)
-      if (edge) onEdgeClick(edge)
+      const group = edgeGroups.find((g) => [g.sourceId, g.targetId].sort().join('|') === rfEdge.id)
+      if (group) onEdgePairClick({ sourceId: group.sourceId, targetId: group.targetId })
     },
-    [edges, onEdgeClick]
+    [edgeGroups, onEdgePairClick]
   )
 
   const handleConnect = useCallback(

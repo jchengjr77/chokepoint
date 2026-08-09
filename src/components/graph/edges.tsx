@@ -1,12 +1,14 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from 'reactflow'
-import { getProficiencyStrokeWidth } from '../../lib/proficiency'
+import { getTechniqueCountStrokeWidth } from '../../lib/proficiency'
 
 export interface GraphEdgeData {
-  label: string
+  /** Shown directly on the canvas only when there's exactly one technique. */
+  soleLabel: string
+  techniqueCount: number
+  /** True if any grouped technique is marked bidirectional. */
   bidirectional: boolean
   isSubmissionEntry: boolean
   searchMatch: boolean | null
-  proficiency: number
 }
 
 function ArrowMarker({
@@ -58,9 +60,12 @@ export function TransitionEdge({
   const isSubmission = data?.isSubmissionEntry
   const color = isSubmission ? 'var(--edge-submission)' : 'var(--edge-default)'
   const opacity = data?.searchMatch === false ? 0.3 : 1
-  const strokeWidth = selected ? 3 : getProficiencyStrokeWidth(data?.proficiency ?? 0)
+  const strokeWidth = selected ? Math.max(4, getTechniqueCountStrokeWidth(data?.techniqueCount ?? 1)) : getTechniqueCountStrokeWidth(data?.techniqueCount ?? 1)
   const startMarkerId = `arrow-start-${id}`
   const endMarkerId = `arrow-end-${id}`
+
+  const displayLabel =
+    (data?.techniqueCount ?? 1) > 1 ? `${data?.techniqueCount} techniques` : data?.soleLabel
 
   return (
     <>
@@ -79,7 +84,7 @@ export function TransitionEdge({
           opacity,
         }}
       />
-      {data?.label && (
+      {displayLabel && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -94,7 +99,7 @@ export function TransitionEdge({
               opacity,
             }}
           >
-            {data.label}
+            {displayLabel}
           </div>
         </EdgeLabelRenderer>
       )}

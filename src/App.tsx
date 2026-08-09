@@ -51,7 +51,7 @@ function MainApp() {
   const [showImportExport, setShowImportExport] = useState(false)
   const [showJournal, setShowJournal] = useState(false)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
-  const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null)
+  const [selectedEdgePair, setSelectedEdgePair] = useState<{ sourceId: string; targetId: string } | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [resetViewToken, setResetViewToken] = useState(0)
   const [autoLayoutToken, setAutoLayoutToken] = useState(0)
@@ -66,13 +66,17 @@ function MainApp() {
   }
 
   const handleNodeClick = (node: GraphNode) => {
-    setSelectedEdge(null)
+    setSelectedEdgePair(null)
     setSelectedNode(node)
   }
 
-  const handleEdgeClick = (edge: GraphEdge) => {
+  const handleEdgePairClick = (pair: { sourceId: string; targetId: string }) => {
     setSelectedNode(null)
-    setSelectedEdge(edge)
+    setSelectedEdgePair(pair)
+  }
+
+  const handleEdgeClick = (edge: GraphEdge) => {
+    handleEdgePairClick({ sourceId: edge.sourceId, targetId: edge.targetId })
   }
 
   const handleAddNodes = async (entries: Array<{ entry: { id: string; label: string }; type: 'position' | 'submission' }>) => {
@@ -167,10 +171,10 @@ function MainApp() {
               }
               handleNodeClick(node)
             }}
-            onEdgeClick={handleEdgeClick}
+            onEdgePairClick={handleEdgePairClick}
             onCanvasClick={() => {
               setSelectedNode(null)
-              setSelectedEdge(null)
+              setSelectedEdgePair(null)
             }}
             onConnectComplete={() => {
               setConnectMode(false)
@@ -184,7 +188,7 @@ function MainApp() {
 
           <div
             className={`absolute bottom-4 left-4 flex gap-2 ${
-              selectedNode || selectedEdge ? 'max-sm:hidden' : ''
+              selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
             }`}
           >
             <button
@@ -209,11 +213,11 @@ function MainApp() {
 
         <DetailPanel
           node={selectedNode}
-          edge={selectedEdge}
+          edgePair={selectedEdgePair}
           allNodes={nodes}
           onClose={() => {
             setSelectedNode(null)
-            setSelectedEdge(null)
+            setSelectedEdgePair(null)
           }}
           onSelectNode={(id) => {
             const n = nodes.find((node) => node.id === id)
