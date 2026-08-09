@@ -5,6 +5,9 @@ import { THEMES, type ThemeId, type ThemeMode } from '../lib/themes'
 import { Dropdown } from './Dropdown'
 import { ConfirmModal } from './ConfirmModal'
 import { AboutModal } from './AboutModal'
+import { OverflowMenu } from './OverflowMenu'
+
+const REPORT_BUG_URL = 'https://github.com/jchengjr77/chokepoint/issues/new'
 
 interface ToolbarProps {
   rulesetFilter: RulesetFilter
@@ -62,13 +65,6 @@ export function Toolbar({
         className="w-32 shrink-0 border-0 border-b border-border bg-transparent py-1 text-[12px] text-text-primary outline-none placeholder:text-text-tertiary focus:border-border-focus sm:w-40"
       />
 
-      <button
-        onClick={onOpenImportExport}
-        className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
-      >
-        Import / Export
-      </button>
-
       <div className="ml-auto flex shrink-0 items-center gap-3">
         <button
           onClick={() => setShowAbout(true)}
@@ -118,12 +114,14 @@ export function Toolbar({
         </button>
 
         <span className="hidden text-[11px] text-text-secondary sm:inline">{user?.email}</span>
-        <button
-          onClick={() => setConfirmingSignOut(true)}
-          className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
-        >
-          Sign Out
-        </button>
+
+        <OverflowMenu
+          items={[
+            { label: 'Import / Export', onClick: onOpenImportExport },
+            { label: 'Report Bug', onClick: () => window.open(REPORT_BUG_URL, '_blank', 'noopener,noreferrer') },
+            { label: 'Sign Out', onClick: () => setConfirmingSignOut(true), danger: true },
+          ]}
+        />
       </div>
 
       {confirmingSignOut && (
