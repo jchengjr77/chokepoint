@@ -16,7 +16,7 @@ export function Legend() {
       <span className="h-3 w-px bg-border" />
 
       <div className="flex items-center gap-1.5">
-        <span aria-hidden className="h-2.5 w-2.5 border border-node-submission" />
+        <span aria-hidden className="chokepoint-sharp h-2.5 w-2.5 border border-node-submission" />
         <span>Submissions</span>
       </div>
     </div>

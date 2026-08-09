@@ -21,6 +21,7 @@
   --edge-submission: #00cc66;
 
   --dimmed: 0.25;
+  --radius: 3px;
 
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
 }
@@ -224,6 +225,25 @@ select {
 
 button {
   cursor: pointer;
+}
+
+/*
+ * Subtle rounding applied globally rather than adding a rounded-* class
+ * to every button/input/panel/modal/node individually — border widths in
+ * this codebase are declared inconsistently (plain `border`, `border-2`,
+ * `border-l-2`, or inline borderWidth for proficiency-tier node styling),
+ * so a class-name-based selector would miss many of them. Every element
+ * gets the radius by default; the handful of small decorative marks that
+ * must stay sharp squares (submission node corner dot, calendar day-cell
+ * activity dot, minimap-style badges) opt out explicitly via
+ * .chokepoint-sharp.
+ */
+*:not(.react-flow__handle) {
+  border-radius: var(--radius);
+}
+
+.chokepoint-sharp {
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar {

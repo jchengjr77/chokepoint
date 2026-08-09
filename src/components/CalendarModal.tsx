@@ -179,7 +179,7 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
                     {hasActivity && (
                       <span
                         aria-hidden
-                        className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 bg-node-submission"
+                        className="chokepoint-sharp absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 bg-node-submission"
                       />
                     )}
                   </span>
