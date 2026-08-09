@@ -59,7 +59,7 @@ function TeamTab() {
         Chokepoint is built and maintained by a single person, in whatever hours are left after training. There is
         no QA department. There is no on-call rotation. There's only JJ Cheng, who should really be learning how
         to pass a guard instead of building this thing. Maybe then he would stop falling back into leglocks all the
-        time. Dirty leglockers...
+        time.
       </p>
 
       <div className="border border-border bg-bg-elevated px-3 py-3">
@@ -86,6 +86,8 @@ function TeamTab() {
           </a>
         </div>
       </div>
+
+      <p className="mt-5 text-[12px] leading-relaxed text-text-secondary">Dirty leglockers...</p>
     </>
   )
 }
