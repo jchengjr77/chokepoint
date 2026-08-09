@@ -1,13 +1,32 @@
-import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, forceRadial } from 'd3-force'
+import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY } from 'd3-force'
+import { getLibraryEntry } from './library'
 import type { GraphEdge, GraphNode } from '../types'
 
 interface SimNode extends GraphNode {
   index?: number
 }
 
+const COLUMN_SPACING = 240
+
 /**
- * Force-directed layout: positions cluster near center, submissions are
- * pulled to the periphery via a radial force keyed on node type.
+ * Target x-coordinate for a node's advantage column: disadvantageous
+ * (bottom-of-control) positions on the left, neutral positions and guards
+ * near center, advantageous (top-of-control) positions right-of-center,
+ * and submissions — the ultimate winning outcome — pinned to the far right.
+ */
+function targetColumnX(node: GraphNode): number {
+  if (node.type === 'submission') return COLUMN_SPACING * 3
+
+  const entry = getLibraryEntry(node.libraryId)
+  const advantage = entry?.advantage ?? 0
+  return advantage * (COLUMN_SPACING / 2)
+}
+
+/**
+ * Force-directed layout: nodes are pulled toward a horizontal column based
+ * on positional advantage (losing positions left, winning positions right,
+ * neutral positions center, submissions far right), while a vertical force
+ * and collision keep nodes in the same column from overlapping.
  */
 export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<string, { x: number; y: number }> {
   if (nodes.length === 0) return new Map()
@@ -19,29 +38,18 @@ export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<s
     .filter((e) => nodeIndex.has(e.sourceId) && nodeIndex.has(e.targetId))
     .map((e) => ({ source: e.sourceId, target: e.targetId }))
 
-  const positionCount = nodes.filter((n) => n.type === 'position').length
-  const outerRadius = 260 + Math.sqrt(Math.max(nodes.length, 1)) * 40
-  const innerRadius = Math.min(outerRadius * 0.45, 80 + Math.sqrt(Math.max(positionCount, 1)) * 25)
-
   const simulation = forceSimulation(simNodes)
     .force(
       'link',
       forceLink(simLinks)
         .id((d) => (d as SimNode).id)
         .distance(120)
-        .strength(0.3)
+        .strength(0.15)
     )
-    .force('charge', forceManyBody().strength(-220))
+    .force('charge', forceManyBody().strength(-180))
     .force('collide', forceCollide(70))
-    .force('center', forceCenter(0, 0))
-    .force(
-      'radial',
-      forceRadial<SimNode>(
-        (d) => (d.type === 'submission' ? outerRadius : innerRadius),
-        0,
-        0
-      ).strength((d) => (d.type === 'submission' ? 0.9 : 0.15))
-    )
+    .force('x', forceX<SimNode>((d) => targetColumnX(d)).strength(0.6))
+    .force('y', forceY<SimNode>(0).strength(0.05))
     .stop()
 
   simulation.tick(300)
@@ -53,23 +61,39 @@ export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<s
   return result
 }
 
+const MIN_NODE_SPACING = 130
+
 /**
  * Placement for a single new node: near the average position of its
- * connected existing nodes, with a small random offset to avoid overlap.
+ * connected context nodes (or spread from the graph's center if there's no
+ * context yet), nudged away from any already-occupied position so batches
+ * of new nodes don't stack on top of each other.
  */
 export function placeNearContext(
   contextNodes: Array<{ x: number; y: number }>,
-  fallback: { x: number; y: number }
+  fallback: { x: number; y: number },
+  occupied: Array<{ x: number; y: number }> = []
 ): { x: number; y: number } {
-  if (contextNodes.length === 0) return fallback
+  const baseX = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.x, 0) / contextNodes.length : fallback.x
+  const baseY = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.y, 0) / contextNodes.length : fallback.y
+  const hasBase = contextNodes.length > 0
 
-  const avgX = contextNodes.reduce((sum, n) => sum + n.x, 0) / contextNodes.length
-  const avgY = contextNodes.reduce((sum, n) => sum + n.y, 0) / contextNodes.length
-  const angle = Math.random() * Math.PI * 2
-  const distance = 140 + Math.random() * 40
+  for (let attempt = 0; attempt < 24; attempt++) {
+    const angle = Math.random() * Math.PI * 2
+    const distance = hasBase ? 140 + Math.random() * 40 : attempt * 45 + Math.random() * 40
+    const candidate = {
+      x: baseX + Math.cos(angle) * distance,
+      y: baseY + Math.sin(angle) * distance,
+    }
 
-  return {
-    x: avgX + Math.cos(angle) * distance,
-    y: avgY + Math.sin(angle) * distance,
+    const collides = occupied.some(
+      (o) => Math.hypot(o.x - candidate.x, o.y - candidate.y) < MIN_NODE_SPACING
+    )
+    if (!collides) return candidate
   }
+
+  // Give up avoiding collisions after enough attempts; spread out along a ring instead.
+  const angle = Math.random() * Math.PI * 2
+  const distance = MIN_NODE_SPACING * (1 + occupied.length * 0.15)
+  return { x: baseX + Math.cos(angle) * distance, y: baseY + Math.sin(angle) * distance }
 }

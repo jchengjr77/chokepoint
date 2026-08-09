@@ -2,12 +2,25 @@ export type NodeType = 'position' | 'submission'
 export type Ruleset = 'gi' | 'nogi'
 export type RulesetFilter = 'all' | 'gi' | 'nogi'
 
+/**
+ * Positional advantage on a -2..2 scale, used to order the graph left
+ * (disadvantageous, e.g. being submitted-toward) to right (advantageous,
+ * e.g. attacking a submission). Omitted for neutral positions (guards,
+ * standing, contested entanglements) which sit at the horizontal center.
+ * -2 = bottom of a dominant control position (mounted, back taken, etc.)
+ * -1 = bottom of a lesser control position, or defensive leg entanglement
+ *  1 = top of a lesser control position, or attacking leg entanglement
+ *  2 = top of a dominant control position
+ */
+export type Advantage = -2 | -1 | 1 | 2
+
 export interface LibraryEntry {
   id: string
   label: string
   aliases: string[]
   tags: string[]
   rulesets: Ruleset[]
+  advantage?: Advantage
 }
 
 export interface LibraryTransition {

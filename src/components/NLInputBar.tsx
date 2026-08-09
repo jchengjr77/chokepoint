@@ -33,7 +33,7 @@ export function NLInputBar({ existingLibraryIds, onResult }: NLInputBarProps) {
       onSubmit={(e) => void handleSubmit(e)}
       className="flex h-14 shrink-0 items-center gap-2 border-t border-border bg-bg-surface px-3"
     >
-      <span className="text-text-secondary">&gt;</span>
+      <span className="font-semibold text-node-submission">&gt;</span>
       <input
         type="text"
         value={text}
@@ -41,6 +41,7 @@ export function NLInputBar({ existingLibraryIds, onResult }: NLInputBarProps) {
         placeholder="What did you learn today?"
         disabled={busy}
         className="flex-1 border-0 bg-transparent py-1 text-[12px] text-text-primary outline-none placeholder:text-text-tertiary disabled:opacity-50"
+        style={{ caretColor: '#ffffff' }}
       />
       {error && <span className="text-[11px]" style={{ color: '#ff5555' }}>{error}</span>}
       <button

@@ -8,6 +8,7 @@ export default {
         'bg-primary': 'var(--bg-primary)',
         'bg-surface': 'var(--bg-surface)',
         'bg-elevated': 'var(--bg-elevated)',
+        'bg-node': 'var(--bg-node)',
         border: 'var(--border)',
         'border-focus': 'var(--border-focus)',
         'text-primary': 'var(--text-primary)',

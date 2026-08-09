@@ -13,7 +13,3 @@ export function getLibraryEntry(id: string): LibraryEntry | undefined {
 export function entryMatchesRuleset(entry: LibraryEntry, ruleset: Ruleset): boolean {
   return entry.rulesets.includes(ruleset)
 }
-
-export function getSuggestedTransitions(libraryId: string): typeof library.knownTransitions {
-  return library.knownTransitions.filter((t) => t.sourceId === libraryId || t.targetId === libraryId)
-}

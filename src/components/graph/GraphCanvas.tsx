@@ -3,7 +3,9 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   MiniMap,
+  Position,
   useReactFlow,
+  type Connection,
   type Node,
   type Edge,
   type NodeMouseHandler,
@@ -43,6 +45,34 @@ function nodeDimmed(node: GraphNode, filter: 'all' | 'gi' | 'nogi'): boolean {
   return !entry.rulesets.includes(filter as Ruleset)
 }
 
+/**
+ * Picks which side (top/bottom/left/right) an edge should connect from and
+ * to, based on the relative position of the two nodes, so horizontally
+ * arranged nodes connect left-right and vertically arranged nodes connect
+ * top-bottom instead of always routing through a fixed handle.
+ */
+function pickHandlePair(
+  source: GraphNode | undefined,
+  target: GraphNode | undefined
+): { sourceHandle: Position; targetHandle: Position } {
+  if (!source || !target) {
+    return { sourceHandle: Position.Bottom, targetHandle: Position.Top }
+  }
+
+  const dx = target.x - source.x
+  const dy = target.y - source.y
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return dx >= 0
+      ? { sourceHandle: Position.Right, targetHandle: Position.Left }
+      : { sourceHandle: Position.Left, targetHandle: Position.Right }
+  }
+
+  return dy >= 0
+    ? { sourceHandle: Position.Bottom, targetHandle: Position.Top }
+    : { sourceHandle: Position.Top, targetHandle: Position.Bottom }
+}
+
 export function GraphCanvas({
   rulesetFilter,
   searchQuery,
@@ -58,22 +88,28 @@ export function GraphCanvas({
   const { nodes, edges, updateNodePosition, addEdge } = useGraphStore()
   const { fitView, setViewport } = useReactFlow()
   const [pendingEdge, setPendingEdge] = useState<{ source: GraphNode; target: GraphNode } | null>(null)
+  const [dragPositions, setDragPositions] = useState<Map<string, { x: number; y: number }>>(new Map())
   const prevResetToken = useRef(resetViewToken)
   const prevLayoutToken = useRef(autoLayoutToken)
-  const [layoutPositions, setLayoutPositions] = useState<Map<string, { x: number; y: number }> | null>(null)
 
   useEffect(() => {
     if (resetViewToken !== prevResetToken.current) {
       prevResetToken.current = resetViewToken
-      window.requestAnimationFrame(() => fitView({ padding: 0.2, duration: 200 }))
+      window.requestAnimationFrame(() => {
+        if (nodes.length === 0) {
+          setViewport({ x: window.innerWidth / 2, y: window.innerHeight / 2, zoom: 1 }, { duration: 200 })
+        } else {
+          fitView({ padding: 0.2, duration: 200 })
+        }
+      })
     }
-  }, [resetViewToken, fitView])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetViewToken, fitView, setViewport])
 
   useEffect(() => {
     if (autoLayoutToken !== prevLayoutToken.current) {
       prevLayoutToken.current = autoLayoutToken
       const positions = computeAutoLayout(nodes, edges)
-      setLayoutPositions(positions)
       for (const [id, pos] of positions.entries()) {
         void updateNodePosition(id, pos.x, pos.y)
       }
@@ -98,11 +134,11 @@ export function GraphCanvas({
   const rfNodes: Node[] = useMemo(
     () =>
       nodes.map((n) => {
-        const pos = layoutPositions?.get(n.id)
+        const dragPos = dragPositions.get(n.id)
         return {
           id: n.id,
           type: n.type,
-          position: { x: pos?.x ?? n.x, y: pos?.y ?? n.y },
+          position: { x: dragPos?.x ?? n.x, y: dragPos?.y ?? n.y },
           data: {
             label: n.label,
             dimmed: nodeDimmed(n, rulesetFilter),
@@ -113,18 +149,22 @@ export function GraphCanvas({
           draggable: !nodeDimmed(n, rulesetFilter),
         }
       }),
-    [nodes, rulesetFilter, connectMode, connectSourceId, searchMatchSet, layoutPositions]
+    [nodes, rulesetFilter, connectMode, connectSourceId, searchMatchSet, dragPositions]
   )
 
   const rfEdges: Edge[] = useMemo(
     () =>
       edges.map((e) => {
+        const sourceNode = nodes.find((n) => n.id === e.sourceId)
         const targetNode = nodes.find((n) => n.id === e.targetId)
         const isSubmissionEntry = targetNode?.type === 'submission'
+        const { sourceHandle, targetHandle } = pickHandlePair(sourceNode, targetNode)
         return {
           id: e.id,
           source: e.sourceId,
           target: e.targetId,
+          sourceHandle,
+          targetHandle,
           type: 'transition',
           data: {
             label: e.label,
@@ -162,9 +202,33 @@ export function GraphCanvas({
     [edges, onEdgeClick]
   )
 
+  const handleConnect = useCallback(
+    (connection: Connection) => {
+      const source = nodes.find((n) => n.id === connection.source)
+      const target = nodes.find((n) => n.id === connection.target)
+      if (!source || !target || source.id === target.id) return
+      setPendingEdge({ source, target })
+    },
+    [nodes]
+  )
+
+  const handleNodeDrag: NodeDragHandler = useCallback((_evt, rfNode) => {
+    setDragPositions((prev) => {
+      const next = new Map(prev)
+      next.set(rfNode.id, { x: rfNode.position.x, y: rfNode.position.y })
+      return next
+    })
+  }, [])
+
   const handleNodeDragStop: NodeDragHandler = useCallback(
     (_evt, rfNode) => {
       void updateNodePosition(rfNode.id, rfNode.position.x, rfNode.position.y)
+      setDragPositions((prev) => {
+        if (!prev.has(rfNode.id)) return prev
+        const next = new Map(prev)
+        next.delete(rfNode.id)
+        return next
+      })
     },
     [updateNodePosition]
   )
@@ -186,14 +250,16 @@ export function GraphCanvas({
         edgeTypes={edgeTypes}
         onNodeClick={handleNodeClick}
         onEdgeClick={handleEdgeClick}
+        onNodeDrag={handleNodeDrag}
         onNodeDragStop={handleNodeDragStop}
+        onConnect={handleConnect}
         onPaneClick={onCanvasClick}
         onInit={() => setViewport({ x: window.innerWidth / 2, y: window.innerHeight / 2, zoom: 1 })}
         minZoom={0.2}
         maxZoom={2.5}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#222222" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={2} color="#555555" />
         <MiniMap
           className="hidden sm:block"
           style={{

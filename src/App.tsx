@@ -53,9 +53,11 @@ function MainApp() {
   }
 
   const handleAddNodes = async (entries: Array<{ entry: { id: string; label: string }; type: 'position' | 'submission' }>) => {
+    const contextNodes = nodes.map((n) => ({ x: n.x, y: n.y }))
+    const occupied = [...contextNodes]
     for (const { entry, type } of entries) {
-      const contextNodes = nodes.map((n) => ({ x: n.x, y: n.y }))
-      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 })
+      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied)
+      occupied.push({ x, y })
       await addNode({ libraryId: entry.id, type, label: entry.label, x, y })
     }
     setShowLibraryPicker(false)
@@ -65,10 +67,13 @@ function MainApp() {
     const idByLibraryId = new Map<string, string>()
     for (const existing of nodes) idByLibraryId.set(existing.libraryId, existing.id)
 
+    const contextNodes = nodes.map((existing) => ({ x: existing.x, y: existing.y }))
+    const occupied = [...contextNodes]
+
     for (const n of accepted.nodes) {
       if (idByLibraryId.has(n.libraryId)) continue
-      const contextNodes = nodes.map((existing) => ({ x: existing.x, y: existing.y }))
-      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 })
+      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied)
+      occupied.push({ x, y })
       const created = await addNode({ libraryId: n.libraryId, type: n.type, label: n.label, x, y })
       if (created) idByLibraryId.set(n.libraryId, created.id)
     }

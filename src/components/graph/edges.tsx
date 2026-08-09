@@ -1,4 +1,4 @@
-import { BaseEdge, EdgeLabelRenderer, getStraightPath, type EdgeProps } from 'reactflow'
+import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, type EdgeProps } from 'reactflow'
 
 export interface GraphEdgeData {
   label: string
@@ -6,9 +6,17 @@ export interface GraphEdgeData {
   isSubmissionEntry: boolean
 }
 
-function ArrowMarker({ id, color }: { id: string; color: string }) {
+function ArrowMarker({ id, color, reverse }: { id: string; color: string; reverse?: boolean }) {
   return (
-    <marker id={id} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <marker
+      id={id}
+      markerWidth="8"
+      markerHeight="8"
+      refX="7"
+      refY="4"
+      orient={reverse ? 'auto-start-reverse' : 'auto'}
+      markerUnits="userSpaceOnUse"
+    >
       <path d="M0,0 L8,4 L0,8 Z" fill={color} />
     </marker>
   )
@@ -18,12 +26,22 @@ export function TransitionEdge({
   id,
   sourceX,
   sourceY,
+  sourcePosition,
   targetX,
   targetY,
+  targetPosition,
   data,
   selected,
 }: EdgeProps<GraphEdgeData>) {
-  const [edgePath, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY })
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+    borderRadius: 0,
+  })
   const isSubmission = data?.isSubmissionEntry
   const color = isSubmission ? 'var(--edge-submission)' : 'var(--edge-default)'
   const startMarkerId = `arrow-start-${id}`
@@ -33,7 +51,7 @@ export function TransitionEdge({
     <>
       <defs>
         <ArrowMarker id={endMarkerId} color={color} />
-        {data?.bidirectional && <ArrowMarker id={startMarkerId} color={color} />}
+        {data?.bidirectional && <ArrowMarker id={startMarkerId} color={color} reverse />}
       </defs>
       <BaseEdge
         id={id}
@@ -43,7 +61,6 @@ export function TransitionEdge({
         style={{
           stroke: color,
           strokeWidth: selected ? 2 : 1,
-          strokeDasharray: isSubmission ? '4 3' : undefined,
         }}
       />
       {data?.label && (

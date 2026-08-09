@@ -6,8 +6,9 @@
 // Set secret with: supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import libraryJson from '../_shared/library.json' with { type: 'json' }
 
-const CLAUDE_MODEL = 'claude-sonnet-4-6'
+const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929'
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
 
 const corsHeaders = {
@@ -39,9 +40,11 @@ RULES:
 1. Extract every position and submission mentioned in the text.
 2. Every extracted position/submission MUST map to an entry in the provided library (match by label or alias, case-insensitive, fuzzy match acceptable). Never invent a libraryId that isn't in the library.
 3. Extract every transition described (source -> destination), including chains (e.g. "A to B then B to C" produces two edges).
-4. If a term cannot be confidently matched to any library entry, add the raw term to "unrecognized" and do NOT include it in nodes/edges.
-5. Mark "alreadyOnGraph": true for any libraryId in this list of node ids already on the user's graph: ${JSON.stringify(existingIds)}
-6. Respond with ONLY valid JSON, no markdown fences, matching this exact shape:
+4. Positions and submissions are a closed, curated set — but transitions between them are NOT. There is no fixed list of "known" transitions: two positions in this library can be connected by any technique, and the same pair of positions can be connected in many different ways (different sweeps, passes, escapes, entries). Do not limit yourself to "typical" or "textbook" connections — trust the user's description of what they actually did, even if it's an unusual or uncommon route between two positions.
+5. The edge "label" should be a short, natural description of the specific technique the user described (e.g. "berimbolo", "far-side armbar", "russian 2-on-1 to back take") — write it in your own words based on what the user said, don't force it to match any pre-existing phrasing. If the user only said they went from one position/submission to another without naming a specific technique (e.g. "north south to kimura"), leave "label" as an empty string "" rather than inventing or guessing a technique name — do not fabricate a label just to fill the field.
+6. If a term cannot be confidently matched to any library entry, add the raw term to "unrecognized" and do NOT include it in nodes/edges.
+7. Mark "alreadyOnGraph": true for any libraryId in this list of node ids already on the user's graph: ${JSON.stringify(existingIds)}
+8. Respond with ONLY valid JSON, no markdown fences, matching this exact shape:
 
 {
   "nodes": [ { "libraryId": string, "label": string, "type": "position" | "submission", "alreadyOnGraph": boolean } ],
@@ -100,8 +103,7 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    const libraryModule = await import('../_shared/library.json', { with: { type: 'json' } })
-    const library = libraryModule.default as { positions: LibraryEntry[]; submissions: LibraryEntry[] }
+    const library = libraryJson as { positions: LibraryEntry[]; submissions: LibraryEntry[] }
 
     const systemPrompt = buildSystemPrompt(library.positions, library.submissions, body.existingLibraryIds ?? [])
 
