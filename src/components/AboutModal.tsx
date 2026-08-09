@@ -57,12 +57,13 @@ function TeamTab() {
       <p className="mb-2 text-[16px] font-bold leading-snug text-text-primary">Team of one.</p>
       <p className="mb-5 text-[12px] leading-relaxed text-text-primary">
         Chokepoint is built and maintained by a single person, in whatever hours are left after training. There is
-        no QA department. There is no on-call rotation. There is just one guy who really should be doing hip
-        escapes right now instead of fixing a CSS bug.
+        no QA department. There is no on-call rotation. There's only JJ Cheng, who should really be learning how
+        to pass a guard instead of building this thing. Maybe then he would stop falling back into leglocks all the
+        time.
       </p>
 
-      <div className="mb-5 border border-border bg-bg-elevated px-3 py-3">
-        <p className="mb-1 text-[12px] font-semibold text-text-primary">Jonathan Cheng</p>
+      <div className="border border-border bg-bg-elevated px-3 py-3">
+        <p className="mb-1 text-[12px] font-semibold text-text-primary">JJ Cheng</p>
         <p className="mb-2 text-[11px] text-text-secondary">
           Blue belt, training at Workshop NYC (Lower East Side). Based in New York City.
         </p>
@@ -75,13 +76,6 @@ function TeamTab() {
           github.com/jchengjr77
         </a>
       </div>
-
-      <p className="text-[12px] leading-relaxed text-text-secondary">
-        So: this is a solo endeavor. If something breaks, it's not a conspiracy — it's just one person's
-        weekend project holding a triangle on a production database. Bear with the bugs, and{' '}
-        <span className="font-medium text-text-primary">please, for the love of all that is holy, report them</span>{' '}
-        so they can get squashed before your next training log gets choked out.
-      </p>
     </>
   )
 }
