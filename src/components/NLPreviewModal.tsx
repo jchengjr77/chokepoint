@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
-import type { NLParseResult } from '../types'
+import type { GraphEdge, GraphNode, NLParseResult } from '../types'
 
 interface NLPreviewModalProps {
   result: NLParseResult
+  existingNodes: GraphNode[]
+  existingEdges: GraphEdge[]
   onConfirm: (accepted: NLParseResult) => void
   onCancel: () => void
 }
 
-export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalProps) {
+export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm, onCancel }: NLPreviewModalProps) {
   const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set())
   const [excludedEdges, setExcludedEdges] = useState<Set<number>>(new Set())
 
@@ -15,7 +17,32 @@ export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalPr
     () => result.nodes.filter((n) => !n.alreadyOnGraph && !excludedNodes.has(n.libraryId)).length,
     [result.nodes, excludedNodes]
   )
+  const trainedNodeCount = useMemo(
+    () => result.nodes.filter((n) => n.alreadyOnGraph && !excludedNodes.has(n.libraryId)).length,
+    [result.nodes, excludedNodes]
+  )
+  const acceptedNodeCount = newNodeCount + trainedNodeCount
   const acceptedEdgeCount = result.edges.length - excludedEdges.size
+
+  const edgeAlreadyExists = (sourceLibraryId: string, targetLibraryId: string): boolean => {
+    const sourceId = existingNodes.find((n) => n.libraryId === sourceLibraryId)?.id
+    const targetId = existingNodes.find((n) => n.libraryId === targetLibraryId)?.id
+    if (!sourceId || !targetId) return false
+    return existingEdges.some(
+      (e) =>
+        (e.sourceId === sourceId && e.targetId === targetId) ||
+        (e.bidirectional && e.sourceId === targetId && e.targetId === sourceId)
+    )
+  }
+
+  const trainedEdgeCount = useMemo(
+    () =>
+      result.edges.filter(
+        (e, idx) => !excludedEdges.has(idx) && edgeAlreadyExists(e.sourceLibraryId, e.targetLibraryId)
+      ).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [result.edges, excludedEdges, existingNodes, existingEdges]
+  )
 
   const toggleNode = (id: string) => {
     setExcludedNodes((prev) => {
@@ -43,7 +70,7 @@ export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalPr
     })
   }
 
-  const nothingToAdd = newNodeCount === 0 && acceptedEdgeCount === 0
+  const nothingToAdd = acceptedNodeCount === 0 && acceptedEdgeCount === 0
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onCancel}>
@@ -54,8 +81,15 @@ export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalPr
         <div className="border-b border-border px-4 py-3">
           <h2 className="text-[13px] font-semibold uppercase text-text-primary">Review Changes</h2>
           <p className="mt-1 text-[11px] text-text-secondary">
-            Add {newNodeCount} node{newNodeCount === 1 ? '' : 's'} and {acceptedEdgeCount} transition
-            {acceptedEdgeCount === 1 ? '' : 's'}. Confirm?
+            Add {newNodeCount} node{newNodeCount === 1 ? '' : 's'} and {acceptedEdgeCount - trainedEdgeCount} new
+            transition{acceptedEdgeCount - trainedEdgeCount === 1 ? '' : 's'}
+            {trainedNodeCount + trainedEdgeCount > 0 && (
+              <>
+                , log training on {trainedNodeCount + trainedEdgeCount} existing item
+                {trainedNodeCount + trainedEdgeCount === 1 ? '' : 's'}
+              </>
+            )}
+            . Confirm?
           </p>
         </div>
 
@@ -77,7 +111,7 @@ export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalPr
                     <span>{n.label}</span>
                     <span className="text-[10px] uppercase text-text-tertiary">{n.type}</span>
                     {n.alreadyOnGraph && (
-                      <span className="ml-auto text-[10px] uppercase text-text-tertiary">on graph</span>
+                      <span className="ml-auto text-[10px] uppercase text-node-submission">+1 rep</span>
                     )}
                   </label>
                 ))}
@@ -92,6 +126,7 @@ export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalPr
                 {result.edges.map((e, idx) => {
                   const sourceLabel = result.nodes.find((n) => n.libraryId === e.sourceLibraryId)?.label ?? e.sourceLibraryId
                   const targetLabel = result.nodes.find((n) => n.libraryId === e.targetLibraryId)?.label ?? e.targetLibraryId
+                  const alreadyExists = edgeAlreadyExists(e.sourceLibraryId, e.targetLibraryId)
                   return (
                     <label
                       key={idx}
@@ -102,6 +137,9 @@ export function NLPreviewModal({ result, onConfirm, onCancel }: NLPreviewModalPr
                         {sourceLabel} {e.bidirectional ? '↔' : '→'} {targetLabel}
                       </span>
                       {e.label && <span className="text-[10px] text-text-tertiary">({e.label})</span>}
+                      {alreadyExists && (
+                        <span className="ml-auto text-[10px] uppercase text-node-submission">+1 rep</span>
+                      )}
                     </label>
                   )
                 })}

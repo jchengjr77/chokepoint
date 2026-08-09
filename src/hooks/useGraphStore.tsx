@@ -13,6 +13,7 @@ interface DbNodeRow {
   x: number
   y: number
   date_added: string
+  proficiency: number
 }
 
 interface DbEdgeRow {
@@ -23,6 +24,7 @@ interface DbEdgeRow {
   bidirectional: boolean
   notes: string
   date_added: string
+  proficiency: number
 }
 
 function rowToNode(row: DbNodeRow): GraphNode {
@@ -35,6 +37,7 @@ function rowToNode(row: DbNodeRow): GraphNode {
     x: row.x,
     y: row.y,
     dateAdded: row.date_added,
+    proficiency: row.proficiency ?? 0,
   }
 }
 
@@ -47,6 +50,7 @@ function rowToEdge(row: DbEdgeRow): GraphEdge {
     bidirectional: row.bidirectional,
     notes: row.notes ?? '',
     dateAdded: row.date_added,
+    proficiency: row.proficiency ?? 0,
   }
 }
 
@@ -64,6 +68,7 @@ interface GraphStoreValue {
   addNode: (params: { libraryId: string; type: NodeType; label: string; x: number; y: number }) => Promise<GraphNode | null>
   updateNodePosition: (id: string, x: number, y: number) => Promise<void>
   updateNodeNotes: (id: string, notes: string) => Promise<void>
+  incrementNodeProficiency: (id: string) => Promise<void>
   deleteNode: (id: string) => Promise<void>
   addEdge: (params: {
     sourceId: string
@@ -72,6 +77,7 @@ interface GraphStoreValue {
     bidirectional: boolean
   }) => Promise<GraphEdge | null>
   updateEdge: (id: string, updates: Partial<Pick<GraphEdge, 'label' | 'bidirectional' | 'notes'>>) => Promise<void>
+  incrementEdgeProficiency: (id: string) => Promise<void>
   deleteEdge: (id: string) => Promise<void>
   replaceGraph: (nodes: GraphNode[], edges: GraphEdge[]) => Promise<void>
   refresh: () => Promise<void>
@@ -201,6 +207,17 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
     await supabase.from('user_nodes').update({ notes }).eq('id', id)
   }, [])
 
+  const incrementNodeProficiency = useCallback(
+    async (id: string) => {
+      const node = nodes.find((n) => n.id === id)
+      if (!node) return
+      const proficiency = node.proficiency + 1
+      setNodes((prev) => prev.map((n) => (n.id === id ? { ...n, proficiency } : n)))
+      await supabase.from('user_nodes').update({ proficiency }).eq('id', id)
+    },
+    [nodes]
+  )
+
   const deleteNode = useCallback(async (id: string) => {
     setNodes((prev) => prev.filter((n) => n.id !== id))
     setEdges((prev) => prev.filter((e) => e.sourceId !== id && e.targetId !== id))
@@ -238,6 +255,17 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  const incrementEdgeProficiency = useCallback(
+    async (id: string) => {
+      const edge = edges.find((e) => e.id === id)
+      if (!edge) return
+      const proficiency = edge.proficiency + 1
+      setEdges((prev) => prev.map((e) => (e.id === id ? { ...e, proficiency } : e)))
+      await supabase.from('user_edges').update({ proficiency }).eq('id', id)
+    },
+    [edges]
+  )
+
   const deleteEdge = useCallback(async (id: string) => {
     setEdges((prev) => prev.filter((e) => e.id !== id))
     await supabase.from('user_edges').delete().eq('id', id)
@@ -261,6 +289,7 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
               notes: n.notes,
               x: n.x,
               y: n.y,
+              proficiency: n.proficiency,
             }))
           )
           .select()
@@ -276,6 +305,7 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
               label: e.label,
               bidirectional: e.bidirectional,
               notes: e.notes,
+              proficiency: e.proficiency,
             }))
 
           if (mappedEdges.length > 0) {
@@ -305,9 +335,11 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
         addNode,
         updateNodePosition,
         updateNodeNotes,
+        incrementNodeProficiency,
         deleteNode,
         addEdge,
         updateEdge,
+        incrementEdgeProficiency,
         deleteEdge,
         replaceGraph,
         refresh,

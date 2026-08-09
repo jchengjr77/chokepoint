@@ -1,10 +1,12 @@
 import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, type EdgeProps } from 'reactflow'
+import { getProficiencyStrokeWidth } from '../../lib/proficiency'
 
 export interface GraphEdgeData {
   label: string
   bidirectional: boolean
   isSubmissionEntry: boolean
   searchMatch: boolean | null
+  proficiency: number
 }
 
 function ArrowMarker({
@@ -56,6 +58,7 @@ export function TransitionEdge({
   const isSubmission = data?.isSubmissionEntry
   const color = isSubmission ? 'var(--edge-submission)' : 'var(--edge-default)'
   const opacity = data?.searchMatch === false ? 0.3 : 1
+  const strokeWidth = selected ? 3 : getProficiencyStrokeWidth(data?.proficiency ?? 0)
   const startMarkerId = `arrow-start-${id}`
   const endMarkerId = `arrow-end-${id}`
 
@@ -72,7 +75,7 @@ export function TransitionEdge({
         markerStart={data?.bidirectional ? `url(#${startMarkerId})` : undefined}
         style={{
           stroke: color,
-          strokeWidth: selected ? 2 : 1,
+          strokeWidth,
           opacity,
         }}
       />

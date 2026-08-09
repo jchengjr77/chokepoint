@@ -26,6 +26,7 @@ function OfflineBanner() {
 function MainApp() {
   const {
     nodes,
+    edges,
     loading,
     online,
     rulesetFilter,
@@ -36,6 +37,8 @@ function MainApp() {
     setThemeMode,
     addNode,
     addEdge,
+    incrementNodeProficiency,
+    incrementEdgeProficiency,
   } = useGraphStore()
 
   useEffect(() => {
@@ -89,7 +92,12 @@ function MainApp() {
     const occupied = [...contextNodes]
 
     for (const n of accepted.nodes) {
-      if (idByLibraryId.has(n.libraryId)) continue
+      const existingId = idByLibraryId.get(n.libraryId)
+      if (existingId) {
+        // Already on the graph — training it again bumps its proficiency.
+        await incrementNodeProficiency(existingId)
+        continue
+      }
       const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied)
       occupied.push({ x, y })
       const created = await addNode({ libraryId: n.libraryId, type: n.type, label: n.label, x, y })
@@ -100,6 +108,17 @@ function MainApp() {
       const sourceId = idByLibraryId.get(e.sourceLibraryId)
       const targetId = idByLibraryId.get(e.targetLibraryId)
       if (!sourceId || !targetId) continue
+
+      const existingEdge = edges.find(
+        (edge) =>
+          (edge.sourceId === sourceId && edge.targetId === targetId) ||
+          (edge.bidirectional && edge.sourceId === targetId && edge.targetId === sourceId)
+      )
+      if (existingEdge) {
+        await incrementEdgeProficiency(existingEdge.id)
+        continue
+      }
+
       await addEdge({ sourceId, targetId, label: e.label, bidirectional: e.bidirectional })
     }
 
@@ -216,6 +235,8 @@ function MainApp() {
       {nlResult && (
         <NLPreviewModal
           result={nlResult}
+          existingNodes={nodes}
+          existingEdges={edges}
           onConfirm={(accepted) => void handleApplyNlResult(accepted)}
           onCancel={() => setNlResult(null)}
         />

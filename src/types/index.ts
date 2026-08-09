@@ -42,6 +42,7 @@ export interface GraphNode {
   x: number
   y: number
   dateAdded: string
+  proficiency: number
 }
 
 export interface GraphEdge {
@@ -52,6 +53,7 @@ export interface GraphEdge {
   bidirectional: boolean
   notes: string
   dateAdded: string
+  proficiency: number
 }
 
 export interface UserPreferences {

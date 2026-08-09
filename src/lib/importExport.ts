@@ -62,6 +62,7 @@ export function validateImport(raw: unknown): ImportValidationResult {
       x: typeof node.x === 'number' ? node.x : 0,
       y: typeof node.y === 'number' ? node.y : 0,
       dateAdded: node.dateAdded ?? new Date().toISOString(),
+      proficiency: typeof node.proficiency === 'number' ? node.proficiency : 0,
     })
     nodeIds.add(node.id)
   }
@@ -86,6 +87,7 @@ export function validateImport(raw: unknown): ImportValidationResult {
       bidirectional: Boolean(edge.bidirectional),
       notes: edge.notes ?? '',
       dateAdded: edge.dateAdded ?? new Date().toISOString(),
+      proficiency: typeof edge.proficiency === 'number' ? edge.proficiency : 0,
     })
   }
 

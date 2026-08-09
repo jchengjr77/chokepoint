@@ -147,6 +147,7 @@ export function GraphCanvas({
             connectMode,
             isConnectSource: connectSourceId === n.id,
             searchMatch: searchMatchSet ? searchMatchSet.has(n.id) : null,
+            proficiency: n.proficiency,
           },
           draggable: !nodeDimmed(n, rulesetFilter),
         }
@@ -176,6 +177,7 @@ export function GraphCanvas({
             bidirectional: e.bidirectional,
             isSubmissionEntry,
             searchMatch,
+            proficiency: e.proficiency,
           },
         }
       }),

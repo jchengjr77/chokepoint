@@ -19,7 +19,11 @@ function formatDate(iso: string): string {
 }
 
 export function DetailPanel({ node, edge, allNodes, onClose, onSelectNode }: DetailPanelProps) {
-  const { updateNodeNotes, deleteNode, updateEdge, deleteEdge, edges } = useGraphStore()
+  const { nodes, edges, updateNodeNotes, deleteNode, incrementNodeProficiency, updateEdge, deleteEdge, incrementEdgeProficiency } =
+    useGraphStore()
+
+  const liveNode = node ? nodes.find((n) => n.id === node.id) ?? node : null
+  const liveEdge = edge ? edges.find((e) => e.id === edge.id) ?? edge : null
   const [notes, setNotes] = useState('')
   const [edgeLabel, setEdgeLabel] = useState('')
   const [edgeBidirectional, setEdgeBidirectional] = useState(false)
@@ -69,6 +73,20 @@ export function DetailPanel({ node, edge, allNodes, onClose, onSelectNode }: Det
               {node.type} &middot; added {formatDate(node.dateAdded)}
             </p>
 
+            <div className="mb-4 flex items-center justify-between border border-border px-3 py-2">
+              <div>
+                <span className="block text-[10px] uppercase text-text-secondary">Proficiency</span>
+                <span className="text-[16px] font-semibold text-text-primary">{liveNode?.proficiency ?? 0}</span>
+                <span className="ml-1 text-[10px] uppercase text-text-tertiary">reps</span>
+              </div>
+              <button
+                onClick={() => void incrementNodeProficiency(node.id)}
+                className="border border-node-submission px-2 py-1 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
+              >
+                + Log Training
+              </button>
+            </div>
+
             <label className="mb-4 flex flex-col gap-1">
               <span className="text-[10px] uppercase text-text-secondary">Notes</span>
               <textarea
@@ -112,6 +130,20 @@ export function DetailPanel({ node, edge, allNodes, onClose, onSelectNode }: Det
 
         {edge && (
           <>
+            <div className="mb-4 flex items-center justify-between border border-border px-3 py-2">
+              <div>
+                <span className="block text-[10px] uppercase text-text-secondary">Proficiency</span>
+                <span className="text-[16px] font-semibold text-text-primary">{liveEdge?.proficiency ?? 0}</span>
+                <span className="ml-1 text-[10px] uppercase text-text-tertiary">reps</span>
+              </div>
+              <button
+                onClick={() => void incrementEdgeProficiency(edge.id)}
+                className="border border-node-submission px-2 py-1 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
+              >
+                + Log Training
+              </button>
+            </div>
+
             <label className="mb-3 flex flex-col gap-1">
               <span className="text-[10px] uppercase text-text-secondary">Label</span>
               <input
