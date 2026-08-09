@@ -1,10 +1,17 @@
 import { useMemo, useState } from 'react'
-import type { GraphEdge, GraphNode, NLParseResult } from '../types'
+import { CreateLibraryEntryForm } from './CreateLibraryEntryForm'
+import type { Advantage, GraphEdge, GraphNode, LibraryEntry, NLParseResult, NodeType, Ruleset } from '../types'
 
 interface NLPreviewModalProps {
   result: NLParseResult
   existingNodes: GraphNode[]
   existingEdges: GraphEdge[]
+  onCreateCustomEntry: (params: {
+    label: string
+    type: NodeType
+    advantage?: Advantage
+    rulesets: Ruleset[]
+  }) => Promise<LibraryEntry | null>
   onConfirm: (accepted: NLParseResult) => void
   onCancel: () => void
 }
@@ -20,10 +27,23 @@ function formatLoggedDate(iso: string): string {
   return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm, onCancel }: NLPreviewModalProps) {
+export function NLPreviewModal({
+  result,
+  existingNodes,
+  existingEdges,
+  onCreateCustomEntry,
+  onConfirm,
+  onCancel,
+}: NLPreviewModalProps) {
   const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set())
   const [excludedEdges, setExcludedEdges] = useState<Set<number>>(new Set())
   const [trainedAt, setTrainedAt] = useState<string>(result.trainedAt ?? todayIso())
+  // Unrecognized terms the user has chosen to define as a new custom
+  // library entry, keyed by their position in result.unrecognized. Once
+  // defined, the term is treated as an accepted node on confirm — same as
+  // anything the parser matched directly.
+  const [definedTerms, setDefinedTerms] = useState<Map<number, LibraryEntry>>(new Map())
+  const [definingIdx, setDefiningIdx] = useState<number | null>(null)
 
   const newNodeCount = useMemo(
     () => result.nodes.filter((n) => !n.alreadyOnGraph && !excludedNodes.has(n.libraryId)).length,
@@ -74,16 +94,35 @@ export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm
     })
   }
 
+  const handleDefine = async (
+    idx: number,
+    params: { label: string; type: NodeType; advantage?: Advantage; rulesets: Ruleset[] }
+  ) => {
+    const created = await onCreateCustomEntry(params)
+    setDefiningIdx(null)
+    if (created) {
+      setDefinedTerms((prev) => new Map(prev).set(idx, created))
+    }
+  }
+
   const handleConfirm = () => {
+    const definedNodes = [...definedTerms.values()].map((entry) => ({
+      libraryId: entry.id,
+      label: entry.label,
+      type: (entry.advantage !== undefined ? 'position' : 'submission') as NodeType,
+      alreadyOnGraph: false,
+    }))
+    const stillUnrecognized = result.unrecognized.filter((_, idx) => !definedTerms.has(idx))
+
     onConfirm({
-      nodes: result.nodes.filter((n) => !excludedNodes.has(n.libraryId)),
+      nodes: [...result.nodes.filter((n) => !excludedNodes.has(n.libraryId)), ...definedNodes],
       edges: result.edges.filter((_, idx) => !excludedEdges.has(idx)),
-      unrecognized: result.unrecognized,
+      unrecognized: stillUnrecognized,
       trainedAt: trainedAt === todayIso() ? null : trainedAt,
     })
   }
 
-  const nothingToAdd = acceptedNodeCount === 0 && acceptedEdgeCount === 0
+  const nothingToAdd = acceptedNodeCount === 0 && acceptedEdgeCount === 0 && definedTerms.size === 0
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onCancel}>
@@ -94,8 +133,8 @@ export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm
         <div className="border-b border-border px-4 py-3">
           <h2 className="text-[13px] font-semibold uppercase text-text-primary">Review Changes</h2>
           <p className="mt-1 text-[11px] text-text-secondary">
-            Add {newNodeCount} node{newNodeCount === 1 ? '' : 's'} and {acceptedEdgeCount - trainedEdgeCount} new
-            transition{acceptedEdgeCount - trainedEdgeCount === 1 ? '' : 's'}
+            Add {newNodeCount + definedTerms.size} node{newNodeCount + definedTerms.size === 1 ? '' : 's'} and{' '}
+            {acceptedEdgeCount - trainedEdgeCount} new transition{acceptedEdgeCount - trainedEdgeCount === 1 ? '' : 's'}
             {trainedNodeCount + trainedEdgeCount > 0 && (
               <>
                 , log training on {trainedNodeCount + trainedEdgeCount} existing item
@@ -178,16 +217,54 @@ export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm
             <div>
               <span className="mb-2 block text-[10px] uppercase text-text-secondary">Unrecognized</span>
               <div className="flex flex-col gap-1">
-                {result.unrecognized.map((term, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-2 border px-2 py-1.5 text-[12px] text-text-secondary"
-                    style={{ borderColor: '#664400' }}
-                  >
-                    <span style={{ color: '#ffaa00' }}>&#9888;</span>
-                    <span>{term}</span>
-                  </div>
-                ))}
+                {result.unrecognized.map((term, idx) => {
+                  const defined = definedTerms.get(idx)
+
+                  if (defined) {
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 border border-node-submission px-2 py-1.5 text-[12px] text-text-primary"
+                      >
+                        <span>{defined.label}</span>
+                        <span className="text-[10px] uppercase text-text-tertiary">
+                          {defined.advantage !== undefined ? 'position' : 'submission'}
+                        </span>
+                        <span className="ml-auto border border-node-submission px-1 text-[9px] font-semibold uppercase text-node-submission">
+                          New
+                        </span>
+                      </div>
+                    )
+                  }
+
+                  if (definingIdx === idx) {
+                    return (
+                      <CreateLibraryEntryForm
+                        key={idx}
+                        initialLabel={term}
+                        onCreate={(params) => void handleDefine(idx, params)}
+                        onCancel={() => setDefiningIdx(null)}
+                      />
+                    )
+                  }
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 border px-2 py-1.5 text-[12px] text-text-secondary"
+                      style={{ borderColor: '#664400' }}
+                    >
+                      <span style={{ color: '#ffaa00' }}>&#9888;</span>
+                      <span className="flex-1">{term}</span>
+                      <button
+                        onClick={() => setDefiningIdx(idx)}
+                        className="border border-border px-1.5 py-0.5 text-[9px] font-semibold uppercase text-text-primary hover:bg-bg-elevated"
+                      >
+                        Define new...
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}

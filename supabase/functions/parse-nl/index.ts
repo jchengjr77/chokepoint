@@ -24,9 +24,16 @@ interface LibraryEntry {
   rulesets: string[]
 }
 
+interface CustomEntry {
+  id: string
+  label: string
+  type: 'position' | 'submission'
+}
+
 interface RequestBody {
   text: string
   existingLibraryIds: string[]
+  customEntries?: CustomEntry[]
 }
 
 // Static across every request (same for all users) so it can be marked
@@ -42,11 +49,11 @@ function buildSystemPrompt(positions: LibraryEntry[], submissions: LibraryEntry[
 
   return `You are a parser that extracts structured BJJ (Brazilian Jiu-Jitsu) training data from free-text descriptions.
 
-You will receive a user's free-text description of what they drilled or learned, a list of libraryIds already on the user's graph, plus the full canonical library of positions and submissions.
+You will receive a user's free-text description of what they drilled or learned, a list of libraryIds already on the user's graph, an optional list of the user's own custom (user-defined) library entries, plus the full canonical library of positions and submissions.
 
 RULES:
 1. Extract every position and submission mentioned in the text.
-2. Every extracted position/submission MUST map to an entry in the provided library (match by label or alias, case-insensitive, fuzzy match acceptable). Never invent a libraryId that isn't in the library.
+2. Every extracted position/submission MUST map to an entry in the provided library OR the user's custom entries list given in the user message (match by label, case-insensitive, fuzzy match acceptable). Never invent a libraryId that isn't in either list.
 3. Extract every transition described (source -> destination), including chains (e.g. "A to B then B to C" produces two edges).
 4. Positions and submissions are a closed, curated set — but transitions between them are NOT. There is no fixed list of "known" transitions: two positions in this library can be connected by any technique, and the same pair of positions can be connected in many different ways (different sweeps, passes, escapes, entries). Do not limit yourself to "typical" or "textbook" connections — trust the user's description of what they actually did, even if it's an unusual or uncommon route between two positions.
 5. The edge "label" should be a short, natural description of the specific technique the user described (e.g. "berimbolo", "far-side armbar", "russian 2-on-1 to back take") — write it in your own words based on what the user said, don't force it to match any pre-existing phrasing. If the user only said they went from one position/submission to another without naming a specific technique (e.g. "north south to kimura"), leave "label" as an empty string "" rather than inventing or guessing a technique name — do not fabricate a label just to fill the field.
@@ -121,6 +128,7 @@ Deno.serve(async (req: Request) => {
     const weekday = today.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' })
     const userMessage = `today: ${todayIso} (${weekday})
 existingLibraryIds: ${JSON.stringify(body.existingLibraryIds ?? [])}
+customEntries: ${JSON.stringify(body.customEntries ?? [])}
 
 ${body.text}`
 

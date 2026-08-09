@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { parseNaturalLanguage } from '../lib/nlParse'
-import type { NLParseResult } from '../types'
+import type { LibraryEntry, NLParseResult } from '../types'
 
 interface NLInputBarProps {
   existingLibraryIds: string[]
+  customEntries: LibraryEntry[]
   onResult: (result: NLParseResult) => void
 }
 
-export function NLInputBar({ existingLibraryIds, onResult }: NLInputBarProps) {
+export function NLInputBar({ existingLibraryIds, customEntries, onResult }: NLInputBarProps) {
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +19,7 @@ export function NLInputBar({ existingLibraryIds, onResult }: NLInputBarProps) {
     setBusy(true)
     setError(null)
     try {
-      const result = await parseNaturalLanguage(text, existingLibraryIds)
+      const result = await parseNaturalLanguage(text, existingLibraryIds, customEntries)
       onResult(result)
       setText('')
     } catch (err) {

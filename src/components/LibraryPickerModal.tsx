@@ -1,10 +1,18 @@
 import { useMemo, useState } from 'react'
 import { library } from '../lib/library'
-import type { LibraryEntry, NodeType, Ruleset, RulesetFilter } from '../types'
+import { CreateLibraryEntryForm } from './CreateLibraryEntryForm'
+import type { Advantage, LibraryEntry, NodeType, Ruleset, RulesetFilter } from '../types'
 
 interface LibraryPickerModalProps {
   rulesetFilter: RulesetFilter
   existingLibraryIds: Set<string>
+  customEntries: LibraryEntry[]
+  onCreateCustomEntry: (params: {
+    label: string
+    type: NodeType
+    advantage?: Advantage
+    rulesets: Ruleset[]
+  }) => Promise<LibraryEntry | null>
   onConfirm: (entries: Array<{ entry: LibraryEntry; type: NodeType }>) => void
   onCancel: () => void
 }
@@ -17,6 +25,8 @@ function matchesRulesetFilter(entry: LibraryEntry, filter: RulesetFilter): boole
 export function LibraryPickerModal({
   rulesetFilter,
   existingLibraryIds,
+  customEntries,
+  onCreateCustomEntry,
   onConfirm,
   onCancel,
 }: LibraryPickerModalProps) {
@@ -24,8 +34,14 @@ export function LibraryPickerModal({
   const [query, setQuery] = useState('')
   const [pickerRuleset, setPickerRuleset] = useState<RulesetFilter>(rulesetFilter)
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [creating, setCreating] = useState(false)
 
-  const entries = tab === 'position' ? library.positions : library.submissions
+  const curatedEntries = tab === 'position' ? library.positions : library.submissions
+  const customEntriesForTab = useMemo(
+    () => customEntries.filter((e) => (tab === 'position' ? e.advantage !== undefined : e.advantage === undefined)),
+    [customEntries, tab]
+  )
+  const entries = useMemo(() => [...curatedEntries, ...customEntriesForTab], [curatedEntries, customEntriesForTab])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -57,6 +73,20 @@ export function LibraryPickerModal({
     onConfirm(chosen)
   }
 
+  const handleCreate = async (params: {
+    label: string
+    type: NodeType
+    advantage?: Advantage
+    rulesets: Ruleset[]
+  }) => {
+    const created = await onCreateCustomEntry(params)
+    setCreating(false)
+    if (created) {
+      setTab(created.advantage !== undefined ? 'position' : 'submission')
+      setSelected((prev) => new Set(prev).add(created.id))
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 sm:p-4" onClick={onCancel}>
       <div
@@ -64,7 +94,7 @@ export function LibraryPickerModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-[13px] font-semibold uppercase text-text-primary">Add Node</h2>
+          <h2 className="text-[13px] font-semibold uppercase text-text-primary">Add Position</h2>
           <button onClick={onCancel} className="text-[16px] text-text-secondary hover:text-text-primary">
             &times;
           </button>
@@ -114,11 +144,12 @@ export function LibraryPickerModal({
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {filtered.length === 0 && (
+          {filtered.length === 0 && !creating && (
             <p className="px-4 py-6 text-center text-[12px] text-text-tertiary">No matches.</p>
           )}
           {filtered.map((entry) => {
             const isSelected = selected.has(entry.id)
+            const isCustom = entry.id.startsWith('custom-')
             return (
               <button
                 key={entry.id}
@@ -132,6 +163,11 @@ export function LibraryPickerModal({
                   {entry.label}
                 </span>
                 <span className="flex gap-1">
+                  {isCustom && (
+                    <span className="border border-node-submission px-1 text-[9px] font-semibold uppercase text-node-submission">
+                      Custom
+                    </span>
+                  )}
                   {entry.rulesets.includes('gi') && (
                     <span className="border border-border px-1 text-[9px] font-semibold uppercase text-text-secondary">
                       GI
@@ -146,6 +182,23 @@ export function LibraryPickerModal({
               </button>
             )
           })}
+
+          <div className="px-4 py-2">
+            {creating ? (
+              <CreateLibraryEntryForm
+                initialLabel={query}
+                onCreate={(params) => void handleCreate(params)}
+                onCancel={() => setCreating(false)}
+              />
+            ) : (
+              <button
+                onClick={() => setCreating(true)}
+                className="w-full border border-dashed border-border py-2 text-[11px] font-medium uppercase text-text-secondary hover:border-border-focus hover:text-text-primary"
+              >
+                + Define new {tab}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between border-t border-border px-4 py-3">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ReactFlowProvider } from 'reactflow'
 import { useAuth } from './hooks/useAuth'
 import { GraphStoreProvider, useGraphStore } from './hooks/useGraphStore'
+import { useCustomLibrary } from './hooks/useCustomLibrary'
 import { LoginScreen } from './components/LoginScreen'
 import { Toolbar } from './components/Toolbar'
 import { GraphCanvas } from './components/graph/GraphCanvas'
@@ -42,6 +43,8 @@ function MainApp() {
     incrementNodeProficiency,
     incrementEdgeProficiency,
   } = useGraphStore()
+
+  const { entries: customLibraryEntries, createEntry: createCustomLibraryEntry } = useCustomLibrary()
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -282,12 +285,18 @@ function MainApp() {
         />
       </div>
 
-      <NLInputBar existingLibraryIds={nodes.map((n) => n.libraryId)} onResult={setNlResult} />
+      <NLInputBar
+        existingLibraryIds={nodes.map((n) => n.libraryId)}
+        customEntries={customLibraryEntries}
+        onResult={setNlResult}
+      />
 
       {showLibraryPicker && (
         <LibraryPickerModal
           rulesetFilter={rulesetFilter}
           existingLibraryIds={new Set(nodes.map((n) => n.libraryId))}
+          customEntries={customLibraryEntries}
+          onCreateCustomEntry={createCustomLibraryEntry}
           onConfirm={(entries) => void handleAddNodes(entries)}
           onCancel={() => setShowLibraryPicker(false)}
         />
@@ -322,6 +331,7 @@ function MainApp() {
           result={nlResult}
           existingNodes={nodes}
           existingEdges={edges}
+          onCreateCustomEntry={createCustomLibraryEntry}
           onConfirm={(accepted) => void handleApplyNlResult(accepted)}
           onCancel={() => setNlResult(null)}
         />
