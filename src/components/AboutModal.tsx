@@ -33,7 +33,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
 
           <Feature title="Natural language input">
             Type what you drilled in plain English — "scissor sweep from closed guard to mount, then armbar" — and
-            Chokepoint turns it into nodes and transitions for you to review and confirm.
+            Chokepoint turns it into nodes and transitions for you.
           </Feature>
 
           <Feature title="Journal">
