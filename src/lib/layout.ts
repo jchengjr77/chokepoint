@@ -31,11 +31,19 @@ export interface NodeDimensions {
 }
 
 /**
- * Layered (Sugiyama-style) layout via dagre: nodes are grouped into ranks
- * (columns) by positional advantage — pinned with minRank/maxRank so the
- * left-to-right priority ordering always holds exactly — and dagre handles
- * crossing minimization and coordinate assignment within that constraint,
- * using each node's actual rendered size for spacing.
+ * Layered (Sugiyama-style) layout via dagre. dagre's own minRank/maxRank
+ * node constraints turned out to NOT reliably pin a node's rank once the
+ * graph has enough edges/nodes for its ranking algorithm to renumber ranks
+ * — verified with a repro before writing this workaround, so don't
+ * reintroduce minRank/maxRank pinning without re-testing against a dense,
+ * multi-parent graph like the one in that repro.
+ *
+ * Instead: let dagre assign ranks and coordinates completely on its own
+ * (which still gives good, crossing-minimized y-ordering from its usual
+ * algorithm), then overwrite x for every node using our own rank derived
+ * directly from positional advantage. Since x is a simple linear function
+ * of rank, this guarantees the left-to-right priority ordering holds
+ * exactly, independent of whatever dagre decided internally.
  */
 export function computeAutoLayout(
   nodes: GraphNode[],
@@ -49,13 +57,10 @@ export function computeAutoLayout(
   graph.setDefaultEdgeLabel(() => ({}))
 
   for (const n of nodes) {
-    const rank = nodeRank(n)
     const dims = dimensions?.get(n.id)
     graph.setNode(n.id, {
       width: dims?.width ?? DEFAULT_NODE_WIDTH,
       height: dims?.height ?? DEFAULT_NODE_HEIGHT,
-      minRank: rank,
-      maxRank: rank,
     })
   }
 
@@ -70,10 +75,12 @@ export function computeAutoLayout(
 
   dagre.layout(graph)
 
+  const columnWidth = RANK_SEP + DEFAULT_NODE_WIDTH
   const result = new Map<string, { x: number; y: number }>()
   for (const n of nodes) {
     const placed = graph.node(n.id)
-    if (placed) result.set(n.id, { x: placed.x, y: placed.y })
+    if (!placed) continue
+    result.set(n.id, { x: nodeRank(n) * columnWidth, y: placed.y })
   }
   return result
 }
