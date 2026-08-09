@@ -251,7 +251,7 @@ function MainApp() {
             ) : (
               <button
                 onClick={() => setConfirmingLayout(true)}
-                className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+                className="border border-node-submission bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
               >
                 Auto-Layout
               </button>

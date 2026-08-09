@@ -727,6 +727,21 @@
       ]
     },
     {
+      "id": "sub-north-south-choke",
+      "label": "North-South Choke",
+      "aliases": [
+        "north south choke",
+        "marcelo garcia choke"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
       "id": "sub-cross-collar-choke",
       "label": "Cross Collar Choke",
       "aliases": [
@@ -1500,6 +1515,11 @@
     {
       "sourceId": "pos-north-south-top",
       "targetId": "sub-arm-triangle",
+      "label": "arm triangle from north-south"
+    },
+    {
+      "sourceId": "pos-north-south-top",
+      "targetId": "sub-north-south-choke",
       "label": "north-south choke"
     },
     {
