@@ -1,66 +1,102 @@
-import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY } from 'd3-force'
 import { getLibraryEntry } from './library'
 import type { GraphEdge, GraphNode } from '../types'
 
-interface SimNode extends GraphNode {
-  index?: number
-}
-
-const COLUMN_SPACING = 130
+const COLUMN_SPACING = 220
+const ROW_SPACING = 110
 const MAX_ADVANTAGE = 5
-const SUBMISSION_COLUMN_X = COLUMN_SPACING * (MAX_ADVANTAGE + 1)
+const SUBMISSION_COLUMN = MAX_ADVANTAGE + 1
 
 /**
- * Target x-coordinate for a node's advantage column: disadvantageous
- * (bottom-of-control) positions on the left, neutral positions and guards
- * near center, advantageous (top-of-control) positions right-of-center,
- * and submissions — the ultimate winning outcome — pinned to the far right,
- * beyond even the most dominant (+5) position column.
+ * Column index for a node's advantage: disadvantageous (bottom-of-control)
+ * positions on the left, neutral positions/guards near center, advantageous
+ * (top-of-control) positions right-of-center, and submissions — the
+ * ultimate winning outcome — pinned to the far-right column, beyond even
+ * the most dominant (+5) position column.
  */
-function targetColumnX(node: GraphNode): number {
-  if (node.type === 'submission') return SUBMISSION_COLUMN_X
-
+function nodeColumn(node: GraphNode): number {
+  if (node.type === 'submission') return SUBMISSION_COLUMN
   const entry = getLibraryEntry(node.libraryId)
-  const advantage = entry?.advantage ?? 0
-  return advantage * COLUMN_SPACING
+  return entry?.advantage ?? 0
 }
 
 /**
- * Force-directed layout: nodes are pulled toward a horizontal column based
- * on positional advantage (losing positions left, winning positions right,
- * neutral positions center, submissions far right), while a vertical force
- * and collision keep nodes in the same column from overlapping.
+ * Force-directed layout with a strict left-to-right advantage ordering:
+ * every node's x-coordinate is fixed by its advantage column (not merely
+ * pulled toward one), so the left-to-right priority ordering always holds
+ * exactly. Within each column, nodes are ordered top-to-bottom using a
+ * barycenter heuristic (average position of connected neighbors in
+ * adjacent columns), which is the standard technique for minimizing edge
+ * crossings in layered graph drawings — nodes that share neighbors end up
+ * near each other vertically instead of forcing their connecting edges to
+ * cross other edges.
  */
 export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<string, { x: number; y: number }> {
   if (nodes.length === 0) return new Map()
 
-  const simNodes: SimNode[] = nodes.map((n) => ({ ...n }))
-  const nodeIndex = new Map(simNodes.map((n, i) => [n.id, i]))
-
-  const simLinks = edges
-    .filter((e) => nodeIndex.has(e.sourceId) && nodeIndex.has(e.targetId))
-    .map((e) => ({ source: e.sourceId, target: e.targetId }))
-
-  const simulation = forceSimulation(simNodes)
-    .force(
-      'link',
-      forceLink(simLinks)
-        .id((d) => (d as SimNode).id)
-        .distance(120)
-        .strength(0.15)
-    )
-    .force('charge', forceManyBody().strength(-180))
-    .force('collide', forceCollide(70))
-    .force('x', forceX<SimNode>((d) => targetColumnX(d)).strength(0.6))
-    .force('y', forceY<SimNode>(0).strength(0.05))
-    .stop()
-
-  simulation.tick(300)
-
-  const result = new Map<string, { x: number; y: number }>()
-  for (const n of simNodes) {
-    result.set(n.id, { x: n.x ?? 0, y: n.y ?? 0 })
+  const columnOf = new Map(nodes.map((n) => [n.id, nodeColumn(n)]))
+  const neighborsOf = new Map<string, string[]>()
+  for (const n of nodes) neighborsOf.set(n.id, [])
+  for (const e of edges) {
+    if (!columnOf.has(e.sourceId) || !columnOf.has(e.targetId)) continue
+    neighborsOf.get(e.sourceId)?.push(e.targetId)
+    neighborsOf.get(e.targetId)?.push(e.sourceId)
   }
+
+  // Group node ids by column, sorted so we can sweep columns left-to-right
+  // and right-to-left when computing barycenters.
+  const columns = new Map<number, string[]>()
+  for (const n of nodes) {
+    const col = columnOf.get(n.id)!
+    if (!columns.has(col)) columns.set(col, [])
+    columns.get(col)!.push(n.id)
+  }
+  const sortedColumnKeys = [...columns.keys()].sort((a, b) => a - b)
+
+  // Row position (a real number, not yet spaced/rounded) per node id.
+  // Initialize by index within the column to have a stable starting order.
+  const row = new Map<string, number>()
+  for (const col of sortedColumnKeys) {
+    columns.get(col)!.forEach((id, i) => row.set(id, i))
+  }
+
+  const BARYCENTER_PASSES = 4
+  for (let pass = 0; pass < BARYCENTER_PASSES; pass++) {
+    // Sweep left-to-right using already-updated left-neighbor rows, then
+    // right-to-left using right-neighbor rows — alternating sweeps is the
+    // standard way to let the ordering settle without bias toward one side.
+    const leftToRight = pass % 2 === 0
+    const sweepOrder = leftToRight ? sortedColumnKeys : [...sortedColumnKeys].reverse()
+
+    for (const col of sweepOrder) {
+      const ids = columns.get(col)!
+      const barycenters = ids.map((id) => {
+        const neighbors = neighborsOf.get(id) ?? []
+        if (neighbors.length === 0) return row.get(id)!
+        const sum = neighbors.reduce((acc, nid) => acc + (row.get(nid) ?? 0), 0)
+        return sum / neighbors.length
+      })
+
+      const ordered = ids
+        .map((id, i) => ({ id, key: barycenters[i] }))
+        .sort((a, b) => a.key - b.key)
+
+      ordered.forEach((entry, i) => row.set(entry.id, i))
+    }
+  }
+
+  // Center each column vertically around y=0 and space rows evenly.
+  const result = new Map<string, { x: number; y: number }>()
+  for (const col of sortedColumnKeys) {
+    const ids = columns.get(col)!.slice().sort((a, b) => row.get(a)! - row.get(b)!)
+    const offset = (ids.length - 1) / 2
+    ids.forEach((id, i) => {
+      result.set(id, {
+        x: col * COLUMN_SPACING,
+        y: (i - offset) * ROW_SPACING,
+      })
+    })
+  }
+
   return result
 }
 
