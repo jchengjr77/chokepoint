@@ -10,9 +10,7 @@ interface ToolbarProps {
   onRulesetFilterChange: (filter: RulesetFilter) => void
   searchQuery: string
   onSearchQueryChange: (query: string) => void
-  onAddNode: () => void
-  onResetView: () => void
-  onAutoLayout: () => void
+  onOpenImportExport: () => void
   theme: ThemeId
   themeMode: ThemeMode
   onThemeChange: (theme: ThemeId) => void
@@ -24,16 +22,13 @@ export function Toolbar({
   onRulesetFilterChange,
   searchQuery,
   onSearchQueryChange,
-  onAddNode,
-  onResetView,
-  onAutoLayout,
+  onOpenImportExport,
   theme,
   themeMode,
   onThemeChange,
   onThemeModeChange,
 }: ToolbarProps) {
   const { user, signOut } = useAuth()
-  const [confirmingLayout, setConfirmingLayout] = useState(false)
   const [confirmingSignOut, setConfirmingSignOut] = useState(false)
 
   return (
@@ -66,46 +61,11 @@ export function Toolbar({
       />
 
       <button
-        onClick={onAddNode}
+        onClick={onOpenImportExport}
         className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
       >
-        Add Node
+        Import / Export
       </button>
-
-      <button
-        onClick={onResetView}
-        className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
-      >
-        Reset View
-      </button>
-
-      {confirmingLayout ? (
-        <div className="flex shrink-0 items-center gap-1 text-[11px]">
-          <span className="text-text-secondary">Overwrite manual layout?</span>
-          <button
-            onClick={() => {
-              onAutoLayout()
-              setConfirmingLayout(false)
-            }}
-            className="border border-node-submission px-2 py-1 uppercase text-node-submission hover:bg-bg-elevated"
-          >
-            Confirm
-          </button>
-          <button
-            onClick={() => setConfirmingLayout(false)}
-            className="border border-border px-2 py-1 uppercase text-text-secondary hover:bg-bg-elevated"
-          >
-            Cancel
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => setConfirmingLayout(true)}
-          className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
-        >
-          Auto-Layout
-        </button>
-      )}
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
         <Dropdown

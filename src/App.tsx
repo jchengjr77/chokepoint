@@ -58,6 +58,7 @@ function MainApp() {
   const [autoLayoutToken, setAutoLayoutToken] = useState(0)
   const [connectMode, setConnectMode] = useState(false)
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null)
+  const [confirmingLayout, setConfirmingLayout] = useState(false)
   const [nlResult, setNlResult] = useState<NLParseResult | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(!hasSeenOnboarding())
 
@@ -84,7 +85,7 @@ function MainApp() {
     const contextNodes = nodes.map((n) => ({ x: n.x, y: n.y }))
     const occupied = [...contextNodes]
     for (const { entry, type } of entries) {
-      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied)
+      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied, { type, libraryId: entry.id }, nodes)
       occupied.push({ x, y })
       await addNode({ libraryId: entry.id, type, label: entry.label, x, y })
     }
@@ -105,7 +106,13 @@ function MainApp() {
         await incrementNodeProficiency(existingId)
         continue
       }
-      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied)
+      const { x, y } = placeNearContext(
+        contextNodes,
+        { x: 0, y: 0 },
+        occupied,
+        { type: n.type, libraryId: n.libraryId },
+        nodes
+      )
       occupied.push({ x, y })
       const created = await addNode({ libraryId: n.libraryId, type: n.type, label: n.label, x, y })
       if (created) idByLibraryId.set(n.libraryId, created.id)
@@ -147,9 +154,7 @@ function MainApp() {
         onRulesetFilterChange={(f) => void setRulesetFilter(f)}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
-        onAddNode={() => setShowLibraryPicker(true)}
-        onResetView={() => setResetViewToken((t) => t + 1)}
-        onAutoLayout={() => setAutoLayoutToken((t) => t + 1)}
+        onOpenImportExport={() => setShowImportExport(true)}
         theme={theme}
         themeMode={themeMode}
         onThemeChange={(t) => void setTheme(t)}
@@ -200,19 +205,57 @@ function MainApp() {
                 connectMode ? 'border-node-submission text-node-submission' : 'border-border text-text-primary'
               }`}
             >
-              {connectMode ? (connectSourceId ? 'Select Target...' : 'Select Source...') : 'Connect'}
-            </button>
-            <button
-              onClick={() => setShowImportExport(true)}
-              className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
-            >
-              Import / Export
+              {connectMode ? (connectSourceId ? 'Select Target...' : 'Select Source...') : 'Add Transition'}
             </button>
           </div>
 
           <div
-            className={`absolute bottom-4 right-4 ${selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''}`}
+            className={`absolute bottom-4 right-4 flex items-center gap-2 ${
+              selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
+            }`}
           >
+            <button
+              onClick={() => setShowLibraryPicker(true)}
+              className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+            >
+              Add Position
+            </button>
+
+            <button
+              onClick={() => setResetViewToken((t) => t + 1)}
+              className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+            >
+              Reset View
+            </button>
+
+            {confirmingLayout ? (
+              <div className="flex items-center gap-1 text-[11px]">
+                <span className="text-text-secondary">Overwrite manual layout?</span>
+                <button
+                  onClick={() => {
+                    setAutoLayoutToken((t) => t + 1)
+                    setConfirmingLayout(false)
+                  }}
+                  className="border border-node-submission bg-bg-surface px-2 py-1.5 uppercase text-node-submission hover:bg-bg-elevated"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setConfirmingLayout(false)}
+                  className="border border-border bg-bg-surface px-2 py-1.5 uppercase text-text-secondary hover:bg-bg-elevated"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmingLayout(true)}
+                className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+              >
+                Auto-Layout
+              </button>
+            )}
+
             <JournalButton onClick={() => setShowJournal(true)} />
           </div>
         </div>

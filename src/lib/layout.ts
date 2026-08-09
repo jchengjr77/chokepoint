@@ -138,18 +138,70 @@ export function computeAutoLayout(
 const MIN_NODE_SPACING = 130
 
 /**
- * Placement for a single new node: near the average position of its
- * connected context nodes (or spread from the graph's center if there's no
- * context yet), nudged away from any already-occupied position so batches
- * of new nodes don't stack on top of each other.
+ * Same relative-column x used by computeAutoLayout, but derived only from
+ * nodes already on the graph — inserting one more node must never shift
+ * where existing nodes' columns land, so this does not add the new node's
+ * own advantage value into the lookup before reading it back out.
+ *
+ * When no existing node shares this exact advantage, the new node gets a
+ * fractional x strictly between its neighboring columns (or just outside
+ * the first/last column if it's more extreme than anything on the graph)
+ * rather than snapping onto an adjacent column's exact x, which would
+ * visually overlap that column as if it belonged there. Auto-layout will
+ * normalize this into a real column next time it runs.
+ */
+function columnXForExisting(existingNodes: GraphNode[], advantage: number): number {
+  const columnOf = buildColumnLookup(existingNodes)
+  if (columnOf.size === 0) return 0
+  if (columnOf.has(advantage)) {
+    return (columnOf.get(advantage) ?? 0) * COLUMN_WIDTH
+  }
+
+  const sorted = [...columnOf.keys()].sort((a, b) => a - b)
+  const lowerCount = sorted.filter((a) => a < advantage).length
+  const higherCount = sorted.length - lowerCount
+
+  if (lowerCount === 0) return -0.5 * COLUMN_WIDTH
+  if (higherCount === 0) return (sorted.length - 1 + 0.5) * COLUMN_WIDTH
+  return (lowerCount - 0.5) * COLUMN_WIDTH
+}
+
+/**
+ * Placement for a single new node. Positions are pinned to their
+ * advantage column (matching auto-layout's left=disadvantageous,
+ * right=advantageous convention) and only search vertically for a free
+ * spot near their connected context. Submissions have no column (they can
+ * be reached from anywhere) and search radially near context in both
+ * axes, same as before. Existing nodes are never moved — the column is
+ * computed purely from the current graph, and collision avoidance only
+ * ever repositions the new node being placed.
  */
 export function placeNearContext(
   contextNodes: Array<{ x: number; y: number }>,
   fallback: { x: number; y: number },
-  occupied: Array<{ x: number; y: number }> = []
+  occupied: Array<{ x: number; y: number }> = [],
+  newNode?: { type: 'position' | 'submission'; libraryId: string },
+  existingNodes: GraphNode[] = []
 ): { x: number; y: number } {
-  const baseX = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.x, 0) / contextNodes.length : fallback.x
   const baseY = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.y, 0) / contextNodes.length : fallback.y
+
+  if (newNode && newNode.type === 'position') {
+    const entry = getLibraryEntry(newNode.libraryId)
+    const columnX = columnXForExisting(existingNodes, entry?.advantage ?? 0)
+
+    for (let attempt = 0; attempt < 24; attempt++) {
+      const offset = attempt === 0 ? 0 : Math.ceil(attempt / 2) * 70 * (attempt % 2 === 0 ? 1 : -1)
+      const candidate = { x: columnX, y: baseY + offset }
+      const collides = occupied.some(
+        (o) => Math.hypot(o.x - candidate.x, o.y - candidate.y) < MIN_NODE_SPACING
+      )
+      if (!collides) return candidate
+    }
+
+    return { x: columnX, y: baseY + occupied.length * 70 }
+  }
+
+  const baseX = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.x, 0) / contextNodes.length : fallback.x
   const hasBase = contextNodes.length > 0
 
   for (let attempt = 0; attempt < 24; attempt++) {
