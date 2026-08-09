@@ -27,8 +27,8 @@ export function AboutModal({ onClose }: AboutModalProps) {
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <p className="mb-5 text-[12px] leading-relaxed text-text-primary">
-            Chokepoint is a training journal for the modern grappler. Build your knowledge map with positions and
-            submissions, connected by techniques.
+            The modern grappler's training journal. Build your knowledge map with positions and submissions,
+            connected by techniques.
           </p>
 
           <Feature title="Natural language input">
