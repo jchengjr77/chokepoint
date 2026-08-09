@@ -206,19 +206,19 @@ function MainApp() {
               selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
             }`}
           >
+            {/* Desktop: all four utility actions stay as individual buttons */}
             <button
               onClick={() => {
                 setConnectMode((v) => !v)
                 setConnectSourceId(null)
               }}
-              className={`border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase hover:bg-bg-elevated ${
+              className={`hidden border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase hover:bg-bg-elevated sm:block ${
                 connectMode ? 'border-node-submission text-node-submission' : 'border-border text-text-primary'
               }`}
             >
               {connectMode ? (connectSourceId ? 'Select Target...' : 'Select Source...') : 'Add Transition'}
             </button>
 
-            {/* Desktop: remaining utility actions stay as individual buttons */}
             <button
               onClick={() => setShowLibraryPicker(true)}
               className="hidden border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated sm:block"
@@ -240,17 +240,32 @@ function MainApp() {
               Auto-Layout
             </button>
 
-            {/* Mobile: same three actions collapse into one menu (issue #7) */}
-            <div className="sm:hidden">
-              <OverflowMenu
-                ariaLabel="Graph utilities"
-                items={[
-                  { label: 'Add Position', onClick: () => setShowLibraryPicker(true) },
-                  { label: 'Reset View', onClick: () => setResetViewToken((t) => t + 1) },
-                  { label: 'Auto-Layout', onClick: () => setAutoLayoutToken((t) => t + 1) },
-                ]}
-              />
-            </div>
+            {/* Mobile: while connect mode is active, keep the button visible so
+                the user can see the "select source/target" state and cancel it.
+                Otherwise all four actions collapse into one menu (issue #7). */}
+            {connectMode ? (
+              <button
+                onClick={() => {
+                  setConnectMode(false)
+                  setConnectSourceId(null)
+                }}
+                className="border border-node-submission bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated sm:hidden"
+              >
+                {connectSourceId ? 'Select Target...' : 'Select Source...'}
+              </button>
+            ) : (
+              <div className="sm:hidden">
+                <OverflowMenu
+                  ariaLabel="Graph utilities"
+                  items={[
+                    { label: 'Add Transition', onClick: () => setConnectMode(true) },
+                    { label: 'Add Position', onClick: () => setShowLibraryPicker(true) },
+                    { label: 'Reset View', onClick: () => setResetViewToken((t) => t + 1) },
+                    { label: 'Auto-Layout', onClick: () => setAutoLayoutToken((t) => t + 1) },
+                  ]}
+                />
+              </div>
+            )}
           </div>
 
           <div

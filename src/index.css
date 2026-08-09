@@ -263,3 +263,15 @@ button {
 .panel-transition {
   transition: transform 150ms ease-out;
 }
+
+/*
+ * Without this, single-finger drag on touch devices gets intercepted by
+ * the browser as a native scroll/refresh gesture before it ever reaches
+ * React Flow's own D3-zoom-based pan handling — the graph looks
+ * completely frozen on mobile even though desktop drag-to-pan works
+ * fine. touch-action: none hands all touch gestures on the canvas to
+ * React Flow instead.
+ */
+.react-flow__pane {
+  touch-action: none;
+}
