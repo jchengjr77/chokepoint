@@ -124,7 +124,7 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-[13px] font-semibold uppercase text-text-primary">Training Journal</h2>
+          <h2 className="text-[13px] font-semibold uppercase text-text-primary">Calendar</h2>
           <button onClick={onClose} className="text-[16px] text-text-secondary hover:text-text-primary">
             &times;
           </button>

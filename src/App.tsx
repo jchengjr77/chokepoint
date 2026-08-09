@@ -14,7 +14,7 @@ import { ImportExportModal } from './components/ImportExportModal'
 import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './components/OnboardingOverlay'
 import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
-import { JournalButton } from './components/JournalButton'
+import { CalendarButton } from './components/CalendarButton'
 import { placeNearContext } from './lib/layout'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
@@ -53,7 +53,7 @@ function MainApp() {
 
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
-  const [showJournal, setShowJournal] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [selectedEdgePair, setSelectedEdgePair] = useState<{ sourceId: string; targetId: string } | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -266,7 +266,7 @@ function MainApp() {
               selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
             }`}
           >
-            <JournalButton onClick={() => setShowJournal(true)} />
+            <CalendarButton onClick={() => setShowCalendar(true)} />
           </div>
         </div>
 
@@ -304,23 +304,23 @@ function MainApp() {
 
       {showImportExport && <ImportExportModal onClose={() => setShowImportExport(false)} />}
 
-      {showJournal && (
+      {showCalendar && (
         <CalendarModal
           nodes={nodes}
           edges={edges}
-          onClose={() => setShowJournal(false)}
+          onClose={() => setShowCalendar(false)}
           onSelectNode={(id) => {
             const n = nodes.find((node) => node.id === id)
             if (n) {
               handleNodeClick(n)
-              setShowJournal(false)
+              setShowCalendar(false)
             }
           }}
           onSelectEdge={(id) => {
             const e = edges.find((edge) => edge.id === id)
             if (e) {
               handleEdgeClick(e)
-              setShowJournal(false)
+              setShowCalendar(false)
             }
           }}
         />

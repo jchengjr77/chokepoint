@@ -27,8 +27,8 @@ export function AboutModal({ onClose }: AboutModalProps) {
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <p className="mb-5 text-[12px] leading-relaxed text-text-primary">
-            The modern grappler's training journal. Build your knowledge map with positions and submissions,
-            connected by techniques.
+            <span className="font-bold">The modern grappler's training journal.</span> Build your knowledge map
+            with positions and submissions, connected by techniques.
           </p>
 
           <Feature title="Natural language input">
@@ -36,8 +36,8 @@ export function AboutModal({ onClose }: AboutModalProps) {
             Chokepoint updates your knowledge map for you.
           </Feature>
 
-          <Feature title="Journal">
-            Every rep is logged automatically. The journal shows what you trained on any given day, with a plain
+          <Feature title="Calendar">
+            Every rep is logged automatically. The calendar shows what you trained on any given day, with a plain
             English summary.
           </Feature>
 
