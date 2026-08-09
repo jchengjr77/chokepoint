@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { MoreVertical } from 'lucide-react'
 
@@ -9,17 +9,23 @@ interface OverflowMenuItem {
 }
 
 interface OverflowMenuProps {
-  items: OverflowMenuItem[]
+  items?: OverflowMenuItem[]
+  /** Arbitrary content rendered above the action items (e.g. a theme
+   * dropdown or toggle switch that isn't a simple label+onClick action). */
+  children?: ReactNode
+  ariaLabel?: string
 }
 
 /**
- * Kebab menu for secondary toolbar actions (Import/Export, Report Bug,
- * Sign Out). Portals the panel to document.body with position computed
- * from the trigger's bounding rect, same pattern as Dropdown — React
- * Flow's internal elements have their own z-index that a plain
- * absolutely-positioned child of the toolbar loses to otherwise.
+ * Kebab menu for secondary toolbar/utility actions. Portals the panel to
+ * document.body with position computed from the trigger's bounding rect,
+ * same pattern as Dropdown — React Flow's internal elements have their
+ * own z-index that a plain absolutely-positioned child loses to
+ * otherwise. Accepts both simple action items (label + onClick) and
+ * arbitrary children for richer controls that need to live in the same
+ * collapsed panel.
  */
-export function OverflowMenu({ items }: OverflowMenuProps) {
+export function OverflowMenu({ items = [], children, ariaLabel = 'More options' }: OverflowMenuProps) {
   const [open, setOpen] = useState(false)
   const [panelPos, setPanelPos] = useState<{ top: number; right: number } | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -64,7 +70,7 @@ export function OverflowMenu({ items }: OverflowMenuProps) {
         ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="More options"
+        aria-label={ariaLabel}
         aria-haspopup="menu"
         aria-expanded={open}
         className="flex shrink-0 items-center border border-border p-1.5 text-text-primary hover:bg-bg-elevated"
@@ -81,6 +87,12 @@ export function OverflowMenu({ items }: OverflowMenuProps) {
             className="fixed z-[9999] min-w-[160px] border border-border bg-bg-surface py-1"
             style={{ top: panelPos.top, right: panelPos.right }}
           >
+            {children && (
+              <div className="flex flex-col gap-2 px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                {children}
+              </div>
+            )}
+            {children && items.length > 0 && <div className="my-1 h-px bg-border" />}
             {items.map((item) => (
               <button
                 key={item.label}

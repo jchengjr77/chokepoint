@@ -37,28 +37,34 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult }: NLIn
   }
 
   return (
-    <form
-      onSubmit={(e) => void handleSubmit(e)}
-      className="flex h-14 shrink-0 items-center gap-2 border-t border-border bg-bg-surface px-3"
-    >
-      <span className="font-semibold text-node-submission">&gt;</span>
-      <input
-        type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="What did you learn today?"
-        disabled={busy}
-        className="flex-1 border-0 bg-transparent py-1 text-[12px] text-text-primary outline-none placeholder:text-text-tertiary disabled:opacity-50"
-        style={{ caretColor: '#ffffff' }}
-      />
-      {error && <span className="text-[11px]" style={{ color: '#ff5555' }}>{error}</span>}
-      <button
-        type="submit"
-        disabled={busy || !text.trim()}
-        className="border border-border px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated disabled:opacity-40"
-      >
-        {busy ? 'Parsing...' : 'Send'}
-      </button>
-    </form>
+    <div className="relative shrink-0 border-t border-border bg-bg-surface">
+      {error && (
+        <p
+          className="border-b border-border px-3 py-1.5 text-[11px] leading-snug sm:absolute sm:-top-8 sm:left-0 sm:right-0 sm:border sm:bg-bg-surface sm:px-3 sm:py-1"
+          style={{ color: '#ff5555' }}
+        >
+          {error}
+        </p>
+      )}
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex h-14 items-center gap-2 px-3">
+        <span className="font-semibold text-node-submission">&gt;</span>
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="What did you learn today?"
+          disabled={busy}
+          className="flex-1 border-0 bg-transparent py-1 text-[12px] text-text-primary outline-none placeholder:text-text-tertiary disabled:opacity-50"
+          style={{ caretColor: '#ffffff' }}
+        />
+        <button
+          type="submit"
+          disabled={busy || !text.trim()}
+          className="border border-border px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated disabled:opacity-40"
+        >
+          {busy ? 'Parsing...' : 'Send'}
+        </button>
+      </form>
+    </div>
   )
 }

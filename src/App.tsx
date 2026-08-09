@@ -15,6 +15,7 @@ import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './comp
 import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
 import { CalendarButton } from './components/CalendarButton'
+import { OverflowMenu } from './components/OverflowMenu'
 import { placeNearContext } from './lib/layout'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
@@ -61,7 +62,6 @@ function MainApp() {
   const [autoLayoutToken, setAutoLayoutToken] = useState(0)
   const [connectMode, setConnectMode] = useState(false)
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null)
-  const [confirmingLayout, setConfirmingLayout] = useState(false)
   const [nlResult, setNlResult] = useState<NLParseResult | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(!hasSeenOnboarding())
 
@@ -218,47 +218,39 @@ function MainApp() {
               {connectMode ? (connectSourceId ? 'Select Target...' : 'Select Source...') : 'Add Transition'}
             </button>
 
+            {/* Desktop: remaining utility actions stay as individual buttons */}
             <button
               onClick={() => setShowLibraryPicker(true)}
-              className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+              className="hidden border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated sm:block"
             >
               Add Position
             </button>
 
             <button
               onClick={() => setResetViewToken((t) => t + 1)}
-              className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+              className="hidden border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated sm:block"
             >
               Reset View
             </button>
 
-            {confirmingLayout ? (
-              <div className="flex items-center gap-1 text-[11px]">
-                <span className="text-text-secondary">Overwrite manual layout?</span>
-                <button
-                  onClick={() => {
-                    setAutoLayoutToken((t) => t + 1)
-                    setConfirmingLayout(false)
-                  }}
-                  className="border border-node-submission bg-bg-surface px-2 py-1.5 uppercase text-node-submission hover:bg-bg-elevated"
-                >
-                  Confirm
-                </button>
-                <button
-                  onClick={() => setConfirmingLayout(false)}
-                  className="border border-border bg-bg-surface px-2 py-1.5 uppercase text-text-secondary hover:bg-bg-elevated"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setConfirmingLayout(true)}
-                className="border border-node-submission bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
-              >
-                Auto-Layout
-              </button>
-            )}
+            <button
+              onClick={() => setAutoLayoutToken((t) => t + 1)}
+              className="hidden border border-node-submission bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated sm:block"
+            >
+              Auto-Layout
+            </button>
+
+            {/* Mobile: same three actions collapse into one menu (issue #7) */}
+            <div className="sm:hidden">
+              <OverflowMenu
+                ariaLabel="Graph utilities"
+                items={[
+                  { label: 'Add Position', onClick: () => setShowLibraryPicker(true) },
+                  { label: 'Reset View', onClick: () => setResetViewToken((t) => t + 1) },
+                  { label: 'Auto-Layout', onClick: () => setAutoLayoutToken((t) => t + 1) },
+                ]}
+              />
+            </div>
           </div>
 
           <div
