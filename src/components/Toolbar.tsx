@@ -43,6 +43,15 @@ export function Toolbar({
 
       <span className="shrink-0 text-[14px] font-bold uppercase tracking-wide text-text-primary">Chokepoint</span>
 
+      <button
+        onClick={onOpenJournal}
+        className="shrink-0 border border-node-submission bg-node-submission px-3 py-1.5 text-[11px] font-bold uppercase text-black hover:bg-transparent hover:text-node-submission"
+      >
+        Journal
+      </button>
+
+      <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
+
       <div className="flex shrink-0 border border-border text-[11px] font-medium uppercase">
         {(['all', 'gi', 'nogi'] as RulesetFilter[]).map((r) => (
           <button
@@ -79,13 +88,6 @@ export function Toolbar({
         className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
       >
         Reset View
-      </button>
-
-      <button
-        onClick={onOpenJournal}
-        className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
-      >
-        Journal
       </button>
 
       {confirmingLayout ? (
