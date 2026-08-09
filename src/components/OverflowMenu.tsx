@@ -25,9 +25,21 @@ interface OverflowMenuProps {
  * arbitrary children for richer controls that need to live in the same
  * collapsed panel.
  */
+// Rough panel height estimate used to decide whether it fits below the
+// trigger — exact height isn't known until it renders, but the trigger
+// is always near a screen edge in this app (top toolbar or a bottom
+// floating cluster), so "does the panel's typical size fit in the
+// remaining space" is enough to pick the right side to open on.
+const ESTIMATED_PANEL_HEIGHT = 200
+
 export function OverflowMenu({ items = [], children, ariaLabel = 'More options' }: OverflowMenuProps) {
   const [open, setOpen] = useState(false)
-  const [panelPos, setPanelPos] = useState<{ top: number; right: number } | null>(null)
+  const [panelPos, setPanelPos] = useState<{
+    top?: number
+    bottom?: number
+    left?: number
+    right?: number
+  } | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -38,7 +50,14 @@ export function OverflowMenu({ items = [], children, ariaLabel = 'More options' 
     const updatePosition = () => {
       const rect = buttonRef.current?.getBoundingClientRect()
       if (!rect) return
-      setPanelPos({ top: rect.bottom + 2, right: window.innerWidth - rect.right })
+
+      const fitsBelow = rect.bottom + ESTIMATED_PANEL_HEIGHT <= window.innerHeight
+      const fitsRight = rect.left + 160 <= window.innerWidth
+
+      setPanelPos({
+        ...(fitsBelow ? { top: rect.bottom + 2 } : { bottom: window.innerHeight - rect.top + 2 }),
+        ...(fitsRight ? { left: rect.left } : { right: window.innerWidth - rect.right }),
+      })
     }
     updatePosition()
 
@@ -85,7 +104,7 @@ export function OverflowMenu({ items = [], children, ariaLabel = 'More options' 
             ref={panelRef}
             role="menu"
             className="fixed z-[9999] min-w-[160px] border border-border bg-bg-surface py-1"
-            style={{ top: panelPos.top, right: panelPos.right }}
+            style={{ top: panelPos.top, bottom: panelPos.bottom, left: panelPos.left, right: panelPos.right }}
           >
             {children && (
               <div className="flex flex-col gap-2 px-3 py-2" onClick={(e) => e.stopPropagation()}>
