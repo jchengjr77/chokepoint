@@ -52,12 +52,14 @@ RULES:
 5. The edge "label" should be a short, natural description of the specific technique the user described (e.g. "berimbolo", "far-side armbar", "russian 2-on-1 to back take") — write it in your own words based on what the user said, don't force it to match any pre-existing phrasing. If the user only said they went from one position/submission to another without naming a specific technique (e.g. "north south to kimura"), leave "label" as an empty string "" rather than inventing or guessing a technique name — do not fabricate a label just to fill the field.
 6. If a term cannot be confidently matched to any library entry, add the raw term to "unrecognized" and do NOT include it in nodes/edges.
 7. Mark "alreadyOnGraph": true for any libraryId that appears in the "existingLibraryIds" list given in the user message.
-8. Respond with ONLY valid JSON, no markdown fences, matching this exact shape:
+8. The user message begins with a line "today: YYYY-MM-DD (Weekday)". If the user's text references when the training happened (e.g. "yesterday", "on Monday", "last Tuesday", "this morning", "on 8/5", "a couple days ago"), resolve it to an absolute date relative to "today" and set "trainedAt" to that date as "YYYY-MM-DD". If the text gives no indication of when the training happened, set "trainedAt" to null (meaning: today, i.e. right now) rather than guessing. Never resolve to a future date — if a weekday reference is ambiguous between this week and last week, assume the most recent past occurrence.
+9. Respond with ONLY valid JSON, no markdown fences, matching this exact shape:
 
 {
   "nodes": [ { "libraryId": string, "label": string, "type": "position" | "submission", "alreadyOnGraph": boolean } ],
   "edges": [ { "sourceLibraryId": string, "targetLibraryId": string, "label": string, "bidirectional": boolean } ],
-  "unrecognized": [ string ]
+  "unrecognized": [ string ],
+  "trainedAt": string | null
 }
 
 LIBRARY:
@@ -114,7 +116,11 @@ Deno.serve(async (req: Request) => {
     const library = libraryJson as { positions: LibraryEntry[]; submissions: LibraryEntry[] }
 
     const systemPrompt = buildSystemPrompt(library.positions, library.submissions)
-    const userMessage = `existingLibraryIds: ${JSON.stringify(body.existingLibraryIds ?? [])}
+    const today = new Date()
+    const todayIso = today.toISOString().slice(0, 10)
+    const weekday = today.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' })
+    const userMessage = `today: ${todayIso} (${weekday})
+existingLibraryIds: ${JSON.stringify(body.existingLibraryIds ?? [])}
 
 ${body.text}`
 
@@ -159,6 +165,20 @@ ${body.text}`
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
+    }
+
+    // Never trust the model's date output blindly — it's about to be
+    // written to the training log. Reject anything that isn't a real
+    // YYYY-MM-DD or that lands in the future (backfill only ever goes
+    // backward; a bad relative-date resolution should fall back to "now"
+    // rather than silently logging a training event that hasn't happened).
+    if (typeof parsed.trainedAt === 'string') {
+      const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(parsed.trainedAt) && !isNaN(Date.parse(parsed.trainedAt))
+      if (!isValidDate || parsed.trainedAt > todayIso) {
+        parsed.trainedAt = null
+      }
+    } else {
+      parsed.trainedAt = null
     }
 
     return new Response(JSON.stringify(parsed), {

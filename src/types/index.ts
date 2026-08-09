@@ -78,6 +78,8 @@ export interface NLParseResult {
   nodes: NLParseResultNode[]
   edges: NLParseResultEdge[]
   unrecognized: string[]
+  /** Backfilled training date as YYYY-MM-DD, or null to mean "now". */
+  trainedAt: string | null
 }
 
 export interface GraphExport {

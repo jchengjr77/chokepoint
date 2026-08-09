@@ -166,23 +166,17 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
                 <button
                   key={i}
                   onClick={() => setSelectedDay(isSelected ? null : cell.key)}
-                  className={`flex aspect-square items-center justify-center border text-[11px] hover:bg-bg-elevated ${
-                    isSelected
-                      ? 'border-node-submission text-node-submission'
-                      : isToday
-                        ? 'border-border-focus text-text-primary'
-                        : 'border-border text-text-secondary'
-                  }`}
+                  className={`flex aspect-square items-center justify-center border text-[11px] hover:opacity-80 ${
+                    hasActivity
+                      ? 'border-node-submission bg-node-submission text-black'
+                      : isSelected
+                        ? 'border-node-submission text-node-submission hover:bg-bg-elevated'
+                        : isToday
+                          ? 'border-border-focus text-text-primary hover:bg-bg-elevated'
+                          : 'border-border text-text-secondary hover:bg-bg-elevated'
+                  } ${isSelected && hasActivity ? 'ring-1 ring-inset ring-text-primary' : ''}`}
                 >
-                  <span className="relative">
-                    {cell.day}
-                    {hasActivity && (
-                      <span
-                        aria-hidden
-                        className="chokepoint-sharp absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 bg-node-submission"
-                      />
-                    )}
-                  </span>
+                  {cell.day}
                 </button>
               )
             })}

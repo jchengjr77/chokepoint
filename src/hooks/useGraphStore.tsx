@@ -41,6 +41,18 @@ function rowToNode(row: DbNodeRow): GraphNode {
   }
 }
 
+/**
+ * Converts a backfilled YYYY-MM-DD into a timestamptz for training_log,
+ * anchored at noon UTC so the date can't shift to the day before/after
+ * depending on the viewer's local timezone when displayed back in the
+ * calendar. undefined/null (no backfill date given) omits the column
+ * entirely so the DB's `default now()` applies.
+ */
+function toTrainedAtTimestamp(trainedAt: string | null | undefined): string | undefined {
+  if (!trainedAt) return undefined
+  return `${trainedAt}T12:00:00.000Z`
+}
+
 function rowToEdge(row: DbEdgeRow): GraphEdge {
   return {
     id: row.id,
@@ -65,19 +77,27 @@ interface GraphStoreValue {
   themeMode: ThemeMode
   setTheme: (theme: ThemeId) => Promise<void>
   setThemeMode: (mode: ThemeMode) => Promise<void>
-  addNode: (params: { libraryId: string; type: NodeType; label: string; x: number; y: number }) => Promise<GraphNode | null>
+  addNode: (params: {
+    libraryId: string
+    type: NodeType
+    label: string
+    x: number
+    y: number
+    trainedAt?: string | null
+  }) => Promise<GraphNode | null>
   updateNodePosition: (id: string, x: number, y: number) => Promise<void>
   updateNodeNotes: (id: string, notes: string) => Promise<void>
-  incrementNodeProficiency: (id: string) => Promise<void>
+  incrementNodeProficiency: (id: string, trainedAt?: string | null) => Promise<void>
   deleteNode: (id: string) => Promise<void>
   addEdge: (params: {
     sourceId: string
     targetId: string
     label: string
     bidirectional: boolean
+    trainedAt?: string | null
   }) => Promise<GraphEdge | null>
   updateEdge: (id: string, updates: Partial<Pick<GraphEdge, 'label' | 'bidirectional' | 'notes'>>) => Promise<void>
-  incrementEdgeProficiency: (id: string) => Promise<void>
+  incrementEdgeProficiency: (id: string, trainedAt?: string | null) => Promise<void>
   deleteEdge: (id: string) => Promise<void>
   replaceGraph: (nodes: GraphNode[], edges: GraphEdge[]) => Promise<void>
   refresh: () => Promise<void>
@@ -174,7 +194,14 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
   )
 
   const addNode = useCallback(
-    async (params: { libraryId: string; type: NodeType; label: string; x: number; y: number }) => {
+    async (params: {
+      libraryId: string
+      type: NodeType
+      label: string
+      x: number
+      y: number
+      trainedAt?: string | null
+    }) => {
       if (!user) return null
       const { data, error } = await supabase
         .from('user_nodes')
@@ -193,7 +220,9 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
       if (error || !data) return null
       const node = rowToNode(data)
       setNodes((prev) => [...prev, node])
-      await supabase.from('training_log').insert({ user_id: user.id, node_id: node.id })
+      await supabase
+        .from('training_log')
+        .insert({ user_id: user.id, node_id: node.id, trained_at: toTrainedAtTimestamp(params.trainedAt) })
       return node
     },
     [user]
@@ -210,14 +239,16 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const incrementNodeProficiency = useCallback(
-    async (id: string) => {
+    async (id: string, trainedAt?: string | null) => {
       if (!user) return
       const node = nodes.find((n) => n.id === id)
       if (!node) return
       const proficiency = node.proficiency + 1
       setNodes((prev) => prev.map((n) => (n.id === id ? { ...n, proficiency } : n)))
       await supabase.from('user_nodes').update({ proficiency }).eq('id', id)
-      await supabase.from('training_log').insert({ user_id: user.id, node_id: id })
+      await supabase
+        .from('training_log')
+        .insert({ user_id: user.id, node_id: id, trained_at: toTrainedAtTimestamp(trainedAt) })
     },
     [nodes, user]
   )
@@ -229,7 +260,13 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addEdge = useCallback(
-    async (params: { sourceId: string; targetId: string; label: string; bidirectional: boolean }) => {
+    async (params: {
+      sourceId: string
+      targetId: string
+      label: string
+      bidirectional: boolean
+      trainedAt?: string | null
+    }) => {
       if (!user) return null
       const { data, error } = await supabase
         .from('user_edges')
@@ -247,7 +284,9 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
       if (error || !data) return null
       const edge = rowToEdge(data)
       setEdges((prev) => [...prev, edge])
-      await supabase.from('training_log').insert({ user_id: user.id, edge_id: edge.id })
+      await supabase
+        .from('training_log')
+        .insert({ user_id: user.id, edge_id: edge.id, trained_at: toTrainedAtTimestamp(params.trainedAt) })
       return edge
     },
     [user]
@@ -262,14 +301,16 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
   )
 
   const incrementEdgeProficiency = useCallback(
-    async (id: string) => {
+    async (id: string, trainedAt?: string | null) => {
       if (!user) return
       const edge = edges.find((e) => e.id === id)
       if (!edge) return
       const proficiency = edge.proficiency + 1
       setEdges((prev) => prev.map((e) => (e.id === id ? { ...e, proficiency } : e)))
       await supabase.from('user_edges').update({ proficiency }).eq('id', id)
-      await supabase.from('training_log').insert({ user_id: user.id, edge_id: id })
+      await supabase
+        .from('training_log')
+        .insert({ user_id: user.id, edge_id: id, trained_at: toTrainedAtTimestamp(trainedAt) })
     },
     [edges, user]
   )

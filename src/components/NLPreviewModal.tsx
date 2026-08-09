@@ -9,9 +9,21 @@ interface NLPreviewModalProps {
   onCancel: () => void
 }
 
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function formatLoggedDate(iso: string): string {
+  // Parse as local calendar date (not UTC midnight) so it doesn't display
+  // as the previous day in timezones behind UTC.
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm, onCancel }: NLPreviewModalProps) {
   const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set())
   const [excludedEdges, setExcludedEdges] = useState<Set<number>>(new Set())
+  const [trainedAt, setTrainedAt] = useState<string>(result.trainedAt ?? todayIso())
 
   const newNodeCount = useMemo(
     () => result.nodes.filter((n) => !n.alreadyOnGraph && !excludedNodes.has(n.libraryId)).length,
@@ -67,6 +79,7 @@ export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm
       nodes: result.nodes.filter((n) => !excludedNodes.has(n.libraryId)),
       edges: result.edges.filter((_, idx) => !excludedEdges.has(idx)),
       unrecognized: result.unrecognized,
+      trainedAt: trainedAt === todayIso() ? null : trainedAt,
     })
   }
 
@@ -91,6 +104,20 @@ export function NLPreviewModal({ result, existingNodes, existingEdges, onConfirm
             )}
             . Confirm?
           </p>
+
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-[10px] uppercase text-text-secondary">Logged as</span>
+            <input
+              type="date"
+              value={trainedAt}
+              max={todayIso()}
+              onChange={(e) => e.target.value && setTrainedAt(e.target.value)}
+              className="border border-border bg-transparent px-1.5 py-0.5 text-[11px] text-text-primary outline-none focus:border-border-focus"
+            />
+            {result.trainedAt && (
+              <span className="text-[10px] text-text-tertiary">(detected: {formatLoggedDate(result.trainedAt)})</span>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-3">

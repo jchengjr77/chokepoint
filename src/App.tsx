@@ -103,7 +103,7 @@ function MainApp() {
       const existingId = idByLibraryId.get(n.libraryId)
       if (existingId) {
         // Already on the graph — training it again bumps its proficiency.
-        await incrementNodeProficiency(existingId)
+        await incrementNodeProficiency(existingId, accepted.trainedAt)
         continue
       }
       const { x, y } = placeNearContext(
@@ -114,7 +114,14 @@ function MainApp() {
         nodes
       )
       occupied.push({ x, y })
-      const created = await addNode({ libraryId: n.libraryId, type: n.type, label: n.label, x, y })
+      const created = await addNode({
+        libraryId: n.libraryId,
+        type: n.type,
+        label: n.label,
+        x,
+        y,
+        trainedAt: accepted.trainedAt,
+      })
       if (created) idByLibraryId.set(n.libraryId, created.id)
     }
 
@@ -129,11 +136,11 @@ function MainApp() {
           (edge.bidirectional && edge.sourceId === targetId && edge.targetId === sourceId)
       )
       if (existingEdge) {
-        await incrementEdgeProficiency(existingEdge.id)
+        await incrementEdgeProficiency(existingEdge.id, accepted.trainedAt)
         continue
       }
 
-      await addEdge({ sourceId, targetId, label: e.label, bidirectional: e.bidirectional })
+      await addEdge({ sourceId, targetId, label: e.label, bidirectional: e.bidirectional, trainedAt: accepted.trainedAt })
     }
 
     setNlResult(null)
