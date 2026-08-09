@@ -20,6 +20,13 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult }: NLIn
     setError(null)
     try {
       const result = await parseNaturalLanguage(text, existingLibraryIds, customEntries)
+      const nothingFound = result.nodes.length === 0 && result.edges.length === 0 && result.unrecognized.length === 0
+      if (nothingFound) {
+        // Off-topic or unrelated input (e.g. a random question) — don't
+        // open the review modal for a no-op, just say so inline.
+        setError("Didn't recognize any BJJ training in that — try describing what you drilled.")
+        return
+      }
       onResult(result)
       setText('')
     } catch (err) {

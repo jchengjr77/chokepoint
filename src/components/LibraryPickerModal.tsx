@@ -143,8 +143,25 @@ export function LibraryPickerModal({
           ))}
         </div>
 
+        <div className="border-b border-border px-4 py-2">
+          {creating ? (
+            <CreateLibraryEntryForm
+              initialLabel={query}
+              onCreate={(params) => void handleCreate(params)}
+              onCancel={() => setCreating(false)}
+            />
+          ) : (
+            <button
+              onClick={() => setCreating(true)}
+              className="w-full border border-dashed border-border py-2 text-[11px] font-medium uppercase text-text-secondary hover:border-border-focus hover:text-text-primary"
+            >
+              + Define new {tab}
+            </button>
+          )}
+        </div>
+
         <div className="flex-1 overflow-y-auto">
-          {filtered.length === 0 && !creating && (
+          {filtered.length === 0 && (
             <p className="px-4 py-6 text-center text-[12px] text-text-tertiary">No matches.</p>
           )}
           {filtered.map((entry) => {
@@ -182,23 +199,6 @@ export function LibraryPickerModal({
               </button>
             )
           })}
-
-          <div className="px-4 py-2">
-            {creating ? (
-              <CreateLibraryEntryForm
-                initialLabel={query}
-                onCreate={(params) => void handleCreate(params)}
-                onCancel={() => setCreating(false)}
-              />
-            ) : (
-              <button
-                onClick={() => setCreating(true)}
-                className="w-full border border-dashed border-border py-2 text-[11px] font-medium uppercase text-text-secondary hover:border-border-focus hover:text-text-primary"
-              >
-                + Define new {tab}
-              </button>
-            )}
-          </div>
         </div>
 
         <div className="flex items-center justify-between border-t border-border px-4 py-3">
