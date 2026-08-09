@@ -92,7 +92,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -1
+      "advantage": 1
     },
     {
       "id": "pos-closed-guard-top",
@@ -110,7 +110,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": -1
     },
     {
       "id": "pos-open-guard",
@@ -140,7 +140,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -1
+      "advantage": 1
     },
     {
       "id": "pos-butterfly-guard-top",
@@ -157,7 +157,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": -1
     },
     {
       "id": "pos-de-la-riva",
@@ -267,8 +267,7 @@
       "rulesets": [
         "gi",
         "nogi"
-      ],
-      "advantage": -1
+      ]
     },
     {
       "id": "pos-half-guard-top",
@@ -286,41 +285,23 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 2
     },
     {
-      "id": "pos-deep-half-guard-bottom",
-      "label": "Bottom Deep Half Guard",
+      "id": "pos-deep-half-guard",
+      "label": "Deep Half Guard",
       "aliases": [
         "deep half",
-        "- Deep Half Guard"
+        "- Deep Half Guard",
+        "Bottom Deep Half Guard"
       ],
       "tags": [
-        "guard",
-        "bottom"
+        "guard"
       ],
       "rulesets": [
         "gi",
         "nogi"
-      ],
-      "advantage": -1
-    },
-    {
-      "id": "pos-deep-half-guard-top",
-      "label": "Top Deep Half Guard",
-      "aliases": [
-        "passing deep half",
-        "+ Deep Half Guard"
-      ],
-      "tags": [
-        "guard",
-        "top"
-      ],
-      "rulesets": [
-        "gi",
-        "nogi"
-      ],
-      "advantage": 1
+      ]
     },
     {
       "id": "pos-shin-to-shin-guard",
@@ -384,7 +365,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -1
+      "advantage": -2
     },
     {
       "id": "pos-turtle-top",
@@ -401,7 +382,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 2
     },
     {
       "id": "pos-mount-bottom",
@@ -418,7 +399,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -2
+      "advantage": -4
     },
     {
       "id": "pos-mount-top",
@@ -435,7 +416,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 2
+      "advantage": 4
     },
     {
       "id": "pos-s-mount-bottom",
@@ -451,7 +432,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -2
+      "advantage": -4
     },
     {
       "id": "pos-s-mount-top",
@@ -468,7 +449,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 2
+      "advantage": 4
     },
     {
       "id": "pos-side-control-bottom",
@@ -485,7 +466,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -1
+      "advantage": -3
     },
     {
       "id": "pos-side-control-top",
@@ -503,7 +484,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 3
     },
     {
       "id": "pos-kesa-gatame",
@@ -518,7 +499,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 4
     },
     {
       "id": "pos-north-south-bottom",
@@ -534,7 +515,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -1
+      "advantage": -3
     },
     {
       "id": "pos-north-south-top",
@@ -551,7 +532,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 4
     },
     {
       "id": "pos-knee-on-belly-bottom",
@@ -567,7 +548,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -1
+      "advantage": -3
     },
     {
       "id": "pos-knee-on-belly-top",
@@ -584,7 +565,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 3
     },
     {
       "id": "pos-crucifix",
@@ -599,7 +580,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 2
+      "advantage": 4
     },
     {
       "id": "pos-back-mount-bottom",
@@ -619,7 +600,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": -2
+      "advantage": -5
     },
     {
       "id": "pos-back-mount-top",
@@ -640,7 +621,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 2
+      "advantage": 5
     },
     {
       "id": "pos-outside-ashi",
@@ -655,7 +636,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 2
     },
     {
       "id": "pos-saddle",
@@ -670,7 +651,7 @@
       "rulesets": [
         "nogi"
       ],
-      "advantage": 2
+      "advantage": 5
     },
     {
       "id": "pos-leg-drag",
@@ -681,7 +662,7 @@
         "gi",
         "nogi"
       ],
-      "advantage": 1
+      "advantage": 2
     }
   ],
   "submissions": [
@@ -1343,7 +1324,7 @@
     },
     {
       "sourceId": "pos-half-guard-bottom",
-      "targetId": "pos-deep-half-guard-bottom",
+      "targetId": "pos-deep-half-guard",
       "label": "guard transition"
     },
     {
@@ -1367,19 +1348,14 @@
       "label": "pass completion"
     },
     {
-      "sourceId": "pos-deep-half-guard-bottom",
+      "sourceId": "pos-deep-half-guard",
       "targetId": "pos-side-control-top",
       "label": "deep half sweep"
     },
     {
-      "sourceId": "pos-deep-half-guard-bottom",
+      "sourceId": "pos-deep-half-guard",
       "targetId": "pos-x-guard",
       "label": "x-guard transition"
-    },
-    {
-      "sourceId": "pos-deep-half-guard-top",
-      "targetId": "pos-side-control-top",
-      "label": "pass completion"
     },
     {
       "sourceId": "pos-50-50-guard",

@@ -11,6 +11,7 @@ import { NLInputBar } from './components/NLInputBar'
 import { NLPreviewModal } from './components/NLPreviewModal'
 import { ImportExportModal } from './components/ImportExportModal'
 import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './components/OnboardingOverlay'
+import { Legend } from './components/Legend'
 import { placeNearContext } from './lib/layout'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
@@ -131,6 +132,7 @@ function MainApp() {
 
       <div className="relative flex flex-1 overflow-hidden">
         <div className="relative flex-1">
+          <Legend />
           <GraphCanvas
             rulesetFilter={rulesetFilter}
             searchQuery={searchQuery}

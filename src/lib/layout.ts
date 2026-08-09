@@ -6,20 +6,23 @@ interface SimNode extends GraphNode {
   index?: number
 }
 
-const COLUMN_SPACING = 240
+const COLUMN_SPACING = 130
+const MAX_ADVANTAGE = 5
+const SUBMISSION_COLUMN_X = COLUMN_SPACING * (MAX_ADVANTAGE + 1)
 
 /**
  * Target x-coordinate for a node's advantage column: disadvantageous
  * (bottom-of-control) positions on the left, neutral positions and guards
  * near center, advantageous (top-of-control) positions right-of-center,
- * and submissions — the ultimate winning outcome — pinned to the far right.
+ * and submissions — the ultimate winning outcome — pinned to the far right,
+ * beyond even the most dominant (+5) position column.
  */
 function targetColumnX(node: GraphNode): number {
-  if (node.type === 'submission') return COLUMN_SPACING * 3
+  if (node.type === 'submission') return SUBMISSION_COLUMN_X
 
   const entry = getLibraryEntry(node.libraryId)
   const advantage = entry?.advantage ?? 0
-  return advantage * (COLUMN_SPACING / 2)
+  return advantage * COLUMN_SPACING
 }
 
 /**
