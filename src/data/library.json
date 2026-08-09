@@ -435,6 +435,43 @@
       "advantage": 2
     },
     {
+      "id": "pos-front-headlock-bottom",
+      "label": "Bottom Front Headlock",
+      "aliases": [
+        "front headlock",
+        "in front headlock",
+        "sprawled under front headlock",
+        "- Front Headlock"
+      ],
+      "tags": [
+        "bottom",
+        "scramble"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -2
+    },
+    {
+      "id": "pos-front-headlock-top",
+      "label": "Top Front Headlock",
+      "aliases": [
+        "attacking front headlock",
+        "front headlock control",
+        "+ Front Headlock"
+      ],
+      "tags": [
+        "top",
+        "scramble"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
       "id": "pos-mount-bottom",
       "label": "Bottom Mount",
       "aliases": [
