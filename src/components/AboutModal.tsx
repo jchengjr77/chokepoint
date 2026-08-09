@@ -22,12 +22,12 @@ function AboutTab() {
         The modern grappler's training journal.
       </p>
       <p className="mb-5 text-[12px] leading-relaxed text-text-primary">
-        Build your knowledge map with positions and submissions, connected by techniques.
+        Build your map with positions and submissions, connected by techniques.
       </p>
 
       <Feature title="Natural language input">
         Type what you trained in plain English — "scissor sweep from closed guard to mount, then armbar" — and
-        Chokepoint updates your knowledge map for you.
+        Chokepoint updates your map for you.
       </Feature>
 
       <Feature title="Calendar">
@@ -40,13 +40,13 @@ function AboutTab() {
       </Feature>
 
       <Feature title="Layout">
-        The graph runs left to right by advantage: disadvantageous positions on the left, advantageous ones on the
+        The map runs left to right by advantage: disadvantageous positions on the left, advantageous ones on the
         right.
       </Feature>
 
-      <Feature title="Auto-Layout">Automatically re-arranges your graph while preserving the advantage ordering.</Feature>
+      <Feature title="Auto-Layout">Automatically re-arranges your map while preserving the advantage ordering.</Feature>
 
-      <Feature title="Themes">Pick a color theme and light or dark mode from the toolbar.</Feature>
+      <Feature title="Themes">Pick a color theme and light or dark mode from the toolbar!</Feature>
     </>
   )
 }
