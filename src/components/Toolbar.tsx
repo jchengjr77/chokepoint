@@ -3,6 +3,7 @@ import type { RulesetFilter } from '../types'
 import { useAuth } from '../hooks/useAuth'
 import { THEMES, type ThemeId, type ThemeMode } from '../lib/themes'
 import { Dropdown } from './Dropdown'
+import { ConfirmModal } from './ConfirmModal'
 
 interface ToolbarProps {
   rulesetFilter: RulesetFilter
@@ -33,6 +34,7 @@ export function Toolbar({
 }: ToolbarProps) {
   const { user, signOut } = useAuth()
   const [confirmingLayout, setConfirmingLayout] = useState(false)
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
 
   return (
     <div className="flex h-12 shrink-0 items-center gap-4 overflow-x-auto border-b border-border bg-bg-surface px-3">
@@ -146,12 +148,25 @@ export function Toolbar({
 
         <span className="hidden text-[11px] text-text-secondary sm:inline">{user?.email}</span>
         <button
-          onClick={() => void signOut()}
+          onClick={() => setConfirmingSignOut(true)}
           className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
         >
           Sign Out
         </button>
       </div>
+
+      {confirmingSignOut && (
+        <ConfirmModal
+          title="Sign Out"
+          message="Are you sure you want to sign out?"
+          confirmLabel="Sign Out"
+          onConfirm={() => {
+            setConfirmingSignOut(false)
+            void signOut()
+          }}
+          onCancel={() => setConfirmingSignOut(false)}
+        />
+      )}
     </div>
   )
 }
