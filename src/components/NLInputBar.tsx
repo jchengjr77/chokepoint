@@ -24,7 +24,7 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult }: NLIn
       if (nothingFound) {
         // Off-topic or unrelated input (e.g. a random question) — don't
         // open the review modal for a no-op, just say so inline.
-        setError("Didn't recognize any grappling training in that — try describing what you drilled.")
+        setError("Didn't recognize any grappling training in that — try describing what you trained.")
         return
       }
       onResult(result)
