@@ -5,6 +5,8 @@ const COLUMN_SPACING = 160
 const ROW_SPACING = 90
 const MAX_ADVANTAGE = 5
 const SUBMISSION_COLUMN = MAX_ADVANTAGE + 1
+const MIN_EUCLIDEAN_SPACING = 140
+const JITTER_RANGE = 18
 
 /**
  * Column index for a node's advantage: disadvantageous (bottom-of-control)
@@ -129,14 +131,59 @@ export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<s
     })
   }
 
-  const result = new Map<string, { x: number; y: number }>()
+  // Build initial x/y, adding a small random jitter to both axes so nodes
+  // don't line up in a perfectly regular grid — a bit of irregularity
+  // reads as less overlap-prone than dead-straight rows/columns, and helps
+  // separate nodes that would otherwise sit at visually-identical spots.
+  const position = new Map<string, { x: number; y: number }>()
   for (const col of sortedColumnKeys) {
     for (const id of columnOrder.get(col)!) {
-      result.set(id, { x: col * COLUMN_SPACING, y: y.get(id)! })
+      position.set(id, {
+        x: col * COLUMN_SPACING + (Math.random() - 0.5) * JITTER_RANGE,
+        y: y.get(id)! + (Math.random() - 0.5) * JITTER_RANGE,
+      })
     }
   }
 
-  return result
+  // Final relaxation: push apart any pair of nodes still closer than the
+  // minimum spacing (Euclidean, not just same-row) after ordering and
+  // jitter. Repeated passes let the pushes propagate through a dense
+  // cluster instead of just resolving the single closest pair each time.
+  const allIds = nodes.map((n) => n.id)
+  const RELAXATION_PASSES = 40
+  for (let pass = 0; pass < RELAXATION_PASSES; pass++) {
+    let movedAny = false
+    for (let i = 0; i < allIds.length; i++) {
+      for (let j = i + 1; j < allIds.length; j++) {
+        const a = position.get(allIds[i])!
+        const b = position.get(allIds[j])!
+        const dx = b.x - a.x
+        const dy = b.y - a.y
+        const dist = Math.hypot(dx, dy)
+        if (dist >= MIN_EUCLIDEAN_SPACING) continue
+
+        // Exactly coincident nodes have no direction to push apart along —
+        // nudge them a hair off-axis first so the next pass has a real
+        // direction to relax along instead of getting stuck forever.
+        if (dist < 1e-6) {
+          b.y += 1
+          continue
+        }
+
+        const push = (MIN_EUCLIDEAN_SPACING - dist) / 2
+        const ny = dy / dist
+        // Only relax vertically — x is left as-is (column position plus
+        // its one-time jitter) so the left-to-right advantage ordering by
+        // column is never disturbed by the relaxation itself.
+        a.y -= ny * push
+        b.y += ny * push
+        movedAny = true
+      }
+    }
+    if (!movedAny) break
+  }
+
+  return position
 }
 
 const MIN_NODE_SPACING = 130
