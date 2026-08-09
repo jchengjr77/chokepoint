@@ -20,6 +20,20 @@ function monthLabel(year: number, month: number): string {
   return new Date(year, month, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
 }
 
+/**
+ * A short natural-language summary of a logged edge, e.g. "Knee Lever
+ * from Bottom Half Guard" for a submission entry, or "Scissor Sweep:
+ * Closed Guard to Mount" for a position-to-position transition. Falls
+ * back to a plain "Source to Target" when the technique has no label.
+ */
+function summarizeEdge(edge: GraphEdge, sourceLabel: string, targetLabel: string, targetIsSubmission: boolean): string {
+  if (targetIsSubmission) {
+    return edge.label ? `${edge.label} from ${sourceLabel}` : `${targetLabel} from ${sourceLabel}`
+  }
+  const arrow = edge.bidirectional ? '↔' : '→'
+  return edge.label ? `${edge.label}: ${sourceLabel} ${arrow} ${targetLabel}` : `${sourceLabel} ${arrow} ${targetLabel}`
+}
+
 export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdge }: CalendarModalProps) {
   const { entries, loading } = useTrainingLog(true)
   const today = useMemo(() => new Date(), [])
@@ -72,6 +86,36 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
 
   const todayKey = dayKey(today)
   const selectedEntries = selectedDay ? entriesByDay.get(selectedDay) ?? [] : []
+
+  const selectedSummaries = useMemo(
+    () =>
+      selectedEntries.map((entry) => {
+        if (entry.nodeId) {
+          const node = nodeById.get(entry.nodeId)
+          return node ? node.label : 'Deleted node'
+        }
+        const edge = entry.edgeId ? edgeById.get(entry.edgeId) : undefined
+        if (!edge) return 'Deleted technique'
+        const sourceNode = nodeById.get(edge.sourceId)
+        const targetNode = nodeById.get(edge.targetId)
+        return summarizeEdge(
+          edge,
+          sourceNode?.label ?? '?',
+          targetNode?.label ?? '?',
+          targetNode?.type === 'submission'
+        )
+      }),
+    [selectedEntries, nodeById, edgeById]
+  )
+
+  const daySummary = useMemo(() => {
+    // De-dupe in case the same item was trained more than once that day.
+    const unique = [...new Set(selectedSummaries)]
+    if (unique.length === 0) return ''
+    if (unique.length === 1) return unique[0]
+    if (unique.length === 2) return `${unique[0]} and ${unique[1]}`
+    return `${unique.slice(0, -1).join(', ')}, and ${unique[unique.length - 1]}`
+  }, [selectedSummaries])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
@@ -146,14 +190,28 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
 
           {selectedDay && (
             <div className="mt-4 border-t border-border pt-3">
+              <span className="mb-1 block text-[10px] uppercase text-text-secondary">Trained on {selectedDay}</span>
+
+              {daySummary && (
+                <p className="mb-3 border border-border bg-bg-elevated px-2 py-2 text-[12px] leading-snug text-text-primary">
+                  {daySummary}
+                </p>
+              )}
+
               <span className="mb-2 block text-[10px] uppercase text-text-secondary">
-                Trained on {selectedDay} ({selectedEntries.length})
+                Log ({selectedEntries.length})
               </span>
               <div className="flex flex-col gap-1">
                 {selectedEntries.length === 0 && (
                   <p className="text-[11px] text-text-tertiary">Nothing logged this day.</p>
                 )}
-                {selectedEntries.map((entry) => {
+                {selectedEntries.map((entry, i) => {
+                  const summary = selectedSummaries[i]
+                  const time = new Date(entry.trainedAt).toLocaleTimeString(undefined, {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })
+
                   if (entry.nodeId) {
                     const node = nodeById.get(entry.nodeId)
                     return (
@@ -163,19 +221,12 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
                         disabled={!node}
                         className="flex items-center justify-between border border-border px-2 py-1.5 text-left text-[11px] text-text-primary hover:bg-bg-elevated disabled:opacity-50"
                       >
-                        <span>{node?.label ?? 'Deleted node'}</span>
-                        <span className="text-[10px] uppercase text-text-tertiary">
-                          {new Date(entry.trainedAt).toLocaleTimeString(undefined, {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                          })}
-                        </span>
+                        <span>{summary}</span>
+                        <span className="text-[10px] uppercase text-text-tertiary">{time}</span>
                       </button>
                     )
                   }
                   const edge = entry.edgeId ? edgeById.get(entry.edgeId) : undefined
-                  const sourceLabel = edge ? nodeById.get(edge.sourceId)?.label : undefined
-                  const targetLabel = edge ? nodeById.get(edge.targetId)?.label : undefined
                   return (
                     <button
                       key={entry.id}
@@ -183,15 +234,8 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
                       disabled={!edge}
                       className="flex items-center justify-between border border-border px-2 py-1.5 text-left text-[11px] text-text-primary hover:bg-bg-elevated disabled:opacity-50"
                     >
-                      <span>
-                        {edge ? `${sourceLabel ?? '?'} ${edge.bidirectional ? '↔' : '→'} ${targetLabel ?? '?'}` : 'Deleted edge'}
-                      </span>
-                      <span className="text-[10px] uppercase text-text-tertiary">
-                        {new Date(entry.trainedAt).toLocaleTimeString(undefined, {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}
-                      </span>
+                      <span>{summary}</span>
+                      <span className="text-[10px] uppercase text-text-tertiary">{time}</span>
                     </button>
                   )
                 })}
