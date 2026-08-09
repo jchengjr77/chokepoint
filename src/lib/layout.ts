@@ -5,10 +5,10 @@ import type { GraphEdge, GraphNode } from '../types'
 const MAX_ADVANTAGE = 5
 const SUBMISSION_RANK_OFFSET = MAX_ADVANTAGE + 1
 
-// Generous separation: dagre already accounts for each node's actual
-// width/height when spacing ranks/rows, these are the extra gaps on top.
-const RANK_SEP = 180 // horizontal gap between advantage columns
-const NODE_SEP = 70 // vertical gap between nodes within a column
+// dagre already accounts for each node's actual width/height when spacing
+// ranks/rows — these are the extra gaps on top of that.
+const RANK_SEP = 70 // horizontal gap between advantage columns
+const NODE_SEP = 130 // vertical gap between nodes within a column
 const DEFAULT_NODE_WIDTH = 130
 const DEFAULT_NODE_HEIGHT = 40
 
