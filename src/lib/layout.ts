@@ -20,15 +20,14 @@ function nodeColumn(node: GraphNode): number {
 }
 
 /**
- * Force-directed layout with a strict left-to-right advantage ordering:
- * every node's x-coordinate is fixed by its advantage column (not merely
- * pulled toward one), so the left-to-right priority ordering always holds
- * exactly. Within each column, nodes are ordered top-to-bottom using a
- * barycenter heuristic (average position of connected neighbors in
- * adjacent columns), which is the standard technique for minimizing edge
- * crossings in layered graph drawings — nodes that share neighbors end up
- * near each other vertically instead of forcing their connecting edges to
- * cross other edges.
+ * Layered layout with a strict left-to-right advantage ordering: every
+ * node's x-coordinate is fixed by its advantage column, so the priority
+ * ordering always holds exactly. Within each column, nodes are ordered
+ * top-to-bottom using a barycenter heuristic (average position of
+ * connected neighbors in adjacent columns) to reduce edge crossings, then
+ * nudged so no node shares an exact y with a node in the column right
+ * before it — otherwise an edge passing near an unrelated node in the next
+ * column reads as if it passes through it.
  */
 export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<string, { x: number; y: number }> {
   if (nodes.length === 0) return new Map()
@@ -93,43 +92,48 @@ export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<s
     )
   }
 
-  // Nodes that converge on the same neighbor (e.g. A and B both -> C) end up
-  // on adjacent rows after ordering, but with uniform row spacing their
-  // approach paths into that shared neighbor stay close together and read
-  // as one arrow passing through several nodes. Give each node extra row
-  // spacing proportional to how many of its column-neighbors share a
-  // target/source with it, so convergent edges fan out more visibly.
-  const extraGapAfter = new Map<string, number>()
+  // Base y per node: each column centered around y=0 with even row spacing.
+  const y = new Map<string, number>()
   for (const col of sortedColumnKeys) {
     const ids = columnOrder.get(col)!
-    for (let i = 0; i < ids.length - 1; i++) {
-      const a = ids[i]
-      const b = ids[i + 1]
-      const aNeighbors = new Set(neighborsOf.get(a) ?? [])
-      const bNeighbors = neighborsOf.get(b) ?? []
-      const shared = bNeighbors.some((n) => aNeighbors.has(n))
-      extraGapAfter.set(a, shared ? 0.6 : 0)
-    }
+    const offset = (ids.length - 1) / 2
+    ids.forEach((id, i) => y.set(id, (i - offset) * ROW_SPACING))
   }
 
-  // Center each column vertically around y=0, spacing rows evenly and
-  // widening the gap wherever adjacent nodes share a neighbor.
+  // A node sitting at the exact same y as a node in the neighboring column
+  // reads visually as if an edge passes straight through it, even when the
+  // two aren't connected. Walk columns left to right and nudge any node
+  // that lands on the same y as something already placed in the column
+  // immediately before it, alternating quarter-row steps up/down until it
+  // clears every y used in that adjacent column.
+  const EPSILON = 1e-6
+  for (let ci = 1; ci < sortedColumnKeys.length; ci++) {
+    const col = sortedColumnKeys[ci]
+    const prevIds = columnOrder.get(sortedColumnKeys[ci - 1])!
+    const prevYs = new Set(prevIds.map((id) => y.get(id)!))
+    const ids = columnOrder.get(col)!
+
+    ids.forEach((id, i) => {
+      const baseY = y.get(id)!
+      if (![...prevYs].some((py) => Math.abs(py - baseY) < EPSILON)) return
+
+      let candidate = baseY
+      let step = 1
+      let direction = i % 2 === 0 ? 1 : -1
+      while ([...prevYs].some((py) => Math.abs(py - candidate) < EPSILON)) {
+        candidate = baseY + direction * step * (ROW_SPACING / 4)
+        direction *= -1
+        if (direction === 1) step++
+      }
+      y.set(id, candidate)
+    })
+  }
+
   const result = new Map<string, { x: number; y: number }>()
   for (const col of sortedColumnKeys) {
-    const ids = columnOrder.get(col)!
-    const positions: number[] = []
-    let cursor = 0
-    ids.forEach((_id, i) => {
-      if (i > 0) cursor += 1 + (extraGapAfter.get(ids[i - 1]) ?? 0)
-      positions.push(cursor)
-    })
-    const center = (positions[0] + positions[positions.length - 1]) / 2
-    ids.forEach((id, i) => {
-      result.set(id, {
-        x: col * COLUMN_SPACING,
-        y: (positions[i] - center) * ROW_SPACING,
-      })
-    })
+    for (const id of columnOrder.get(col)!) {
+      result.set(id, { x: col * COLUMN_SPACING, y: y.get(id)! })
+    }
   }
 
   return result
