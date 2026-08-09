@@ -65,7 +65,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
         <div className="flex justify-end border-t border-border px-4 py-3">
           <button
             onClick={onClose}
-            className="border border-text-primary bg-text-primary px-3 py-1.5 text-[11px] font-medium uppercase text-black hover:bg-bg-elevated hover:text-text-primary"
+            className="border border-border px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
           >
             Close
           </button>
