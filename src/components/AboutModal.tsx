@@ -54,7 +54,7 @@ function AboutTab() {
 function TeamTab() {
   return (
     <>
-      <p className="mb-2 text-[16px] font-bold leading-snug text-text-primary">Team of one.</p>
+      <p className="mb-2 text-[16px] font-bold leading-snug text-text-primary">JJ Cheng</p>
       <p className="mb-5 text-[12px] leading-relaxed text-text-primary">
         Chokepoint is built and maintained by a single person, in whatever hours are left after training. There is
         no QA department. There is no on-call rotation. There's only JJ Cheng, who should really be learning how
@@ -63,18 +63,28 @@ function TeamTab() {
       </p>
 
       <div className="border border-border bg-bg-elevated px-3 py-3">
-        <p className="mb-1 text-[12px] font-semibold text-text-primary">JJ Cheng</p>
+        <p className="mb-1 text-[12px] font-semibold text-text-primary">Jonathan Cheng</p>
         <p className="mb-2 text-[11px] text-text-secondary">
           Blue belt, training at Workshop NYC (Lower East Side). Based in New York City.
         </p>
-        <a
-          href="https://github.com/jchengjr77"
-          target="_blank"
-          rel="noreferrer"
-          className="text-[11px] text-node-submission hover:underline"
-        >
-          github.com/jchengjr77
-        </a>
+        <div className="flex gap-3">
+          <a
+            href="https://github.com/jchengjr77"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[11px] text-node-submission hover:underline"
+          >
+            github.com/jchengjr77
+          </a>
+          <a
+            href="https://www.linkedin.com/in/jchengjr77/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[11px] text-node-submission hover:underline"
+          >
+            LinkedIn
+          </a>
+        </div>
       </div>
     </>
   )
