@@ -26,9 +26,11 @@ export function AboutModal({ onClose }: AboutModalProps) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
+          <p className="mb-2 text-[16px] font-bold leading-snug text-text-primary">
+            The modern grappler's training journal.
+          </p>
           <p className="mb-5 text-[12px] leading-relaxed text-text-primary">
-            <span className="font-bold">The modern grappler's training journal.</span> Build your knowledge map
-            with positions and submissions, connected by techniques.
+            Build your knowledge map with positions and submissions, connected by techniques.
           </p>
 
           <Feature title="Natural language input">
