@@ -1,8 +1,8 @@
 import { getLibraryEntry } from './library'
 import type { GraphEdge, GraphNode } from '../types'
 
-const COLUMN_SPACING = 220
-const ROW_SPACING = 110
+const COLUMN_SPACING = 160
+const ROW_SPACING = 90
 const MAX_ADVANTAGE = 5
 const SUBMISSION_COLUMN = MAX_ADVANTAGE + 1
 
@@ -84,15 +84,50 @@ export function computeAutoLayout(nodes: GraphNode[], edges: GraphEdge[]): Map<s
     }
   }
 
-  // Center each column vertically around y=0 and space rows evenly.
+  // Final row order per column, settled by the barycenter passes above.
+  const columnOrder = new Map<number, string[]>()
+  for (const col of sortedColumnKeys) {
+    columnOrder.set(
+      col,
+      columns.get(col)!.slice().sort((a, b) => row.get(a)! - row.get(b)!)
+    )
+  }
+
+  // Nodes that converge on the same neighbor (e.g. A and B both -> C) end up
+  // on adjacent rows after ordering, but with uniform row spacing their
+  // approach paths into that shared neighbor stay close together and read
+  // as one arrow passing through several nodes. Give each node extra row
+  // spacing proportional to how many of its column-neighbors share a
+  // target/source with it, so convergent edges fan out more visibly.
+  const extraGapAfter = new Map<string, number>()
+  for (const col of sortedColumnKeys) {
+    const ids = columnOrder.get(col)!
+    for (let i = 0; i < ids.length - 1; i++) {
+      const a = ids[i]
+      const b = ids[i + 1]
+      const aNeighbors = new Set(neighborsOf.get(a) ?? [])
+      const bNeighbors = neighborsOf.get(b) ?? []
+      const shared = bNeighbors.some((n) => aNeighbors.has(n))
+      extraGapAfter.set(a, shared ? 0.6 : 0)
+    }
+  }
+
+  // Center each column vertically around y=0, spacing rows evenly and
+  // widening the gap wherever adjacent nodes share a neighbor.
   const result = new Map<string, { x: number; y: number }>()
   for (const col of sortedColumnKeys) {
-    const ids = columns.get(col)!.slice().sort((a, b) => row.get(a)! - row.get(b)!)
-    const offset = (ids.length - 1) / 2
+    const ids = columnOrder.get(col)!
+    const positions: number[] = []
+    let cursor = 0
+    ids.forEach((_id, i) => {
+      if (i > 0) cursor += 1 + (extraGapAfter.get(ids[i - 1]) ?? 0)
+      positions.push(cursor)
+    })
+    const center = (positions[0] + positions[positions.length - 1]) / 2
     ids.forEach((id, i) => {
       result.set(id, {
         x: col * COLUMN_SPACING,
-        y: (i - offset) * ROW_SPACING,
+        y: (positions[i] - center) * ROW_SPACING,
       })
     })
   }
