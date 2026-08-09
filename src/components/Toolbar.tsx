@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { THEMES, type ThemeId, type ThemeMode } from '../lib/themes'
 import { Dropdown } from './Dropdown'
 import { ConfirmModal } from './ConfirmModal'
+import { AboutModal } from './AboutModal'
 
 interface ToolbarProps {
   rulesetFilter: RulesetFilter
@@ -30,6 +31,7 @@ export function Toolbar({
 }: ToolbarProps) {
   const { user, signOut } = useAuth()
   const [confirmingSignOut, setConfirmingSignOut] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
 
   return (
     <div className="flex h-12 shrink-0 items-center gap-4 overflow-x-auto border-b border-border bg-bg-surface px-3">
@@ -68,6 +70,15 @@ export function Toolbar({
       </button>
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
+        <button
+          onClick={() => setShowAbout(true)}
+          aria-label="About Chokepoint"
+          title="About"
+          className="shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+        >
+          About
+        </button>
+
         <Dropdown
           value={theme}
           options={THEMES.map((t) => ({ value: t.id, label: t.label }))}
@@ -128,6 +139,8 @@ export function Toolbar({
           onCancel={() => setConfirmingSignOut(false)}
         />
       )}
+
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   )
 }

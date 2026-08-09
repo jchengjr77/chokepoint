@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { AboutModal } from './AboutModal'
 
 export function LoginScreen() {
   const { signInWithPassword, signUpWithPassword, signInWithGoogle } = useAuth()
@@ -8,6 +9,7 @@ export function LoginScreen() {
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
@@ -32,9 +34,19 @@ export function LoginScreen() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-bg-primary px-4">
       <div className="w-full max-w-sm border border-border bg-bg-surface p-6">
-        <h1 className="mb-6 text-center text-[14px] font-bold uppercase tracking-wide text-text-primary">
+        <h1 className="mb-1 text-center text-[14px] font-bold uppercase tracking-wide text-text-primary">
           Chokepoint
         </h1>
+        <p className="mb-6 text-center text-[11px] text-text-secondary">
+          A personal BJJ knowledge graph.{' '}
+          <button
+            type="button"
+            onClick={() => setShowAbout(true)}
+            className="text-text-primary underline underline-offset-2 hover:text-node-submission"
+          >
+            What is this?
+          </button>
+        </p>
 
         <button
           type="button"
@@ -95,6 +107,8 @@ export function LoginScreen() {
           </div>
         </form>
       </div>
+
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   )
 }
