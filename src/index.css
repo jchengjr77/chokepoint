@@ -269,9 +269,20 @@ button {
  * the browser as a native scroll/refresh gesture before it ever reaches
  * React Flow's own D3-zoom-based pan handling — the graph looks
  * completely frozen on mobile even though desktop drag-to-pan works
- * fine. touch-action: none hands all touch gestures on the canvas to
- * React Flow instead.
+ * fine. touch-action is not inherited; the browser computes the "used"
+ * value for a touch as the intersection of every ancestor's value up to
+ * the nearest scrolling container. Setting it only on .react-flow__pane
+ * is not enough if any ancestor between it and the document still has
+ * the default "auto" — that default wins the intersection and the
+ * gesture gets claimed for native scroll before React Flow sees it.
+ * Scoped to .chokepoint-canvas-wrapper (App.tsx's direct wrapper around
+ * GraphCanvas) rather than html/body/#root, since #root is also an
+ * ancestor of every modal — a global touch-action: none there would
+ * break touch-scrolling inside modals that use overflow-y: auto.
  */
-.react-flow__pane {
+.chokepoint-canvas-wrapper,
+.chokepoint-canvas-wrapper .react-flow,
+.chokepoint-canvas-wrapper .react-flow__renderer,
+.chokepoint-canvas-wrapper .react-flow__pane {
   touch-action: none;
 }

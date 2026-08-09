@@ -171,8 +171,8 @@ function MainApp() {
         onThemeModeChange={(m) => void setThemeMode(m)}
       />
 
-      <div className="relative flex flex-1 overflow-hidden">
-        <div className="relative flex-1">
+      <div className="chokepoint-canvas-wrapper relative flex flex-1 overflow-hidden">
+        <div className="chokepoint-canvas-wrapper relative flex-1">
           <Legend />
           <GraphCanvas
             rulesetFilter={rulesetFilter}

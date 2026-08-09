@@ -126,15 +126,14 @@ export function Toolbar({
           About
         </button>
 
-        <div className="hidden sm:block">
-          <Dropdown
-            value={theme}
-            options={THEMES.map((t) => ({ value: t.id, label: t.label }))}
-            onChange={onThemeChange}
-            ariaLabel="Theme"
-            className="w-32"
-          />
-        </div>
+        {/* Theme picker stays visible outside the collapsed menu at every size */}
+        <Dropdown
+          value={theme}
+          options={THEMES.map((t) => ({ value: t.id, label: t.label }))}
+          onChange={onThemeChange}
+          ariaLabel="Theme"
+          className="w-24 sm:w-32"
+        />
 
         <div className="hidden sm:block">
           <ThemeModeSwitch themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
@@ -152,7 +151,7 @@ export function Toolbar({
           />
         </div>
 
-        {/* Mobile: About, theme, dark/light, and account actions all collapse into one menu (issue #7) */}
+        {/* Mobile: About, dark/light, and account actions collapse into one menu (issue #7) */}
         <div className="sm:hidden">
           <OverflowMenu
             ariaLabel="Menu"
@@ -163,13 +162,6 @@ export function Toolbar({
               { label: 'Sign Out', onClick: () => setConfirmingSignOut(true), danger: true },
             ]}
           >
-            <Dropdown
-              value={theme}
-              options={THEMES.map((t) => ({ value: t.id, label: t.label }))}
-              onChange={onThemeChange}
-              ariaLabel="Theme"
-              className="w-full"
-            />
             <div className="flex items-center justify-between">
               <span className="text-[11px] uppercase text-text-secondary">
                 {themeMode === 'dark' ? 'Dark mode' : 'Light mode'}

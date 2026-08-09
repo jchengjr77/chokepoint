@@ -283,7 +283,7 @@ export function GraphCanvas({
   }, [pendingEdge])
 
   return (
-    <div className="relative h-full w-full bg-bg-primary">
+    <div className="chokepoint-canvas-wrapper relative h-full w-full bg-bg-primary">
       <ReactFlow
         nodes={rfNodes}
         edges={rfEdges}
