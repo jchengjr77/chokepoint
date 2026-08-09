@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { RulesetFilter } from '../types'
 import { useAuth } from '../hooks/useAuth'
 import { THEMES, type ThemeId, type ThemeMode } from '../lib/themes'
+import { randomToolbarMessage } from '../lib/toolbarMessages'
 import { Dropdown } from './Dropdown'
 import { ConfirmModal } from './ConfirmModal'
 import { AboutModal } from './AboutModal'
@@ -35,6 +36,7 @@ export function Toolbar({
   const { user, signOut } = useAuth()
   const [confirmingSignOut, setConfirmingSignOut] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
+  const [toolbarMessage] = useState(randomToolbarMessage)
 
   return (
     <div className="flex h-12 shrink-0 items-center gap-4 overflow-x-auto border-b border-border bg-bg-surface px-3">
@@ -64,6 +66,10 @@ export function Toolbar({
         onChange={(e) => onSearchQueryChange(e.target.value)}
         className="w-32 shrink-0 border-0 border-b border-border bg-transparent py-1 text-[12px] text-text-primary outline-none placeholder:text-text-tertiary focus:border-border-focus sm:w-40"
       />
+
+      <span className="hidden flex-1 select-none truncate text-center text-[11px] italic text-text-tertiary md:block">
+        {toolbarMessage}
+      </span>
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
         <button
