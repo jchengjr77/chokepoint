@@ -38,7 +38,7 @@ export function LoginScreen() {
           Chokepoint
         </h1>
         <p className="mb-6 text-center text-[11px] text-text-secondary">
-          A personal BJJ knowledge graph.{' '}
+          A training journal for the modern grappler.{' '}
           <button
             type="button"
             onClick={() => setShowAbout(true)}

@@ -1,6 +1,7 @@
-// Supabase Edge Function: parses free-text BJJ training notes into structured
-// graph nodes/edges using the Claude API. The Anthropic API key is read from
-// Supabase secrets (ANTHROPIC_API_KEY) — never exposed to the client.
+// Supabase Edge Function: parses free-text grappling training notes into
+// structured graph nodes/edges using the Claude API. The Anthropic API key
+// is read from Supabase secrets (ANTHROPIC_API_KEY) — never exposed to the
+// client.
 //
 // Deploy with: supabase functions deploy parse-nl
 // Set secret with: supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
@@ -47,18 +48,18 @@ interface RequestBody {
 function buildSystemPrompt(positions: LibraryEntry[], submissions: LibraryEntry[]): string {
   const libraryDump = JSON.stringify({ positions, submissions }, null, 2)
 
-  return `You are a parser that extracts structured BJJ (Brazilian Jiu-Jitsu) training data from free-text descriptions.
+  return `You are a parser that extracts structured grappling (Brazilian Jiu-Jitsu, wrestling, judo, no-gi submission grappling) training data from free-text descriptions.
 
 You will receive a user's free-text description of what they drilled or learned, a list of libraryIds already on the user's graph, an optional list of the user's own custom (user-defined) library entries, plus the full canonical library of positions and submissions.
 
 RULES:
-0. The text may not describe any BJJ training at all — it could be off-topic, a random question, spam, or gibberish. Do not force a match just because some word loosely resembles a library entry's label (e.g. "roll" in "lobster roll" is NOT a BJJ "roll"; "guard" in an unrelated sentence about a security guard is NOT "Closed Guard"). If the text does not genuinely describe BJJ positions, submissions, or transitions the user trained/drilled, return empty "nodes" and "edges" arrays and an empty "unrecognized" array — do NOT put non-BJJ words into "unrecognized" either, since that field is only for BJJ terms that failed to match the library, not for arbitrary off-topic text.
+0. The text may not describe any grappling training at all — it could be off-topic, a random question, spam, or gibberish. Do not force a match just because some word loosely resembles a library entry's label (e.g. "roll" in "lobster roll" is NOT a grappling "roll"; "guard" in an unrelated sentence about a security guard is NOT "Closed Guard"). If the text does not genuinely describe grappling positions, submissions, or transitions the user trained/drilled, return empty "nodes" and "edges" arrays and an empty "unrecognized" array — do NOT put non-grappling words into "unrecognized" either, since that field is only for grappling terms that failed to match the library, not for arbitrary off-topic text.
 1. Extract every position and submission mentioned in the text.
-2. Every extracted position/submission MUST map to an entry in the provided library OR the user's custom entries list given in the user message (match by label, case-insensitive, fuzzy match acceptable). Never invent a libraryId that isn't in either list. Fuzzy matching means tolerating typos, abbreviations, and rephrasing of a genuine BJJ term — it does NOT mean treating an unrelated English word as a match just because it shares a substring with a library label.
+2. Every extracted position/submission MUST map to an entry in the provided library OR the user's custom entries list given in the user message (match by label, case-insensitive, fuzzy match acceptable). Never invent a libraryId that isn't in either list. Fuzzy matching means tolerating typos, abbreviations, and rephrasing of a genuine grappling term — it does NOT mean treating an unrelated English word as a match just because it shares a substring with a library label.
 3. Extract every transition described (source -> destination), including chains (e.g. "A to B then B to C" produces two edges).
 4. Positions and submissions are a closed, curated set — but transitions between them are NOT. There is no fixed list of "known" transitions: two positions in this library can be connected by any technique, and the same pair of positions can be connected in many different ways (different sweeps, passes, escapes, entries). Do not limit yourself to "typical" or "textbook" connections — trust the user's description of what they actually did, even if it's an unusual or uncommon route between two positions.
 5. The edge "label" should be a short, natural description of the specific technique the user described (e.g. "berimbolo", "far-side armbar", "russian 2-on-1 to back take") — write it in your own words based on what the user said, don't force it to match any pre-existing phrasing. If the user only said they went from one position/submission to another without naming a specific technique (e.g. "north south to kimura"), leave "label" as an empty string "" rather than inventing or guessing a technique name — do not fabricate a label just to fill the field.
-6. If a genuine BJJ term (position, submission, or technique) cannot be confidently matched to any library entry, add the raw term to "unrecognized" and do NOT include it in nodes/edges.
+6. If a genuine grappling term (position, submission, or technique) cannot be confidently matched to any library entry, add the raw term to "unrecognized" and do NOT include it in nodes/edges.
 7. Mark "alreadyOnGraph": true for any libraryId that appears in the "existingLibraryIds" list given in the user message.
 8. The user message begins with a line "today: YYYY-MM-DD (Weekday)". If the user's text references when the training happened (e.g. "yesterday", "on Monday", "last Tuesday", "this morning", "on 8/5", "a couple days ago"), resolve it to an absolute date relative to "today" and set "trainedAt" to that date as "YYYY-MM-DD". If the text gives no indication of when the training happened, set "trainedAt" to null (meaning: today, i.e. right now) rather than guessing. Never resolve to a future date — if a weekday reference is ambiguous between this week and last week, assume the most recent past occurrence.
 9. Respond with ONLY valid JSON, no markdown fences, matching this exact shape:
