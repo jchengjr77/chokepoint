@@ -13,6 +13,7 @@ import { ImportExportModal } from './components/ImportExportModal'
 import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './components/OnboardingOverlay'
 import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
+import { JournalButton } from './components/JournalButton'
 import { placeNearContext } from './lib/layout'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
@@ -149,7 +150,6 @@ function MainApp() {
         onAddNode={() => setShowLibraryPicker(true)}
         onResetView={() => setResetViewToken((t) => t + 1)}
         onAutoLayout={() => setAutoLayoutToken((t) => t + 1)}
-        onOpenJournal={() => setShowJournal(true)}
         theme={theme}
         themeMode={themeMode}
         onThemeChange={(t) => void setTheme(t)}
@@ -208,6 +208,12 @@ function MainApp() {
             >
               Import / Export
             </button>
+          </div>
+
+          <div
+            className={`absolute bottom-4 right-4 ${selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''}`}
+          >
+            <JournalButton onClick={() => setShowJournal(true)} />
           </div>
         </div>
 

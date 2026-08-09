@@ -13,7 +13,6 @@ interface ToolbarProps {
   onAddNode: () => void
   onResetView: () => void
   onAutoLayout: () => void
-  onOpenJournal: () => void
   theme: ThemeId
   themeMode: ThemeMode
   onThemeChange: (theme: ThemeId) => void
@@ -28,7 +27,6 @@ export function Toolbar({
   onAddNode,
   onResetView,
   onAutoLayout,
-  onOpenJournal,
   theme,
   themeMode,
   onThemeChange,
@@ -42,15 +40,6 @@ export function Toolbar({
     <div className="flex h-12 shrink-0 items-center gap-4 overflow-x-auto border-b border-border bg-bg-surface px-3">
 
       <span className="shrink-0 text-[14px] font-bold uppercase tracking-wide text-text-primary">Chokepoint</span>
-
-      <button
-        onClick={onOpenJournal}
-        className="shrink-0 border border-node-submission bg-node-submission px-3 py-1.5 text-[11px] font-bold uppercase text-black hover:bg-transparent hover:text-node-submission"
-      >
-        Journal
-      </button>
-
-      <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
 
       <div className="flex shrink-0 border border-border text-[11px] font-medium uppercase">
         {(['all', 'gi', 'nogi'] as RulesetFilter[]).map((r) => (
