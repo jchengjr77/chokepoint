@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ReactFlowProvider } from 'reactflow'
 import { useAuth } from './hooks/useAuth'
 import { GraphStoreProvider, useGraphStore } from './hooks/useGraphStore'
@@ -23,7 +23,24 @@ function OfflineBanner() {
 }
 
 function MainApp() {
-  const { nodes, loading, online, rulesetFilter, setRulesetFilter, addNode, addEdge } = useGraphStore()
+  const {
+    nodes,
+    loading,
+    online,
+    rulesetFilter,
+    setRulesetFilter,
+    theme,
+    themeMode,
+    setTheme,
+    setThemeMode,
+    addNode,
+    addEdge,
+  } = useGraphStore()
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.setAttribute('data-mode', themeMode)
+  }, [theme, themeMode])
 
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
@@ -106,6 +123,10 @@ function MainApp() {
         onAddNode={() => setShowLibraryPicker(true)}
         onResetView={() => setResetViewToken((t) => t + 1)}
         onAutoLayout={() => setAutoLayoutToken((t) => t + 1)}
+        theme={theme}
+        themeMode={themeMode}
+        onThemeChange={(t) => void setTheme(t)}
+        onThemeModeChange={(m) => void setThemeMode(m)}
       />
 
       <div className="relative flex flex-1 overflow-hidden">
@@ -147,7 +168,7 @@ function MainApp() {
                 setConnectMode((v) => !v)
                 setConnectSourceId(null)
               }}
-              className={`border px-3 py-1.5 text-[11px] font-medium uppercase hover:bg-bg-elevated ${
+              className={`border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase hover:bg-bg-elevated ${
                 connectMode ? 'border-node-submission text-node-submission' : 'border-border text-text-primary'
               }`}
             >
@@ -155,7 +176,7 @@ function MainApp() {
             </button>
             <button
               onClick={() => setShowImportExport(true)}
-              className="border border-border px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
+              className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
             >
               Import / Export
             </button>

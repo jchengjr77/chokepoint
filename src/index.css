@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  /* Albino and Preto (default) — dark */
   --bg-primary: #000000;
   --bg-surface: #111111;
   --bg-elevated: #1a1a1a;
@@ -22,6 +23,177 @@
   --dimmed: 0.25;
 
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* Albino and Preto — light */
+:root[data-theme='albino-preto'][data-mode='light'] {
+  --bg-primary: #ffffff;
+  --bg-surface: #f2f2f2;
+  --bg-elevated: #e8e8e8;
+  --bg-node: #efefef;
+  --border: #cccccc;
+  --border-focus: #888888;
+
+  --text-primary: #000000;
+  --text-secondary: #555555;
+  --text-tertiary: #999999;
+
+  --node-position: #000000;
+  --node-submission: #00994d;
+  --edge-default: #aaaaaa;
+  --edge-submission: #00994d;
+}
+
+/* Solarized — dark */
+:root[data-theme='solarized'][data-mode='dark'] {
+  --bg-primary: #002b36;
+  --bg-surface: #073642;
+  --bg-elevated: #0a4351;
+  --bg-node: #0e4a59;
+  --border: #10525f;
+  --border-focus: #586e75;
+
+  --text-primary: #93a1a1;
+  --text-secondary: #839496;
+  --text-tertiary: #586e75;
+
+  --node-position: #eee8d5;
+  --node-submission: #859900;
+  --edge-default: #2b5b66;
+  --edge-submission: #859900;
+}
+
+/* Solarized — light */
+:root[data-theme='solarized'][data-mode='light'] {
+  --bg-primary: #fdf6e3;
+  --bg-surface: #eee8d5;
+  --bg-elevated: #e4ddc8;
+  --bg-node: #e8e1cc;
+  --border: #d9d2ba;
+  --border-focus: #93a1a1;
+
+  --text-primary: #586e75;
+  --text-secondary: #657b83;
+  --text-tertiary: #93a1a1;
+
+  --node-position: #073642;
+  --node-submission: #587900;
+  --edge-default: #c9c0a4;
+  --edge-submission: #587900;
+}
+
+/* Gruvbox — dark */
+:root[data-theme='gruvbox'][data-mode='dark'] {
+  --bg-primary: #1d2021;
+  --bg-surface: #282828;
+  --bg-elevated: #32302f;
+  --bg-node: #3c3836;
+  --border: #504945;
+  --border-focus: #7c6f64;
+
+  --text-primary: #ebdbb2;
+  --text-secondary: #a89984;
+  --text-tertiary: #7c6f64;
+
+  --node-position: #fbf1c7;
+  --node-submission: #b8bb26;
+  --edge-default: #504945;
+  --edge-submission: #b8bb26;
+}
+
+/* Gruvbox — light */
+:root[data-theme='gruvbox'][data-mode='light'] {
+  --bg-primary: #fbf1c7;
+  --bg-surface: #ebdbb2;
+  --bg-elevated: #e3d5a8;
+  --bg-node: #e8dab0;
+  --border: #d5c4a1;
+  --border-focus: #a89984;
+
+  --text-primary: #3c3836;
+  --text-secondary: #504945;
+  --text-tertiary: #7c6f64;
+
+  --node-position: #282828;
+  --node-submission: #79740e;
+  --edge-default: #c9b788;
+  --edge-submission: #79740e;
+}
+
+/* GitHub — dark */
+:root[data-theme='github'][data-mode='dark'] {
+  --bg-primary: #0d1117;
+  --bg-surface: #161b22;
+  --bg-elevated: #1c2128;
+  --bg-node: #21262d;
+  --border: #30363d;
+  --border-focus: #6e7681;
+
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-tertiary: #6e7681;
+
+  --node-position: #f0f6fc;
+  --node-submission: #3fb950;
+  --edge-default: #30363d;
+  --edge-submission: #3fb950;
+}
+
+/* GitHub — light */
+:root[data-theme='github'][data-mode='light'] {
+  --bg-primary: #ffffff;
+  --bg-surface: #f6f8fa;
+  --bg-elevated: #eef1f4;
+  --bg-node: #f0f2f5;
+  --border: #d0d7de;
+  --border-focus: #8c959f;
+
+  --text-primary: #24292f;
+  --text-secondary: #57606a;
+  --text-tertiary: #8c959f;
+
+  --node-position: #0d1117;
+  --node-submission: #2da44e;
+  --edge-default: #d0d7de;
+  --edge-submission: #2da44e;
+}
+
+/* Synthwave '84 — dark (official) */
+:root[data-theme='synthwave84'][data-mode='dark'] {
+  --bg-primary: #262335;
+  --bg-surface: #241b2f;
+  --bg-elevated: #2a2139;
+  --bg-node: #34294f;
+  --border: #495495;
+  --border-focus: #ff7edb;
+
+  --text-primary: #ffffff;
+  --text-secondary: #f92aad;
+  --text-tertiary: #848bbd;
+
+  --node-position: #ffffff;
+  --node-submission: #72f1b8;
+  --edge-default: #495495;
+  --edge-submission: #72f1b8;
+}
+
+/* Synthwave '84 — light (synthesized, no official light variant) */
+:root[data-theme='synthwave84'][data-mode='light'] {
+  --bg-primary: #fdf0f7;
+  --bg-surface: #f7e0ef;
+  --bg-elevated: #f1d0e7;
+  --bg-node: #f3d7ea;
+  --border: #dba8cd;
+  --border-focus: #d6409f;
+
+  --text-primary: #3b1e4d;
+  --text-secondary: #a2318f;
+  --text-tertiary: #8867a8;
+
+  --node-position: #3b1e4d;
+  --node-submission: #0d9a6c;
+  --edge-default: #d9a9cc;
+  --edge-submission: #0d9a6c;
 }
 
 * {

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactFlow, {
   Background,
   BackgroundVariant,
-  MiniMap,
   Position,
   useReactFlow,
   type Connection,
@@ -86,7 +85,7 @@ export function GraphCanvas({
   autoLayoutToken,
 }: GraphCanvasProps) {
   const { nodes, edges, updateNodePosition, addEdge } = useGraphStore()
-  const { fitView, setViewport } = useReactFlow()
+  const { fitView, setViewport, getNode } = useReactFlow()
   const [pendingEdge, setPendingEdge] = useState<{ source: GraphNode; target: GraphNode } | null>(null)
   const [dragPositions, setDragPositions] = useState<Map<string, { x: number; y: number }>>(new Map())
   const prevResetToken = useRef(resetViewToken)
@@ -111,7 +110,10 @@ export function GraphCanvas({
       prevLayoutToken.current = autoLayoutToken
       const positions = computeAutoLayout(nodes, edges)
       for (const [id, pos] of positions.entries()) {
-        void updateNodePosition(id, pos.x, pos.y)
+        const rfNode = getNode(id)
+        const width = rfNode?.width ?? 110
+        const height = rfNode?.height ?? 36
+        void updateNodePosition(id, pos.x - width / 2, pos.y - height / 2)
       }
       window.requestAnimationFrame(() => fitView({ padding: 0.2, duration: 200 }))
     }
@@ -159,6 +161,9 @@ export function GraphCanvas({
         const targetNode = nodes.find((n) => n.id === e.targetId)
         const isSubmissionEntry = targetNode?.type === 'submission'
         const { sourceHandle, targetHandle } = pickHandlePair(sourceNode, targetNode)
+        const searchMatch = searchMatchSet
+          ? searchMatchSet.has(e.sourceId) || searchMatchSet.has(e.targetId)
+          : null
         return {
           id: e.id,
           source: e.sourceId,
@@ -170,10 +175,11 @@ export function GraphCanvas({
             label: e.label,
             bidirectional: e.bidirectional,
             isSubmissionEntry,
+            searchMatch,
           },
         }
       }),
-    [edges, nodes]
+    [edges, nodes, searchMatchSet]
   )
 
   const handleNodeClick: NodeMouseHandler = useCallback(
@@ -259,19 +265,7 @@ export function GraphCanvas({
         maxZoom={2.5}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={2} color="#555555" />
-        <MiniMap
-          className="hidden sm:block"
-          style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
-            width: 120,
-            height: 80,
-          }}
-          maskColor="rgba(0,0,0,0.6)"
-          nodeColor={(n) => (n.type === 'submission' ? '#00cc66' : '#ffffff')}
-          nodeBorderRadius={0}
-        />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={2} color="var(--border-focus)" />
       </ReactFlow>
 
       {pendingEdge && (

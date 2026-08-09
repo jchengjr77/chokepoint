@@ -1,227 +1,1635 @@
 {
   "positions": [
-    { "id": "pos-standing", "label": "Standing", "aliases": ["neutral standing", "feet"], "tags": ["standing", "neutral"], "rulesets": ["gi", "nogi"] },
-    { "id": "pos-standing-single-leg", "label": "Standing Single Leg", "aliases": ["single leg takedown attempt"], "tags": ["standing", "neutral"], "rulesets": ["gi", "nogi"] },
-    { "id": "pos-standing-body-lock", "label": "Standing Body Lock", "aliases": ["body lock"], "tags": ["standing", "neutral"], "rulesets": ["gi", "nogi"] },
-    { "id": "pos-standing-underhook", "label": "Standing Underhook", "aliases": ["underhook"], "tags": ["standing", "neutral"], "rulesets": ["gi", "nogi"] },
-    { "id": "pos-standing-overhook", "label": "Standing Overhook", "aliases": ["overhook"], "tags": ["standing", "neutral"], "rulesets": ["gi", "nogi"] },
-
-    { "id": "pos-closed-guard-bottom", "label": "- Closed Guard", "aliases": ["full guard", "closed guard"], "tags": ["guard", "bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-closed-guard-top", "label": "+ Closed Guard", "aliases": ["passing closed guard", "in closed guard top"], "tags": ["guard", "top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-open-guard", "label": "Open Guard", "aliases": [], "tags": ["guard"], "rulesets": ["gi", "nogi"] },
-
-    { "id": "pos-butterfly-guard-bottom", "label": "- Butterfly Guard", "aliases": ["hooks guard", "butterfly guard"], "tags": ["guard", "bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-butterfly-guard-top", "label": "+ Butterfly Guard", "aliases": ["passing butterfly guard"], "tags": ["guard", "top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-de-la-riva", "label": "De La Riva", "aliases": ["dlr", "de la riva guard"], "tags": ["guard"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-reverse-de-la-riva", "label": "Reverse De La Riva", "aliases": ["rdlr", "reverse dlr", "reverse de la riva guard"], "tags": ["guard"], "rulesets": ["gi", "nogi"] },
-
-    { "id": "pos-spider-guard", "label": "Spider Guard", "aliases": ["spider guard"], "tags": ["guard"], "rulesets": ["gi"], "advantage": 1 },
-
-    { "id": "pos-lasso-guard", "label": "Lasso Guard", "aliases": ["lasso guard"], "tags": ["guard"], "rulesets": ["gi"], "advantage": 1 },
-
-    { "id": "pos-x-guard", "label": "X-Guard", "aliases": ["x-guard"], "tags": ["guard"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-single-leg-x", "label": "Single Leg X Guard", "aliases": ["slx", "single-leg-x", "ashi garami", "basic ashi"], "tags": ["guard", "leglock"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-half-guard-bottom", "label": "- Half Guard", "aliases": ["half guard"], "tags": ["guard", "bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-half-guard-top", "label": "+ Half Guard", "aliases": ["passing half guard", "combat base"], "tags": ["guard", "top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-deep-half-guard-bottom", "label": "- Deep Half Guard", "aliases": ["deep half"], "tags": ["guard", "bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-deep-half-guard-top", "label": "+ Deep Half Guard", "aliases": ["passing deep half"], "tags": ["guard", "top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-shin-to-shin-guard", "label": "Shin on Shin", "aliases": ["shin to shin", "shin-to-shin guard"], "tags": ["guard"], "rulesets": ["gi", "nogi"] },
-
-    { "id": "pos-rubber-guard", "label": "Rubber Guard", "aliases": ["mission control"], "tags": ["guard"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-50-50-guard", "label": "50/50", "aliases": ["50-50", "fifty fifty", "50/50 guard"], "tags": ["guard", "neutral", "leglock"], "rulesets": ["gi", "nogi"] },
-
-    { "id": "pos-turtle-bottom", "label": "- Turtle", "aliases": ["turtle"], "tags": ["bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-turtle-top", "label": "+ Turtle", "aliases": ["on turtle", "attacking turtle"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-mount-bottom", "label": "- Mount", "aliases": ["mounted", "being mounted"], "tags": ["bottom"], "rulesets": ["gi", "nogi"], "advantage": -2 },
-    { "id": "pos-mount-top", "label": "+ Mount", "aliases": ["full mount", "mount"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 2 },
-
-    { "id": "pos-s-mount-bottom", "label": "- S-Mount", "aliases": ["under s-mount"], "tags": ["bottom"], "rulesets": ["gi", "nogi"], "advantage": -2 },
-    { "id": "pos-s-mount-top", "label": "+ S-Mount", "aliases": ["s mount", "s-mount"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 2 },
-
-    { "id": "pos-side-control-bottom", "label": "- Side Control", "aliases": ["under side control", "bottom side control"], "tags": ["bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-side-control-top", "label": "+ Side Control", "aliases": ["side mount", "cross-side", "side control"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-kesa-gatame", "label": "Kesa Gatame", "aliases": ["scarf hold"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-north-south-bottom", "label": "- North-South", "aliases": ["under north south"], "tags": ["bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-north-south-top", "label": "+ North-South", "aliases": ["north south", "north-south"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-knee-on-belly-bottom", "label": "- Knee on Belly", "aliases": ["under knee on belly"], "tags": ["bottom"], "rulesets": ["gi", "nogi"], "advantage": -1 },
-    { "id": "pos-knee-on-belly-top", "label": "+ Knee on Belly", "aliases": ["knee-on-belly", "kob"], "tags": ["top"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-crucifix", "label": "Crucifix", "aliases": ["crucifix"], "tags": ["back"], "rulesets": ["gi", "nogi"], "advantage": 2 },
-
-    { "id": "pos-back-mount-bottom", "label": "- Back Mount", "aliases": ["back taken", "being back mounted", "under body triangle", "under seatbelt"], "tags": ["bottom", "back"], "rulesets": ["gi", "nogi"], "advantage": -2 },
-    { "id": "pos-back-mount-top", "label": "+ Back Mount", "aliases": ["back control", "the back", "back mount", "body triangle", "seatbelt"], "tags": ["top", "back"], "rulesets": ["gi", "nogi"], "advantage": 2 },
-
-    { "id": "pos-outside-ashi", "label": "Outside Ashi", "aliases": ["outside ashi garami"], "tags": ["leglock"], "rulesets": ["gi", "nogi"], "advantage": 1 },
-
-    { "id": "pos-saddle", "label": "Saddle (Inside Sankaku)", "aliases": ["inside sankaku", "honey hole"], "tags": ["leglock"], "rulesets": ["nogi"], "advantage": 2 },
-
-    { "id": "pos-leg-drag", "label": "Leg Drag", "aliases": [], "tags": [], "rulesets": ["gi", "nogi"], "advantage": 1 }
+    {
+      "id": "pos-standing",
+      "label": "Standing",
+      "aliases": [
+        "neutral standing",
+        "feet"
+      ],
+      "tags": [
+        "standing",
+        "neutral"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-standing-single-leg",
+      "label": "Standing Single Leg",
+      "aliases": [
+        "single leg takedown attempt"
+      ],
+      "tags": [
+        "standing",
+        "neutral"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-standing-body-lock",
+      "label": "Standing Body Lock",
+      "aliases": [
+        "body lock"
+      ],
+      "tags": [
+        "standing",
+        "neutral"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-standing-underhook",
+      "label": "Standing Underhook",
+      "aliases": [
+        "underhook"
+      ],
+      "tags": [
+        "standing",
+        "neutral"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-standing-overhook",
+      "label": "Standing Overhook",
+      "aliases": [
+        "overhook"
+      ],
+      "tags": [
+        "standing",
+        "neutral"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-closed-guard-bottom",
+      "label": "Bottom Closed Guard",
+      "aliases": [
+        "full guard",
+        "closed guard",
+        "- Closed Guard"
+      ],
+      "tags": [
+        "guard",
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-closed-guard-top",
+      "label": "Top Closed Guard",
+      "aliases": [
+        "passing closed guard",
+        "in closed guard top",
+        "+ Closed Guard"
+      ],
+      "tags": [
+        "guard",
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-open-guard",
+      "label": "Open Guard",
+      "aliases": [],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-butterfly-guard-bottom",
+      "label": "Bottom Butterfly Guard",
+      "aliases": [
+        "hooks guard",
+        "butterfly guard",
+        "- Butterfly Guard"
+      ],
+      "tags": [
+        "guard",
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-butterfly-guard-top",
+      "label": "Top Butterfly Guard",
+      "aliases": [
+        "passing butterfly guard",
+        "+ Butterfly Guard"
+      ],
+      "tags": [
+        "guard",
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-de-la-riva",
+      "label": "De La Riva",
+      "aliases": [
+        "dlr",
+        "de la riva guard"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-reverse-de-la-riva",
+      "label": "Reverse De La Riva",
+      "aliases": [
+        "rdlr",
+        "reverse dlr",
+        "reverse de la riva guard"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-spider-guard",
+      "label": "Spider Guard",
+      "aliases": [
+        "spider guard"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-lasso-guard",
+      "label": "Lasso Guard",
+      "aliases": [
+        "lasso guard"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-x-guard",
+      "label": "X-Guard",
+      "aliases": [
+        "x-guard"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-single-leg-x",
+      "label": "Single Leg X Guard",
+      "aliases": [
+        "slx",
+        "single-leg-x",
+        "ashi garami",
+        "basic ashi"
+      ],
+      "tags": [
+        "guard",
+        "leglock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-half-guard-bottom",
+      "label": "Bottom Half Guard",
+      "aliases": [
+        "half guard",
+        "- Half Guard"
+      ],
+      "tags": [
+        "guard",
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-half-guard-top",
+      "label": "Top Half Guard",
+      "aliases": [
+        "passing half guard",
+        "combat base",
+        "+ Half Guard"
+      ],
+      "tags": [
+        "guard",
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-deep-half-guard-bottom",
+      "label": "Bottom Deep Half Guard",
+      "aliases": [
+        "deep half",
+        "- Deep Half Guard"
+      ],
+      "tags": [
+        "guard",
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-deep-half-guard-top",
+      "label": "Top Deep Half Guard",
+      "aliases": [
+        "passing deep half",
+        "+ Deep Half Guard"
+      ],
+      "tags": [
+        "guard",
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-shin-to-shin-guard",
+      "label": "Shin on Shin",
+      "aliases": [
+        "shin to shin",
+        "shin-to-shin guard"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-rubber-guard",
+      "label": "Rubber Guard",
+      "aliases": [
+        "mission control"
+      ],
+      "tags": [
+        "guard"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-50-50-guard",
+      "label": "50/50",
+      "aliases": [
+        "50-50",
+        "fifty fifty",
+        "50/50 guard"
+      ],
+      "tags": [
+        "guard",
+        "neutral",
+        "leglock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "pos-turtle-bottom",
+      "label": "Bottom Turtle",
+      "aliases": [
+        "turtle",
+        "- Turtle"
+      ],
+      "tags": [
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-turtle-top",
+      "label": "Top Turtle",
+      "aliases": [
+        "on turtle",
+        "attacking turtle",
+        "+ Turtle"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-mount-bottom",
+      "label": "Bottom Mount",
+      "aliases": [
+        "mounted",
+        "being mounted",
+        "- Mount"
+      ],
+      "tags": [
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -2
+    },
+    {
+      "id": "pos-mount-top",
+      "label": "Top Mount",
+      "aliases": [
+        "full mount",
+        "mount",
+        "+ Mount"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
+      "id": "pos-s-mount-bottom",
+      "label": "Bottom S-Mount",
+      "aliases": [
+        "under s-mount",
+        "- S-Mount"
+      ],
+      "tags": [
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -2
+    },
+    {
+      "id": "pos-s-mount-top",
+      "label": "Top S-Mount",
+      "aliases": [
+        "s mount",
+        "s-mount",
+        "+ S-Mount"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
+      "id": "pos-side-control-bottom",
+      "label": "Bottom Side Control",
+      "aliases": [
+        "under side control",
+        "bottom side control",
+        "- Side Control"
+      ],
+      "tags": [
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-side-control-top",
+      "label": "Top Side Control",
+      "aliases": [
+        "side mount",
+        "cross-side",
+        "side control",
+        "+ Side Control"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-kesa-gatame",
+      "label": "Kesa Gatame",
+      "aliases": [
+        "scarf hold"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-north-south-bottom",
+      "label": "Bottom North-South",
+      "aliases": [
+        "under north south",
+        "- North-South"
+      ],
+      "tags": [
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-north-south-top",
+      "label": "Top North-South",
+      "aliases": [
+        "north south",
+        "north-south",
+        "+ North-South"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-knee-on-belly-bottom",
+      "label": "Bottom Knee on Belly",
+      "aliases": [
+        "under knee on belly",
+        "- Knee on Belly"
+      ],
+      "tags": [
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -1
+    },
+    {
+      "id": "pos-knee-on-belly-top",
+      "label": "Top Knee on Belly",
+      "aliases": [
+        "knee-on-belly",
+        "kob",
+        "+ Knee on Belly"
+      ],
+      "tags": [
+        "top"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-crucifix",
+      "label": "Crucifix",
+      "aliases": [
+        "crucifix"
+      ],
+      "tags": [
+        "back"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
+      "id": "pos-back-mount-bottom",
+      "label": "Bottom Back Mount",
+      "aliases": [
+        "back taken",
+        "being back mounted",
+        "under body triangle",
+        "under seatbelt",
+        "- Back Mount"
+      ],
+      "tags": [
+        "bottom",
+        "back"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": -2
+    },
+    {
+      "id": "pos-back-mount-top",
+      "label": "Top Back Mount",
+      "aliases": [
+        "back control",
+        "the back",
+        "back mount",
+        "body triangle",
+        "seatbelt",
+        "+ Back Mount"
+      ],
+      "tags": [
+        "top",
+        "back"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
+      "id": "pos-outside-ashi",
+      "label": "Outside Ashi",
+      "aliases": [
+        "outside ashi garami"
+      ],
+      "tags": [
+        "leglock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    },
+    {
+      "id": "pos-saddle",
+      "label": "Saddle (Inside Sankaku)",
+      "aliases": [
+        "inside sankaku",
+        "honey hole"
+      ],
+      "tags": [
+        "leglock"
+      ],
+      "rulesets": [
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
+      "id": "pos-leg-drag",
+      "label": "Leg Drag",
+      "aliases": [],
+      "tags": [],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 1
+    }
   ],
   "submissions": [
-    { "id": "sub-rear-naked-choke", "label": "Rear Naked Choke", "aliases": ["rnc", "mata leao"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-triangle-choke", "label": "Triangle", "aliases": ["triangle choke", "sankaku-jime"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-guillotine", "label": "Guillotine", "aliases": ["guillotine choke"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-arm-triangle", "label": "Arm Triangle", "aliases": ["arm triangle choke", "kata gatame", "head-and-arm choke"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-cross-collar-choke", "label": "Cross Collar Choke", "aliases": ["cross choke"], "tags": ["choke", "gi-specific"], "rulesets": ["gi"] },
-    { "id": "sub-bow-and-arrow-choke", "label": "Bow and Arrow", "aliases": ["bow and arrow choke"], "tags": ["choke", "gi-specific"], "rulesets": ["gi"] },
-    { "id": "sub-baseball-bat-choke", "label": "Baseball Bat", "aliases": ["baseball bat choke"], "tags": ["choke", "gi-specific"], "rulesets": ["gi"] },
-    { "id": "sub-ezekiel-choke", "label": "Ezekiel", "aliases": ["ezekiel choke", "sode guruma jime"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-darce-choke", "label": "D'Arce", "aliases": ["d'arce choke", "darce", "brabo choke"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-anaconda-choke", "label": "Anaconda", "aliases": ["anaconda choke"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-loop-choke", "label": "Loop Choke", "aliases": ["loop"], "tags": ["choke", "gi-specific"], "rulesets": ["gi"] },
-    { "id": "sub-peruvian-necktie", "label": "Peruvian Necktie", "aliases": ["necktie"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-smother-choke", "label": "Smother Choke", "aliases": ["smother"], "tags": ["choke"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-armbar", "label": "Armbar", "aliases": ["juji-gatame", "straight armlock"], "tags": ["joint-lock", "arm"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-kimura", "label": "Kimura", "aliases": ["reverse ude-garami", "double wristlock"], "tags": ["joint-lock", "arm"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-americana", "label": "Americana", "aliases": ["ude-garami", "keylock"], "tags": ["joint-lock", "arm"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-omoplata", "label": "Omoplata", "aliases": [], "tags": ["joint-lock", "shoulder"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-tarikoplata", "label": "Tarikoplata", "aliases": ["tarik-oplata"], "tags": ["joint-lock", "shoulder"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-baratoplata", "label": "Baratoplata", "aliases": [], "tags": ["joint-lock", "shoulder"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-bicep-slicer", "label": "Bicep Slicer", "aliases": ["bicep crusher"], "tags": ["joint-lock", "arm"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-wristlock", "label": "Wristlock", "aliases": [], "tags": ["joint-lock", "wrist"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-choi-bar", "label": "Choi Bar", "aliases": ["inverted armbar"], "tags": ["joint-lock", "arm"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-aoki-lock", "label": "Aoki Lock", "aliases": ["twister lock", "inside heel hook variant"], "tags": ["joint-lock", "leglock"], "rulesets": ["nogi"] },
-    { "id": "sub-straight-ankle-lock", "label": "Straight Ankle Lock", "aliases": ["ankle lock", "achilles lock"], "tags": ["leglock", "joint-lock"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-heel-hook-inside", "label": "Inside Heel Hook", "aliases": ["heel hook"], "tags": ["leglock", "joint-lock"], "rulesets": ["nogi"] },
-    { "id": "sub-heel-hook-outside", "label": "Outside Heel Hook", "aliases": [], "tags": ["leglock", "joint-lock"], "rulesets": ["nogi"] },
-    { "id": "sub-kneebar", "label": "Kneebar", "aliases": [], "tags": ["leglock", "joint-lock"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-toe-hold", "label": "Toe Hold", "aliases": [], "tags": ["leglock", "joint-lock"], "rulesets": ["gi", "nogi"] },
-    { "id": "sub-calf-slicer", "label": "Calf Slicer", "aliases": ["calf crusher"], "tags": ["leglock", "joint-lock"], "rulesets": ["gi", "nogi"] }
+    {
+      "id": "sub-rear-naked-choke",
+      "label": "Rear Naked Choke",
+      "aliases": [
+        "rnc",
+        "mata leao"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-triangle-choke",
+      "label": "Triangle",
+      "aliases": [
+        "triangle choke",
+        "sankaku-jime"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-guillotine",
+      "label": "Guillotine",
+      "aliases": [
+        "guillotine choke"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-arm-triangle",
+      "label": "Arm Triangle",
+      "aliases": [
+        "arm triangle choke",
+        "kata gatame",
+        "head-and-arm choke"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-cross-collar-choke",
+      "label": "Cross Collar Choke",
+      "aliases": [
+        "cross choke"
+      ],
+      "tags": [
+        "choke",
+        "gi-specific"
+      ],
+      "rulesets": [
+        "gi"
+      ]
+    },
+    {
+      "id": "sub-bow-and-arrow-choke",
+      "label": "Bow and Arrow",
+      "aliases": [
+        "bow and arrow choke"
+      ],
+      "tags": [
+        "choke",
+        "gi-specific"
+      ],
+      "rulesets": [
+        "gi"
+      ]
+    },
+    {
+      "id": "sub-baseball-bat-choke",
+      "label": "Baseball Bat",
+      "aliases": [
+        "baseball bat choke"
+      ],
+      "tags": [
+        "choke",
+        "gi-specific"
+      ],
+      "rulesets": [
+        "gi"
+      ]
+    },
+    {
+      "id": "sub-ezekiel-choke",
+      "label": "Ezekiel",
+      "aliases": [
+        "ezekiel choke",
+        "sode guruma jime"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-darce-choke",
+      "label": "D'Arce",
+      "aliases": [
+        "d'arce choke",
+        "darce",
+        "brabo choke"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-anaconda-choke",
+      "label": "Anaconda",
+      "aliases": [
+        "anaconda choke"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-loop-choke",
+      "label": "Loop Choke",
+      "aliases": [
+        "loop"
+      ],
+      "tags": [
+        "choke",
+        "gi-specific"
+      ],
+      "rulesets": [
+        "gi"
+      ]
+    },
+    {
+      "id": "sub-peruvian-necktie",
+      "label": "Peruvian Necktie",
+      "aliases": [
+        "necktie"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-smother-choke",
+      "label": "Smother Choke",
+      "aliases": [
+        "smother"
+      ],
+      "tags": [
+        "choke"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-armbar",
+      "label": "Armbar",
+      "aliases": [
+        "juji-gatame",
+        "straight armlock"
+      ],
+      "tags": [
+        "joint-lock",
+        "arm"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-kimura",
+      "label": "Kimura",
+      "aliases": [
+        "reverse ude-garami",
+        "double wristlock"
+      ],
+      "tags": [
+        "joint-lock",
+        "arm"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-americana",
+      "label": "Americana",
+      "aliases": [
+        "ude-garami",
+        "keylock"
+      ],
+      "tags": [
+        "joint-lock",
+        "arm"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-omoplata",
+      "label": "Omoplata",
+      "aliases": [],
+      "tags": [
+        "joint-lock",
+        "shoulder"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-tarikoplata",
+      "label": "Tarikoplata",
+      "aliases": [
+        "tarik-oplata"
+      ],
+      "tags": [
+        "joint-lock",
+        "shoulder"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-baratoplata",
+      "label": "Baratoplata",
+      "aliases": [],
+      "tags": [
+        "joint-lock",
+        "shoulder"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-bicep-slicer",
+      "label": "Bicep Slicer",
+      "aliases": [
+        "bicep crusher"
+      ],
+      "tags": [
+        "joint-lock",
+        "arm"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-wristlock",
+      "label": "Wristlock",
+      "aliases": [],
+      "tags": [
+        "joint-lock",
+        "wrist"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-choi-bar",
+      "label": "Choi Bar",
+      "aliases": [
+        "inverted armbar"
+      ],
+      "tags": [
+        "joint-lock",
+        "arm"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-aoki-lock",
+      "label": "Aoki Lock",
+      "aliases": [
+        "twister lock",
+        "inside heel hook variant"
+      ],
+      "tags": [
+        "joint-lock",
+        "leglock"
+      ],
+      "rulesets": [
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-straight-ankle-lock",
+      "label": "Straight Ankle Lock",
+      "aliases": [
+        "ankle lock",
+        "achilles lock"
+      ],
+      "tags": [
+        "leglock",
+        "joint-lock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-heel-hook-inside",
+      "label": "Inside Heel Hook",
+      "aliases": [
+        "heel hook"
+      ],
+      "tags": [
+        "leglock",
+        "joint-lock"
+      ],
+      "rulesets": [
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-heel-hook-outside",
+      "label": "Outside Heel Hook",
+      "aliases": [],
+      "tags": [
+        "leglock",
+        "joint-lock"
+      ],
+      "rulesets": [
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-kneebar",
+      "label": "Kneebar",
+      "aliases": [],
+      "tags": [
+        "leglock",
+        "joint-lock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-toe-hold",
+      "label": "Toe Hold",
+      "aliases": [],
+      "tags": [
+        "leglock",
+        "joint-lock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    },
+    {
+      "id": "sub-calf-slicer",
+      "label": "Calf Slicer",
+      "aliases": [
+        "calf crusher"
+      ],
+      "tags": [
+        "leglock",
+        "joint-lock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ]
+    }
   ],
   "knownTransitions": [
-    { "sourceId": "pos-standing", "targetId": "pos-standing-single-leg", "label": "single leg shot" },
-    { "sourceId": "pos-standing", "targetId": "pos-standing-body-lock", "label": "body lock entry" },
-    { "sourceId": "pos-standing", "targetId": "pos-standing-underhook", "label": "underhook entry" },
-    { "sourceId": "pos-standing", "targetId": "pos-standing-overhook", "label": "overhook entry" },
-    { "sourceId": "pos-standing", "targetId": "pos-closed-guard-bottom", "label": "guard pull" },
-    { "sourceId": "pos-standing", "targetId": "pos-turtle-bottom", "label": "sprawl" },
-    { "sourceId": "pos-standing-single-leg", "targetId": "pos-side-control-top", "label": "takedown" },
-    { "sourceId": "pos-standing-body-lock", "targetId": "pos-side-control-top", "label": "takedown" },
-    { "sourceId": "pos-standing-underhook", "targetId": "pos-side-control-top", "label": "takedown" },
-    { "sourceId": "pos-standing-overhook", "targetId": "pos-closed-guard-bottom", "label": "guard pull" },
-
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "pos-mount-top", "label": "scissor sweep" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "pos-open-guard", "label": "guard retention" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-armbar", "label": "armbar from closed guard" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-triangle-choke", "label": "triangle from closed guard" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-omoplata", "label": "omoplata from closed guard" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-cross-collar-choke", "label": "cross collar choke" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-kimura", "label": "kimura from closed guard" },
-    { "sourceId": "pos-closed-guard-top", "targetId": "pos-open-guard", "label": "guard opened" },
-    { "sourceId": "pos-closed-guard-top", "targetId": "pos-mount-top", "label": "guard pass" },
-    { "sourceId": "pos-closed-guard-top", "targetId": "pos-side-control-top", "label": "guard pass" },
-
-    { "sourceId": "pos-open-guard", "targetId": "pos-de-la-riva", "label": "guard transition" },
-    { "sourceId": "pos-open-guard", "targetId": "pos-butterfly-guard-bottom", "label": "guard transition" },
-    { "sourceId": "pos-open-guard", "targetId": "pos-spider-guard", "label": "guard transition" },
-    { "sourceId": "pos-open-guard", "targetId": "pos-x-guard", "label": "guard transition" },
-    { "sourceId": "pos-open-guard", "targetId": "pos-side-control-top", "label": "guard pass" },
-    { "sourceId": "pos-open-guard", "targetId": "pos-mount-top", "label": "guard pass" },
-
-    { "sourceId": "pos-de-la-riva", "targetId": "pos-single-leg-x", "label": "sweep entry" },
-    { "sourceId": "pos-de-la-riva", "targetId": "pos-back-mount-top", "label": "berimbolo" },
-    { "sourceId": "pos-de-la-riva", "targetId": "pos-reverse-de-la-riva", "label": "guard switch" },
-    { "sourceId": "pos-de-la-riva", "targetId": "pos-side-control-top", "label": "pass completion" },
-
-    { "sourceId": "pos-spider-guard", "targetId": "sub-triangle-choke", "label": "triangle from spider" },
-    { "sourceId": "pos-spider-guard", "targetId": "pos-mount-top", "label": "sweep" },
-    { "sourceId": "pos-spider-guard", "targetId": "pos-side-control-top", "label": "pass completion" },
-    { "sourceId": "pos-lasso-guard", "targetId": "sub-omoplata", "label": "omoplata from lasso" },
-    { "sourceId": "pos-lasso-guard", "targetId": "pos-mount-top", "label": "lasso sweep" },
-    { "sourceId": "pos-lasso-guard", "targetId": "pos-side-control-top", "label": "pass completion" },
-
-    { "sourceId": "pos-butterfly-guard-bottom", "targetId": "pos-mount-top", "label": "butterfly sweep" },
-    { "sourceId": "pos-butterfly-guard-bottom", "targetId": "pos-x-guard", "label": "x-guard entry" },
-    { "sourceId": "pos-butterfly-guard-bottom", "targetId": "pos-single-leg-x", "label": "single leg x entry" },
-    { "sourceId": "pos-butterfly-guard-top", "targetId": "pos-side-control-top", "label": "pass completion" },
-
-    { "sourceId": "pos-x-guard", "targetId": "pos-side-control-top", "label": "x-guard sweep" },
-    { "sourceId": "pos-x-guard", "targetId": "sub-straight-ankle-lock", "label": "ankle lock from x-guard" },
-    { "sourceId": "pos-single-leg-x", "targetId": "sub-straight-ankle-lock", "label": "ankle lock from slx" },
-    { "sourceId": "pos-single-leg-x", "targetId": "pos-side-control-top", "label": "sweep" },
-    { "sourceId": "pos-single-leg-x", "targetId": "pos-saddle", "label": "entanglement transition" },
-    { "sourceId": "pos-single-leg-x", "targetId": "pos-outside-ashi", "label": "entanglement transition" },
-
-    { "sourceId": "pos-half-guard-bottom", "targetId": "pos-mount-top", "label": "old school sweep" },
-    { "sourceId": "pos-half-guard-bottom", "targetId": "pos-deep-half-guard-bottom", "label": "guard transition" },
-    { "sourceId": "pos-half-guard-bottom", "targetId": "pos-x-guard", "label": "x-guard entry" },
-    { "sourceId": "pos-half-guard-bottom", "targetId": "sub-kimura", "label": "kimura from half guard" },
-    { "sourceId": "pos-half-guard-bottom", "targetId": "pos-back-mount-top", "label": "back take from half guard" },
-    { "sourceId": "pos-half-guard-top", "targetId": "pos-side-control-top", "label": "pass completion" },
-    { "sourceId": "pos-deep-half-guard-bottom", "targetId": "pos-side-control-top", "label": "deep half sweep" },
-    { "sourceId": "pos-deep-half-guard-bottom", "targetId": "pos-x-guard", "label": "x-guard transition" },
-    { "sourceId": "pos-deep-half-guard-top", "targetId": "pos-side-control-top", "label": "pass completion" },
-
-    { "sourceId": "pos-50-50-guard", "targetId": "sub-heel-hook-inside", "label": "heel hook from 50/50" },
-    { "sourceId": "pos-50-50-guard", "targetId": "sub-straight-ankle-lock", "label": "ankle lock from 50/50" },
-    { "sourceId": "pos-saddle", "targetId": "sub-heel-hook-inside", "label": "inside heel hook from saddle" },
-    { "sourceId": "pos-saddle", "targetId": "sub-toe-hold", "label": "toe hold from saddle" },
-    { "sourceId": "pos-saddle", "targetId": "sub-aoki-lock", "label": "aoki lock from saddle" },
-    { "sourceId": "pos-outside-ashi", "targetId": "sub-heel-hook-outside", "label": "outside heel hook" },
-    { "sourceId": "pos-outside-ashi", "targetId": "sub-straight-ankle-lock", "label": "ankle lock from outside ashi" },
-
-    { "sourceId": "pos-turtle-bottom", "targetId": "pos-back-mount-top", "label": "back take from turtle" },
-    { "sourceId": "pos-turtle-top", "targetId": "pos-back-mount-top", "label": "back take from turtle top" },
-    { "sourceId": "pos-turtle-top", "targetId": "pos-saddle", "label": "leg entanglement entry" },
-
-    { "sourceId": "pos-side-control-top", "targetId": "pos-mount-top", "label": "mount transition" },
-    { "sourceId": "pos-side-control-top", "targetId": "pos-knee-on-belly-top", "label": "knee on belly transition" },
-    { "sourceId": "pos-side-control-top", "targetId": "pos-north-south-top", "label": "north-south transition" },
-    { "sourceId": "pos-side-control-top", "targetId": "sub-armbar", "label": "far-side armbar" },
-    { "sourceId": "pos-side-control-top", "targetId": "sub-kimura", "label": "kimura from side control" },
-    { "sourceId": "pos-side-control-top", "targetId": "sub-americana", "label": "americana from side control" },
-    { "sourceId": "pos-side-control-top", "targetId": "sub-arm-triangle", "label": "arm triangle from side control" },
-    { "sourceId": "pos-side-control-top", "targetId": "sub-smother-choke", "label": "smother from side control" },
-    { "sourceId": "pos-side-control-top", "targetId": "pos-crucifix", "label": "crucifix entry" },
-    { "sourceId": "pos-side-control-top", "targetId": "pos-leg-drag", "label": "leg drag transition" },
-    { "sourceId": "pos-side-control-bottom", "targetId": "pos-closed-guard-bottom", "label": "recover guard" },
-    { "sourceId": "pos-side-control-bottom", "targetId": "pos-turtle-bottom", "label": "escape to turtle" },
-    { "sourceId": "pos-kesa-gatame", "targetId": "sub-armbar", "label": "armbar from kesa gatame" },
-    { "sourceId": "pos-kesa-gatame", "targetId": "pos-side-control-top", "label": "transition" },
-
-    { "sourceId": "pos-knee-on-belly-top", "targetId": "pos-mount-top", "label": "mount transition" },
-    { "sourceId": "pos-knee-on-belly-top", "targetId": "sub-armbar", "label": "armbar from knee on belly" },
-    { "sourceId": "pos-knee-on-belly-top", "targetId": "sub-cross-collar-choke", "label": "choke from knee on belly" },
-    { "sourceId": "pos-knee-on-belly-bottom", "targetId": "pos-closed-guard-bottom", "label": "recover guard" },
-
-    { "sourceId": "pos-north-south-top", "targetId": "sub-arm-triangle", "label": "north-south choke" },
-    { "sourceId": "pos-north-south-top", "targetId": "sub-kimura", "label": "kimura from north-south" },
-    { "sourceId": "pos-north-south-bottom", "targetId": "pos-closed-guard-bottom", "label": "recover guard" },
-
-    { "sourceId": "pos-mount-top", "targetId": "pos-back-mount-top", "label": "back take from mount" },
-    { "sourceId": "pos-mount-top", "targetId": "pos-s-mount-top", "label": "s-mount transition" },
-    { "sourceId": "pos-mount-top", "targetId": "sub-armbar", "label": "armbar from mount" },
-    { "sourceId": "pos-mount-top", "targetId": "sub-triangle-choke", "label": "triangle from mount" },
-    { "sourceId": "pos-mount-top", "targetId": "sub-cross-collar-choke", "label": "cross collar from mount" },
-    { "sourceId": "pos-mount-top", "targetId": "sub-ezekiel-choke", "label": "ezekiel from mount" },
-    { "sourceId": "pos-mount-bottom", "targetId": "pos-closed-guard-bottom", "label": "elbow escape to guard" },
-    { "sourceId": "pos-mount-bottom", "targetId": "pos-turtle-bottom", "label": "escape to turtle" },
-    { "sourceId": "pos-s-mount-top", "targetId": "sub-armbar", "label": "armbar from s-mount" },
-    { "sourceId": "pos-s-mount-top", "targetId": "sub-choi-bar", "label": "choi bar from s-mount" },
-    { "sourceId": "pos-s-mount-bottom", "targetId": "pos-mount-bottom", "label": "defend s-mount" },
-
-    { "sourceId": "pos-back-mount-top", "targetId": "sub-rear-naked-choke", "label": "rnc finish" },
-    { "sourceId": "pos-back-mount-top", "targetId": "sub-bow-and-arrow-choke", "label": "bow and arrow finish" },
-    { "sourceId": "pos-back-mount-bottom", "targetId": "pos-turtle-bottom", "label": "turn into turtle" },
-
-    { "sourceId": "pos-crucifix", "targetId": "sub-armbar", "label": "armbar from crucifix" },
-
-    { "sourceId": "pos-leg-drag", "targetId": "pos-side-control-top", "label": "pass completion" },
-    { "sourceId": "pos-leg-drag", "targetId": "pos-back-mount-top", "label": "back take from leg drag" },
-
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-tarikoplata", "label": "tarikoplata from closed guard" },
-    { "sourceId": "pos-closed-guard-bottom", "targetId": "sub-baratoplata", "label": "baratoplata from closed guard" }
+    {
+      "sourceId": "pos-standing",
+      "targetId": "pos-standing-single-leg",
+      "label": "single leg shot"
+    },
+    {
+      "sourceId": "pos-standing",
+      "targetId": "pos-standing-body-lock",
+      "label": "body lock entry"
+    },
+    {
+      "sourceId": "pos-standing",
+      "targetId": "pos-standing-underhook",
+      "label": "underhook entry"
+    },
+    {
+      "sourceId": "pos-standing",
+      "targetId": "pos-standing-overhook",
+      "label": "overhook entry"
+    },
+    {
+      "sourceId": "pos-standing",
+      "targetId": "pos-closed-guard-bottom",
+      "label": "guard pull"
+    },
+    {
+      "sourceId": "pos-standing",
+      "targetId": "pos-turtle-bottom",
+      "label": "sprawl"
+    },
+    {
+      "sourceId": "pos-standing-single-leg",
+      "targetId": "pos-side-control-top",
+      "label": "takedown"
+    },
+    {
+      "sourceId": "pos-standing-body-lock",
+      "targetId": "pos-side-control-top",
+      "label": "takedown"
+    },
+    {
+      "sourceId": "pos-standing-underhook",
+      "targetId": "pos-side-control-top",
+      "label": "takedown"
+    },
+    {
+      "sourceId": "pos-standing-overhook",
+      "targetId": "pos-closed-guard-bottom",
+      "label": "guard pull"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "pos-mount-top",
+      "label": "scissor sweep"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "pos-open-guard",
+      "label": "guard retention"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-armbar",
+      "label": "armbar from closed guard"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-triangle-choke",
+      "label": "triangle from closed guard"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-omoplata",
+      "label": "omoplata from closed guard"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-cross-collar-choke",
+      "label": "cross collar choke"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-kimura",
+      "label": "kimura from closed guard"
+    },
+    {
+      "sourceId": "pos-closed-guard-top",
+      "targetId": "pos-open-guard",
+      "label": "guard opened"
+    },
+    {
+      "sourceId": "pos-closed-guard-top",
+      "targetId": "pos-mount-top",
+      "label": "guard pass"
+    },
+    {
+      "sourceId": "pos-closed-guard-top",
+      "targetId": "pos-side-control-top",
+      "label": "guard pass"
+    },
+    {
+      "sourceId": "pos-open-guard",
+      "targetId": "pos-de-la-riva",
+      "label": "guard transition"
+    },
+    {
+      "sourceId": "pos-open-guard",
+      "targetId": "pos-butterfly-guard-bottom",
+      "label": "guard transition"
+    },
+    {
+      "sourceId": "pos-open-guard",
+      "targetId": "pos-spider-guard",
+      "label": "guard transition"
+    },
+    {
+      "sourceId": "pos-open-guard",
+      "targetId": "pos-x-guard",
+      "label": "guard transition"
+    },
+    {
+      "sourceId": "pos-open-guard",
+      "targetId": "pos-side-control-top",
+      "label": "guard pass"
+    },
+    {
+      "sourceId": "pos-open-guard",
+      "targetId": "pos-mount-top",
+      "label": "guard pass"
+    },
+    {
+      "sourceId": "pos-de-la-riva",
+      "targetId": "pos-single-leg-x",
+      "label": "sweep entry"
+    },
+    {
+      "sourceId": "pos-de-la-riva",
+      "targetId": "pos-back-mount-top",
+      "label": "berimbolo"
+    },
+    {
+      "sourceId": "pos-de-la-riva",
+      "targetId": "pos-reverse-de-la-riva",
+      "label": "guard switch"
+    },
+    {
+      "sourceId": "pos-de-la-riva",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-spider-guard",
+      "targetId": "sub-triangle-choke",
+      "label": "triangle from spider"
+    },
+    {
+      "sourceId": "pos-spider-guard",
+      "targetId": "pos-mount-top",
+      "label": "sweep"
+    },
+    {
+      "sourceId": "pos-spider-guard",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-lasso-guard",
+      "targetId": "sub-omoplata",
+      "label": "omoplata from lasso"
+    },
+    {
+      "sourceId": "pos-lasso-guard",
+      "targetId": "pos-mount-top",
+      "label": "lasso sweep"
+    },
+    {
+      "sourceId": "pos-lasso-guard",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-butterfly-guard-bottom",
+      "targetId": "pos-mount-top",
+      "label": "butterfly sweep"
+    },
+    {
+      "sourceId": "pos-butterfly-guard-bottom",
+      "targetId": "pos-x-guard",
+      "label": "x-guard entry"
+    },
+    {
+      "sourceId": "pos-butterfly-guard-bottom",
+      "targetId": "pos-single-leg-x",
+      "label": "single leg x entry"
+    },
+    {
+      "sourceId": "pos-butterfly-guard-top",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-x-guard",
+      "targetId": "pos-side-control-top",
+      "label": "x-guard sweep"
+    },
+    {
+      "sourceId": "pos-x-guard",
+      "targetId": "sub-straight-ankle-lock",
+      "label": "ankle lock from x-guard"
+    },
+    {
+      "sourceId": "pos-single-leg-x",
+      "targetId": "sub-straight-ankle-lock",
+      "label": "ankle lock from slx"
+    },
+    {
+      "sourceId": "pos-single-leg-x",
+      "targetId": "pos-side-control-top",
+      "label": "sweep"
+    },
+    {
+      "sourceId": "pos-single-leg-x",
+      "targetId": "pos-saddle",
+      "label": "entanglement transition"
+    },
+    {
+      "sourceId": "pos-single-leg-x",
+      "targetId": "pos-outside-ashi",
+      "label": "entanglement transition"
+    },
+    {
+      "sourceId": "pos-half-guard-bottom",
+      "targetId": "pos-mount-top",
+      "label": "old school sweep"
+    },
+    {
+      "sourceId": "pos-half-guard-bottom",
+      "targetId": "pos-deep-half-guard-bottom",
+      "label": "guard transition"
+    },
+    {
+      "sourceId": "pos-half-guard-bottom",
+      "targetId": "pos-x-guard",
+      "label": "x-guard entry"
+    },
+    {
+      "sourceId": "pos-half-guard-bottom",
+      "targetId": "sub-kimura",
+      "label": "kimura from half guard"
+    },
+    {
+      "sourceId": "pos-half-guard-bottom",
+      "targetId": "pos-back-mount-top",
+      "label": "back take from half guard"
+    },
+    {
+      "sourceId": "pos-half-guard-top",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-deep-half-guard-bottom",
+      "targetId": "pos-side-control-top",
+      "label": "deep half sweep"
+    },
+    {
+      "sourceId": "pos-deep-half-guard-bottom",
+      "targetId": "pos-x-guard",
+      "label": "x-guard transition"
+    },
+    {
+      "sourceId": "pos-deep-half-guard-top",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-50-50-guard",
+      "targetId": "sub-heel-hook-inside",
+      "label": "heel hook from 50/50"
+    },
+    {
+      "sourceId": "pos-50-50-guard",
+      "targetId": "sub-straight-ankle-lock",
+      "label": "ankle lock from 50/50"
+    },
+    {
+      "sourceId": "pos-saddle",
+      "targetId": "sub-heel-hook-inside",
+      "label": "inside heel hook from saddle"
+    },
+    {
+      "sourceId": "pos-saddle",
+      "targetId": "sub-toe-hold",
+      "label": "toe hold from saddle"
+    },
+    {
+      "sourceId": "pos-saddle",
+      "targetId": "sub-aoki-lock",
+      "label": "aoki lock from saddle"
+    },
+    {
+      "sourceId": "pos-outside-ashi",
+      "targetId": "sub-heel-hook-outside",
+      "label": "outside heel hook"
+    },
+    {
+      "sourceId": "pos-outside-ashi",
+      "targetId": "sub-straight-ankle-lock",
+      "label": "ankle lock from outside ashi"
+    },
+    {
+      "sourceId": "pos-turtle-bottom",
+      "targetId": "pos-back-mount-top",
+      "label": "back take from turtle"
+    },
+    {
+      "sourceId": "pos-turtle-top",
+      "targetId": "pos-back-mount-top",
+      "label": "back take from turtle top"
+    },
+    {
+      "sourceId": "pos-turtle-top",
+      "targetId": "pos-saddle",
+      "label": "leg entanglement entry"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "pos-mount-top",
+      "label": "mount transition"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "pos-knee-on-belly-top",
+      "label": "knee on belly transition"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "pos-north-south-top",
+      "label": "north-south transition"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "sub-armbar",
+      "label": "far-side armbar"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "sub-kimura",
+      "label": "kimura from side control"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "sub-americana",
+      "label": "americana from side control"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "sub-arm-triangle",
+      "label": "arm triangle from side control"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "sub-smother-choke",
+      "label": "smother from side control"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "pos-crucifix",
+      "label": "crucifix entry"
+    },
+    {
+      "sourceId": "pos-side-control-top",
+      "targetId": "pos-leg-drag",
+      "label": "leg drag transition"
+    },
+    {
+      "sourceId": "pos-side-control-bottom",
+      "targetId": "pos-closed-guard-bottom",
+      "label": "recover guard"
+    },
+    {
+      "sourceId": "pos-side-control-bottom",
+      "targetId": "pos-turtle-bottom",
+      "label": "escape to turtle"
+    },
+    {
+      "sourceId": "pos-kesa-gatame",
+      "targetId": "sub-armbar",
+      "label": "armbar from kesa gatame"
+    },
+    {
+      "sourceId": "pos-kesa-gatame",
+      "targetId": "pos-side-control-top",
+      "label": "transition"
+    },
+    {
+      "sourceId": "pos-knee-on-belly-top",
+      "targetId": "pos-mount-top",
+      "label": "mount transition"
+    },
+    {
+      "sourceId": "pos-knee-on-belly-top",
+      "targetId": "sub-armbar",
+      "label": "armbar from knee on belly"
+    },
+    {
+      "sourceId": "pos-knee-on-belly-top",
+      "targetId": "sub-cross-collar-choke",
+      "label": "choke from knee on belly"
+    },
+    {
+      "sourceId": "pos-knee-on-belly-bottom",
+      "targetId": "pos-closed-guard-bottom",
+      "label": "recover guard"
+    },
+    {
+      "sourceId": "pos-north-south-top",
+      "targetId": "sub-arm-triangle",
+      "label": "north-south choke"
+    },
+    {
+      "sourceId": "pos-north-south-top",
+      "targetId": "sub-kimura",
+      "label": "kimura from north-south"
+    },
+    {
+      "sourceId": "pos-north-south-bottom",
+      "targetId": "pos-closed-guard-bottom",
+      "label": "recover guard"
+    },
+    {
+      "sourceId": "pos-mount-top",
+      "targetId": "pos-back-mount-top",
+      "label": "back take from mount"
+    },
+    {
+      "sourceId": "pos-mount-top",
+      "targetId": "pos-s-mount-top",
+      "label": "s-mount transition"
+    },
+    {
+      "sourceId": "pos-mount-top",
+      "targetId": "sub-armbar",
+      "label": "armbar from mount"
+    },
+    {
+      "sourceId": "pos-mount-top",
+      "targetId": "sub-triangle-choke",
+      "label": "triangle from mount"
+    },
+    {
+      "sourceId": "pos-mount-top",
+      "targetId": "sub-cross-collar-choke",
+      "label": "cross collar from mount"
+    },
+    {
+      "sourceId": "pos-mount-top",
+      "targetId": "sub-ezekiel-choke",
+      "label": "ezekiel from mount"
+    },
+    {
+      "sourceId": "pos-mount-bottom",
+      "targetId": "pos-closed-guard-bottom",
+      "label": "elbow escape to guard"
+    },
+    {
+      "sourceId": "pos-mount-bottom",
+      "targetId": "pos-turtle-bottom",
+      "label": "escape to turtle"
+    },
+    {
+      "sourceId": "pos-s-mount-top",
+      "targetId": "sub-armbar",
+      "label": "armbar from s-mount"
+    },
+    {
+      "sourceId": "pos-s-mount-top",
+      "targetId": "sub-choi-bar",
+      "label": "choi bar from s-mount"
+    },
+    {
+      "sourceId": "pos-s-mount-bottom",
+      "targetId": "pos-mount-bottom",
+      "label": "defend s-mount"
+    },
+    {
+      "sourceId": "pos-back-mount-top",
+      "targetId": "sub-rear-naked-choke",
+      "label": "rnc finish"
+    },
+    {
+      "sourceId": "pos-back-mount-top",
+      "targetId": "sub-bow-and-arrow-choke",
+      "label": "bow and arrow finish"
+    },
+    {
+      "sourceId": "pos-back-mount-bottom",
+      "targetId": "pos-turtle-bottom",
+      "label": "turn into turtle"
+    },
+    {
+      "sourceId": "pos-crucifix",
+      "targetId": "sub-armbar",
+      "label": "armbar from crucifix"
+    },
+    {
+      "sourceId": "pos-leg-drag",
+      "targetId": "pos-side-control-top",
+      "label": "pass completion"
+    },
+    {
+      "sourceId": "pos-leg-drag",
+      "targetId": "pos-back-mount-top",
+      "label": "back take from leg drag"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-tarikoplata",
+      "label": "tarikoplata from closed guard"
+    },
+    {
+      "sourceId": "pos-closed-guard-bottom",
+      "targetId": "sub-baratoplata",
+      "label": "baratoplata from closed guard"
+    }
   ]
 }

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
+import { DEFAULT_MODE, DEFAULT_THEME, type ThemeId, type ThemeMode } from '../lib/themes'
 import type { GraphEdge, GraphNode, NodeType, RulesetFilter } from '../types'
 
 interface DbNodeRow {
@@ -56,6 +57,10 @@ interface GraphStoreValue {
   online: boolean
   rulesetFilter: RulesetFilter
   setRulesetFilter: (filter: RulesetFilter) => Promise<void>
+  theme: ThemeId
+  themeMode: ThemeMode
+  setTheme: (theme: ThemeId) => Promise<void>
+  setThemeMode: (mode: ThemeMode) => Promise<void>
   addNode: (params: { libraryId: string; type: NodeType; label: string; x: number; y: number }) => Promise<GraphNode | null>
   updateNodePosition: (id: string, x: number, y: number) => Promise<void>
   updateNodeNotes: (id: string, notes: string) => Promise<void>
@@ -80,6 +85,8 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
   const [edges, setEdges] = useState<GraphEdge[]>([])
   const [loading, setLoading] = useState(true)
   const [rulesetFilter, setRulesetFilterState] = useState<RulesetFilter>('all')
+  const [theme, setThemeState] = useState<ThemeId>(DEFAULT_THEME)
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(DEFAULT_MODE)
   const [online, setOnline] = useState(navigator.onLine)
 
   useEffect(() => {
@@ -105,9 +112,14 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
 
     if (nodesRes.data) setNodes(nodesRes.data.map(rowToNode))
     if (edgesRes.data) setEdges(edgesRes.data.map(rowToEdge))
-    if (prefsRes.data) setRulesetFilterState(prefsRes.data.ruleset_filter as RulesetFilter)
-    else if (!prefsRes.error) {
-      await supabase.from('user_preferences').insert({ user_id: user.id, ruleset_filter: 'all' })
+    if (prefsRes.data) {
+      setRulesetFilterState(prefsRes.data.ruleset_filter as RulesetFilter)
+      setThemeState((prefsRes.data.theme as ThemeId) ?? DEFAULT_THEME)
+      setThemeModeState((prefsRes.data.theme_mode as ThemeMode) ?? DEFAULT_MODE)
+    } else if (!prefsRes.error) {
+      await supabase
+        .from('user_preferences')
+        .insert({ user_id: user.id, ruleset_filter: 'all', theme: DEFAULT_THEME, theme_mode: DEFAULT_MODE })
     }
 
     setLoading(false)
@@ -129,6 +141,28 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
       await supabase
         .from('user_preferences')
         .upsert({ user_id: user.id, ruleset_filter: filter, updated_at: new Date().toISOString() })
+    },
+    [user]
+  )
+
+  const setTheme = useCallback(
+    async (newTheme: ThemeId) => {
+      if (!user) return
+      setThemeState(newTheme)
+      await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, theme: newTheme, updated_at: new Date().toISOString() })
+    },
+    [user]
+  )
+
+  const setThemeMode = useCallback(
+    async (mode: ThemeMode) => {
+      if (!user) return
+      setThemeModeState(mode)
+      await supabase
+        .from('user_preferences')
+        .upsert({ user_id: user.id, theme_mode: mode, updated_at: new Date().toISOString() })
     },
     [user]
   )
@@ -264,6 +298,10 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
         online,
         rulesetFilter,
         setRulesetFilter,
+        theme,
+        themeMode,
+        setTheme,
+        setThemeMode,
         addNode,
         updateNodePosition,
         updateNodeNotes,

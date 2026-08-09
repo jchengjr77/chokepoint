@@ -4,9 +4,20 @@ export interface GraphEdgeData {
   label: string
   bidirectional: boolean
   isSubmissionEntry: boolean
+  searchMatch: boolean | null
 }
 
-function ArrowMarker({ id, color, reverse }: { id: string; color: string; reverse?: boolean }) {
+function ArrowMarker({
+  id,
+  color,
+  reverse,
+  opacity,
+}: {
+  id: string
+  color: string
+  reverse?: boolean
+  opacity: number
+}) {
   return (
     <marker
       id={id}
@@ -17,7 +28,7 @@ function ArrowMarker({ id, color, reverse }: { id: string; color: string; revers
       orient={reverse ? 'auto-start-reverse' : 'auto'}
       markerUnits="userSpaceOnUse"
     >
-      <path d="M0,0 L8,4 L0,8 Z" fill={color} />
+      <path d="M0,0 L8,4 L0,8 Z" fill={color} fillOpacity={opacity} />
     </marker>
   )
 }
@@ -44,14 +55,15 @@ export function TransitionEdge({
   })
   const isSubmission = data?.isSubmissionEntry
   const color = isSubmission ? 'var(--edge-submission)' : 'var(--edge-default)'
+  const opacity = data?.searchMatch === false ? 0.3 : 1
   const startMarkerId = `arrow-start-${id}`
   const endMarkerId = `arrow-end-${id}`
 
   return (
     <>
       <defs>
-        <ArrowMarker id={endMarkerId} color={color} />
-        {data?.bidirectional && <ArrowMarker id={startMarkerId} color={color} reverse />}
+        <ArrowMarker id={endMarkerId} color={color} opacity={opacity} />
+        {data?.bidirectional && <ArrowMarker id={startMarkerId} color={color} reverse opacity={opacity} />}
       </defs>
       <BaseEdge
         id={id}
@@ -61,6 +73,7 @@ export function TransitionEdge({
         style={{
           stroke: color,
           strokeWidth: selected ? 2 : 1,
+          opacity,
         }}
       />
       {data?.label && (
@@ -75,6 +88,7 @@ export function TransitionEdge({
               padding: '0 4px',
               pointerEvents: 'none',
               fontFamily: 'var(--font-mono)',
+              opacity,
             }}
           >
             {data.label}

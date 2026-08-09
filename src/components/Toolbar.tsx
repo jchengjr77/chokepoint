@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { RulesetFilter } from '../types'
 import { useAuth } from '../hooks/useAuth'
+import { THEMES, type ThemeId, type ThemeMode } from '../lib/themes'
+import { Dropdown } from './Dropdown'
 
 interface ToolbarProps {
   rulesetFilter: RulesetFilter
@@ -10,6 +12,10 @@ interface ToolbarProps {
   onAddNode: () => void
   onResetView: () => void
   onAutoLayout: () => void
+  theme: ThemeId
+  themeMode: ThemeMode
+  onThemeChange: (theme: ThemeId) => void
+  onThemeModeChange: (mode: ThemeMode) => void
 }
 
 export function Toolbar({
@@ -20,6 +26,10 @@ export function Toolbar({
   onAddNode,
   onResetView,
   onAutoLayout,
+  theme,
+  themeMode,
+  onThemeChange,
+  onThemeModeChange,
 }: ToolbarProps) {
   const { user, signOut } = useAuth()
   const [confirmingLayout, setConfirmingLayout] = useState(false)
@@ -96,6 +106,44 @@ export function Toolbar({
       )}
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
+        <Dropdown
+          value={theme}
+          options={THEMES.map((t) => ({ value: t.id, label: t.label }))}
+          onChange={onThemeChange}
+          ariaLabel="Theme"
+          className="w-32"
+        />
+
+        <button
+          onClick={() => onThemeModeChange(themeMode === 'dark' ? 'light' : 'dark')}
+          role="switch"
+          aria-checked={themeMode === 'light'}
+          aria-label={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="relative shrink-0 border border-border bg-transparent p-0.5 hover:bg-bg-elevated"
+          style={{ width: 44, height: 22 }}
+        >
+          <span
+            className="absolute top-0.5 flex h-[16px] w-[16px] items-center justify-center bg-text-primary text-bg-primary transition-transform duration-150 ease-out"
+            style={{ transform: themeMode === 'light' ? 'translateX(22px)' : 'translateX(2px)' }}
+          >
+            {themeMode === 'dark' ? (
+              <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" aria-hidden="true">
+                <path d="M8 1.5a6.5 6.5 0 1 0 6.5 7.86A5.5 5.5 0 0 1 8 1.5Z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" aria-hidden="true">
+                <circle cx="8" cy="8" r="3.2" />
+                <path
+                  strokeWidth="1.4"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  d="M8 0.8v1.6M8 13.6v1.6M15.2 8h-1.6M2.4 8H0.8M12.9 3.1l-1.13 1.13M4.23 11.77 3.1 12.9M12.9 12.9l-1.13-1.13M4.23 4.23 3.1 3.1"
+                />
+              </svg>
+            )}
+          </span>
+        </button>
+
         <span className="hidden text-[11px] text-text-secondary sm:inline">{user?.email}</span>
         <button
           onClick={() => void signOut()}
