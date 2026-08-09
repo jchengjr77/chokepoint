@@ -37,8 +37,8 @@ export function AboutModal({ onClose }: AboutModalProps) {
           </Feature>
 
           <Feature title="Calendar">
-            Every rep is logged automatically. The calendar shows what you trained on any given day, with a plain
-            English summary.
+            Training inputs are logged into the calendar automatically. This shows what you trained on any given
+            day.
           </Feature>
 
           <Feature title="Positions & Techniques">
