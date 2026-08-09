@@ -1,4 +1,4 @@
-import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, type EdgeProps } from 'reactflow'
+import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from 'reactflow'
 import { getProficiencyStrokeWidth } from '../../lib/proficiency'
 
 export interface GraphEdgeData {
@@ -46,14 +46,14 @@ export function TransitionEdge({
   data,
   selected,
 }: EdgeProps<GraphEdgeData>) {
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
+  const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
-    borderRadius: 0,
+    curvature: 0.35,
   })
   const isSubmission = data?.isSubmissionEntry
   const color = isSubmission ? 'var(--edge-submission)' : 'var(--edge-default)'
