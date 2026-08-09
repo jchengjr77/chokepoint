@@ -185,6 +185,7 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
           label: params.label,
           x: params.x,
           y: params.y,
+          proficiency: 1,
         })
         .select()
         .single()
@@ -235,6 +236,7 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
           target_id: params.targetId,
           label: params.label,
           bidirectional: params.bidirectional,
+          proficiency: 1,
         })
         .select()
         .single()
