@@ -8,7 +8,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import libraryJson from '../_shared/library.json' with { type: 'json' }
 
-const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929'
+const CLAUDE_MODEL = 'claude-haiku-4-5-20251001'
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
 
 const corsHeaders = {
@@ -29,12 +29,20 @@ interface RequestBody {
   existingLibraryIds: string[]
 }
 
-function buildSystemPrompt(positions: LibraryEntry[], submissions: LibraryEntry[], existingIds: string[]): string {
+// Static across every request (same for all users) so it can be marked
+// with cache_control — the library dump is ~8K tokens and otherwise gets
+// re-billed at full input price on every single NL parse call. The
+// existingIds list is per-request/per-user and MUST NOT be interpolated
+// in here: appending it after this block would still invalidate the
+// cached prefix if it changed the preceding bytes, so it's passed in the
+// user message instead, leaving this string byte-for-byte identical
+// across all calls.
+function buildSystemPrompt(positions: LibraryEntry[], submissions: LibraryEntry[]): string {
   const libraryDump = JSON.stringify({ positions, submissions }, null, 2)
 
   return `You are a parser that extracts structured BJJ (Brazilian Jiu-Jitsu) training data from free-text descriptions.
 
-You will receive a user's free-text description of what they drilled or learned, plus the full canonical library of positions and submissions.
+You will receive a user's free-text description of what they drilled or learned, a list of libraryIds already on the user's graph, plus the full canonical library of positions and submissions.
 
 RULES:
 1. Extract every position and submission mentioned in the text.
@@ -43,7 +51,7 @@ RULES:
 4. Positions and submissions are a closed, curated set — but transitions between them are NOT. There is no fixed list of "known" transitions: two positions in this library can be connected by any technique, and the same pair of positions can be connected in many different ways (different sweeps, passes, escapes, entries). Do not limit yourself to "typical" or "textbook" connections — trust the user's description of what they actually did, even if it's an unusual or uncommon route between two positions.
 5. The edge "label" should be a short, natural description of the specific technique the user described (e.g. "berimbolo", "far-side armbar", "russian 2-on-1 to back take") — write it in your own words based on what the user said, don't force it to match any pre-existing phrasing. If the user only said they went from one position/submission to another without naming a specific technique (e.g. "north south to kimura"), leave "label" as an empty string "" rather than inventing or guessing a technique name — do not fabricate a label just to fill the field.
 6. If a term cannot be confidently matched to any library entry, add the raw term to "unrecognized" and do NOT include it in nodes/edges.
-7. Mark "alreadyOnGraph": true for any libraryId in this list of node ids already on the user's graph: ${JSON.stringify(existingIds)}
+7. Mark "alreadyOnGraph": true for any libraryId that appears in the "existingLibraryIds" list given in the user message.
 8. Respond with ONLY valid JSON, no markdown fences, matching this exact shape:
 
 {
@@ -105,7 +113,10 @@ Deno.serve(async (req: Request) => {
 
     const library = libraryJson as { positions: LibraryEntry[]; submissions: LibraryEntry[] }
 
-    const systemPrompt = buildSystemPrompt(library.positions, library.submissions, body.existingLibraryIds ?? [])
+    const systemPrompt = buildSystemPrompt(library.positions, library.submissions)
+    const userMessage = `existingLibraryIds: ${JSON.stringify(body.existingLibraryIds ?? [])}
+
+${body.text}`
 
     const claudeRes = await fetch(ANTHROPIC_API_URL, {
       method: 'POST',
@@ -117,8 +128,14 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: 2048,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: body.text }],
+        system: [
+          {
+            type: 'text',
+            text: systemPrompt,
+            cache_control: { type: 'ephemeral' },
+          },
+        ],
+        messages: [{ role: 'user', content: userMessage }],
       }),
     })
 
