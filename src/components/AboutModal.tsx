@@ -42,9 +42,8 @@ export function AboutModal({ onClose }: AboutModalProps) {
           </Feature>
 
           <Feature title="Positions & Techniques">
-            Positions are control points (guard, mount, side control...). Submissions —
-            shown in <span className="text-node-submission">green</span> — are the finishing holds they connect
-            to. Don't see something you know? Define your own.
+            Positions and <span className="text-node-submission">Submissions</span> are nodes in the map, and
+            Techniques connect them. Don't see something you know? Define your own!
           </Feature>
 
           <Feature title="Layout">
