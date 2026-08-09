@@ -236,9 +236,10 @@
     },
     {
       "id": "pos-single-leg-x",
-      "label": "Single Leg X Guard",
+      "label": "Single Leg X",
       "aliases": [
         "slx",
+        "single leg x guard",
         "single-leg-x",
         "ashi garami",
         "basic ashi"
@@ -252,6 +253,38 @@
         "nogi"
       ],
       "advantage": 1
+    },
+    {
+      "id": "pos-k-guard",
+      "label": "K Guard",
+      "aliases": [
+        "k-guard"
+      ],
+      "tags": [
+        "guard",
+        "leglock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
+    },
+    {
+      "id": "pos-reverse-closed-guard",
+      "label": "Reverse Closed Guard",
+      "aliases": [
+        "inverted closed guard"
+      ],
+      "tags": [
+        "guard",
+        "bottom"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
     },
     {
       "id": "pos-half-guard-bottom",
@@ -350,6 +383,23 @@
         "gi",
         "nogi"
       ]
+    },
+    {
+      "id": "pos-backside-50-50",
+      "label": "Backside 50/50",
+      "aliases": [
+        "backside fifty fifty",
+        "back side 50/50"
+      ],
+      "tags": [
+        "guard",
+        "leglock"
+      ],
+      "rulesets": [
+        "gi",
+        "nogi"
+      ],
+      "advantage": 2
     },
     {
       "id": "pos-turtle-bottom",
