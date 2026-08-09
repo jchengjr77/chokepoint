@@ -199,7 +199,7 @@ function MainApp() {
           {showOnboarding && nodes.length === 0 && <OnboardingOverlay onDismiss={dismissOnboarding} />}
 
           <div
-            className={`absolute bottom-4 left-4 flex gap-2 ${
+            className={`absolute bottom-4 left-4 flex items-center gap-2 ${
               selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
             }`}
           >
@@ -214,13 +214,7 @@ function MainApp() {
             >
               {connectMode ? (connectSourceId ? 'Select Target...' : 'Select Source...') : 'Add Transition'}
             </button>
-          </div>
 
-          <div
-            className={`absolute bottom-4 right-4 flex items-center gap-2 ${
-              selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
-            }`}
-          >
             <button
               onClick={() => setShowLibraryPicker(true)}
               className="border border-border bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated"
@@ -262,7 +256,13 @@ function MainApp() {
                 Auto-Layout
               </button>
             )}
+          </div>
 
+          <div
+            className={`absolute bottom-4 right-4 flex items-center gap-2 ${
+              selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
+            }`}
+          >
             <JournalButton onClick={() => setShowJournal(true)} />
           </div>
         </div>
