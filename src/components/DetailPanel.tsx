@@ -45,14 +45,14 @@ function TechniqueRow({
       </span>
       <span className="flex items-center gap-2 text-[10px] uppercase text-text-tertiary">
         {otherLabel}
-        <span className="text-node-submission">{edge.proficiency} rep{edge.proficiency === 1 ? '' : 's'}</span>
+        <span className="text-node-submission">{edge.proficiency} session{edge.proficiency === 1 ? '' : 's'}</span>
       </span>
     </button>
   )
 }
 
 function TechniqueEditor({ edge, onBack }: { edge: GraphEdge; onBack: () => void }) {
-  const { edges, updateEdge, deleteEdge, incrementEdgeProficiency } = useGraphStore()
+  const { edges, updateEdge, deleteEdge, incrementEdgeProficiency, decrementEdgeProficiency } = useGraphStore()
   const live = edges.find((e) => e.id === edge.id) ?? edge
 
   const [label, setLabel] = useState(edge.label)
@@ -80,14 +80,25 @@ function TechniqueEditor({ edge, onBack }: { edge: GraphEdge; onBack: () => void
         <div>
           <span className="block text-[10px] uppercase text-text-secondary">Proficiency</span>
           <span className="text-[16px] font-semibold text-text-primary">{live.proficiency}</span>
-          <span className="ml-1 text-[10px] uppercase text-text-tertiary">reps</span>
+          <span className="ml-1 text-[10px] uppercase text-text-tertiary">sessions</span>
         </div>
-        <button
-          onClick={() => void incrementEdgeProficiency(edge.id)}
-          className="border border-node-submission px-2 py-1 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
-        >
-          + Log Training
-        </button>
+        <div className="flex gap-1">
+          <button
+            onClick={() => void decrementEdgeProficiency(edge.id)}
+            disabled={live.proficiency <= 0}
+            aria-label="Remove a logged session"
+            title="Remove a logged session"
+            className="border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-secondary hover:bg-bg-elevated disabled:opacity-40"
+          >
+            &minus;
+          </button>
+          <button
+            onClick={() => void incrementEdgeProficiency(edge.id)}
+            className="border border-node-submission px-2 py-1 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
+          >
+            + Log Training
+          </button>
+        </div>
       </div>
 
       <label className="mb-3 flex flex-col gap-1">
@@ -161,7 +172,8 @@ function TechniqueEditor({ edge, onBack }: { edge: GraphEdge; onBack: () => void
 }
 
 export function DetailPanel({ node, edgePair, allNodes, onClose, onSelectNode }: DetailPanelProps) {
-  const { nodes, edges, updateNodeNotes, deleteNode, incrementNodeProficiency } = useGraphStore()
+  const { nodes, edges, updateNodeNotes, deleteNode, incrementNodeProficiency, decrementNodeProficiency } =
+    useGraphStore()
 
   const liveNode = node ? nodes.find((n) => n.id === node.id) ?? node : null
   const [notes, setNotes] = useState('')
@@ -223,14 +235,25 @@ export function DetailPanel({ node, edgePair, allNodes, onClose, onSelectNode }:
               <div>
                 <span className="block text-[10px] uppercase text-text-secondary">Proficiency</span>
                 <span className="text-[16px] font-semibold text-text-primary">{liveNode?.proficiency ?? 0}</span>
-                <span className="ml-1 text-[10px] uppercase text-text-tertiary">reps</span>
+                <span className="ml-1 text-[10px] uppercase text-text-tertiary">sessions</span>
               </div>
-              <button
-                onClick={() => void incrementNodeProficiency(node.id)}
-                className="border border-node-submission px-2 py-1 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
-              >
-                + Log Training
-              </button>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => void decrementNodeProficiency(node.id)}
+                  disabled={(liveNode?.proficiency ?? 0) <= 0}
+                  aria-label="Remove a logged session"
+                  title="Remove a logged session"
+                  className="border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-secondary hover:bg-bg-elevated disabled:opacity-40"
+                >
+                  &minus;
+                </button>
+                <button
+                  onClick={() => void incrementNodeProficiency(node.id)}
+                  className="border border-node-submission px-2 py-1 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated"
+                >
+                  + Log Training
+                </button>
+              </div>
             </div>
 
             <label className="mb-4 flex flex-col gap-1">

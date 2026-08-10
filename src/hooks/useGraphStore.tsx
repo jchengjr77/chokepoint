@@ -88,6 +88,7 @@ interface GraphStoreValue {
   updateNodePosition: (id: string, x: number, y: number) => Promise<void>
   updateNodeNotes: (id: string, notes: string) => Promise<void>
   incrementNodeProficiency: (id: string, trainedAt?: string | null) => Promise<void>
+  decrementNodeProficiency: (id: string) => Promise<void>
   deleteNode: (id: string) => Promise<void>
   addEdge: (params: {
     sourceId: string
@@ -98,6 +99,7 @@ interface GraphStoreValue {
   }) => Promise<GraphEdge | null>
   updateEdge: (id: string, updates: Partial<Pick<GraphEdge, 'label' | 'bidirectional' | 'notes'>>) => Promise<void>
   incrementEdgeProficiency: (id: string, trainedAt?: string | null) => Promise<void>
+  decrementEdgeProficiency: (id: string) => Promise<void>
   deleteEdge: (id: string) => Promise<void>
   replaceGraph: (nodes: GraphNode[], edges: GraphEdge[]) => Promise<void>
   refresh: () => Promise<void>
@@ -253,6 +255,31 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
     [nodes, user]
   )
 
+  const decrementNodeProficiency = useCallback(
+    async (id: string) => {
+      if (!user) return
+      const node = nodes.find((n) => n.id === id)
+      if (!node || node.proficiency <= 0) return
+      const proficiency = node.proficiency - 1
+      setNodes((prev) => prev.map((n) => (n.id === id ? { ...n, proficiency } : n)))
+      await supabase.from('user_nodes').update({ proficiency }).eq('id', id)
+
+      // Undo the most recent logged session for this node, not just the
+      // count — otherwise a mistaken +1 would still show up as a
+      // training day on the calendar even after being "removed" here.
+      const { data: lastEntry } = await supabase
+        .from('training_log')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('node_id', id)
+        .order('trained_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (lastEntry) await supabase.from('training_log').delete().eq('id', lastEntry.id)
+    },
+    [nodes, user]
+  )
+
   const deleteNode = useCallback(async (id: string) => {
     setNodes((prev) => prev.filter((n) => n.id !== id))
     setEdges((prev) => prev.filter((e) => e.sourceId !== id && e.targetId !== id))
@@ -311,6 +338,28 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
       await supabase
         .from('training_log')
         .insert({ user_id: user.id, edge_id: id, trained_at: toTrainedAtTimestamp(trainedAt) })
+    },
+    [edges, user]
+  )
+
+  const decrementEdgeProficiency = useCallback(
+    async (id: string) => {
+      if (!user) return
+      const edge = edges.find((e) => e.id === id)
+      if (!edge || edge.proficiency <= 0) return
+      const proficiency = edge.proficiency - 1
+      setEdges((prev) => prev.map((e) => (e.id === id ? { ...e, proficiency } : e)))
+      await supabase.from('user_edges').update({ proficiency }).eq('id', id)
+
+      const { data: lastEntry } = await supabase
+        .from('training_log')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('edge_id', id)
+        .order('trained_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (lastEntry) await supabase.from('training_log').delete().eq('id', lastEntry.id)
     },
     [edges, user]
   )
@@ -385,10 +434,12 @@ export function GraphStoreProvider({ children }: { children: ReactNode }) {
         updateNodePosition,
         updateNodeNotes,
         incrementNodeProficiency,
+        decrementNodeProficiency,
         deleteNode,
         addEdge,
         updateEdge,
         incrementEdgeProficiency,
+        decrementEdgeProficiency,
         deleteEdge,
         replaceGraph,
         refresh,

@@ -177,7 +177,7 @@ export function NLPreviewModal({
                     <span>{n.label}</span>
                     <span className="text-[10px] uppercase text-text-tertiary">{n.type}</span>
                     {n.alreadyOnGraph && (
-                      <span className="ml-auto text-[10px] uppercase text-node-submission">+1 rep</span>
+                      <span className="ml-auto text-[10px] uppercase text-node-submission">+1 session</span>
                     )}
                   </label>
                 ))}
@@ -204,7 +204,7 @@ export function NLPreviewModal({
                       </span>
                       {e.label && <span className="text-[10px] text-text-tertiary">({e.label})</span>}
                       {alreadyExists && (
-                        <span className="ml-auto text-[10px] uppercase text-node-submission">+1 rep</span>
+                        <span className="ml-auto text-[10px] uppercase text-node-submission">+1 session</span>
                       )}
                     </label>
                   )

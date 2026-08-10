@@ -18,6 +18,7 @@ import { TransitionEdge } from './edges'
 import { useGraphStore } from '../../hooks/useGraphStore'
 import { getLibraryEntry, library } from '../../lib/library'
 import { computeAutoLayout } from '../../lib/layout'
+import { defaultEdgeLabel } from '../../lib/edgeLabel'
 import type { GraphEdge, GraphNode, Ruleset } from '../../types'
 import { AddEdgeModal } from '../AddEdgeModal'
 
@@ -316,7 +317,7 @@ export function GraphCanvas({
             void addEdge({
               sourceId: pendingEdge.source.id,
               targetId: pendingEdge.target.id,
-              label,
+              label: label.trim() || defaultEdgeLabel(pendingEdge.source.label, pendingEdge.target.label),
               bidirectional,
             })
             setPendingEdge(null)

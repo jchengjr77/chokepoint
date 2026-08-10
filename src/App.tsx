@@ -17,6 +17,7 @@ import { CalendarModal } from './components/CalendarModal'
 import { CalendarButton } from './components/CalendarButton'
 import { OverflowMenu } from './components/OverflowMenu'
 import { computeAutoLayoutForNewNodes } from './lib/layout'
+import { defaultEdgeLabel } from './lib/edgeLabel'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
 function OfflineBanner() {
@@ -140,6 +141,7 @@ function MainApp() {
     }
 
     const createdEdges: Array<{ sourceId: string; targetId: string }> = []
+    const nodeById = new Map([...nodes, ...createdNodes].map((n) => [n.id, n]))
 
     for (const e of accepted.edges) {
       const sourceId = idByLibraryId.get(e.sourceLibraryId)
@@ -156,7 +158,10 @@ function MainApp() {
         continue
       }
 
-      await addEdge({ sourceId, targetId, label: e.label, bidirectional: e.bidirectional, trainedAt: accepted.trainedAt })
+      const label =
+        e.label.trim() ||
+        defaultEdgeLabel(nodeById.get(sourceId)?.label ?? '?', nodeById.get(targetId)?.label ?? '?')
+      await addEdge({ sourceId, targetId, label, bidirectional: e.bidirectional, trainedAt: accepted.trainedAt })
       createdEdges.push({ sourceId, targetId })
     }
 
