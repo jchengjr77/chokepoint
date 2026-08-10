@@ -1,6 +1,6 @@
 export function Legend() {
   return (
-    <div className="pointer-events-none absolute left-1/2 top-3 z-10 flex w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] -translate-x-1/2 items-center justify-center gap-1 whitespace-nowrap border border-border bg-bg-surface px-2 py-1.5 text-[8px] uppercase text-text-secondary sm:w-auto sm:max-w-[calc(100vw-2rem)] sm:gap-3 sm:px-3 sm:text-[10px]">
+    <div className="pointer-events-none absolute left-1/2 top-3 z-10 flex max-w-[calc(100vw-1rem)] -translate-x-1/2 items-center justify-center gap-1 whitespace-nowrap border border-border bg-bg-surface px-2 py-1.5 text-[8px] uppercase text-text-secondary sm:max-w-[calc(100vw-2rem)] sm:gap-3 sm:px-3 sm:text-[10px]">
       <div className="flex items-center gap-1 sm:gap-1.5">
         <span className="text-text-tertiary">
           <span className="sm:hidden">Less adv.</span>
