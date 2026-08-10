@@ -199,6 +199,17 @@ export function GraphCanvas({
         // Stable id for the merged edge so React Flow doesn't remount it
         // every time technique membership changes order.
         const groupId = [group.sourceId, group.targetId].sort().join('|')
+        // Hide the auto-generated "Source to Target" label on the canvas
+        // itself — it's not information the user chose to add, just a
+        // fallback so the edge isn't nameless in the detail panel. Only
+        // shown there, not on the map, to avoid cluttering every
+        // unlabeled transition with redundant text repeating what the
+        // arrow already shows.
+        let soleLabel = group.techniques.length === 1 ? group.techniques[0].label : ''
+        if (soleLabel && sourceNode && targetNode && soleLabel === defaultEdgeLabel(sourceNode.label, targetNode.label)) {
+          soleLabel = ''
+        }
+
         return {
           id: groupId,
           source: group.sourceId,
@@ -207,7 +218,7 @@ export function GraphCanvas({
           targetHandle,
           type: 'transition',
           data: {
-            soleLabel: group.techniques.length === 1 ? group.techniques[0].label : '',
+            soleLabel,
             techniqueCount: group.techniques.length,
             bidirectional: group.bidirectional,
             isSubmissionEntry,
