@@ -16,7 +16,7 @@ import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
 import { CalendarButton } from './components/CalendarButton'
 import { OverflowMenu } from './components/OverflowMenu'
-import { placeNearContext } from './lib/layout'
+import { computeAutoLayoutForNewNodes } from './lib/layout'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
 function OfflineBanner() {
@@ -41,6 +41,7 @@ function MainApp() {
     setThemeMode,
     addNode,
     addEdge,
+    updateNodePosition,
     incrementNodeProficiency,
     incrementEdgeProficiency,
   } = useGraphStore()
@@ -84,14 +85,30 @@ function MainApp() {
     handleEdgePairClick({ sourceId: edge.sourceId, targetId: edge.targetId })
   }
 
-  const handleAddNodes = async (entries: Array<{ entry: { id: string; label: string }; type: 'position' | 'submission' }>) => {
-    const contextNodes = nodes.map((n) => ({ x: n.x, y: n.y }))
-    const occupied = [...contextNodes]
-    for (const { entry, type } of entries) {
-      const { x, y } = placeNearContext(contextNodes, { x: 0, y: 0 }, occupied, { type, libraryId: entry.id }, nodes)
-      occupied.push({ x, y })
-      await addNode({ libraryId: entry.id, type, label: entry.label, x, y })
+  // Runs the same force-directed layout as the Auto-Layout button, but
+  // pinned so only the newly-added nodes move — an existing user's manual
+  // arrangement is never disturbed by adding more nodes to the graph.
+  const layoutNewNodes = async (
+    baseNodes: GraphNode[],
+    createdNodes: GraphNode[],
+    graphEdges: Array<{ sourceId: string; targetId: string }>
+  ) => {
+    if (createdNodes.length === 0) return
+    const allNodes = [...baseNodes, ...createdNodes]
+    const newNodeIds = new Set(createdNodes.map((n) => n.id))
+    const positions = computeAutoLayoutForNewNodes(allNodes, graphEdges, newNodeIds)
+    for (const [id, pos] of positions.entries()) {
+      await updateNodePosition(id, pos.x, pos.y)
     }
+  }
+
+  const handleAddNodes = async (entries: Array<{ entry: { id: string; label: string }; type: 'position' | 'submission' }>) => {
+    const createdNodes: GraphNode[] = []
+    for (const { entry, type } of entries) {
+      const created = await addNode({ libraryId: entry.id, type, label: entry.label, x: 0, y: 0 })
+      if (created) createdNodes.push(created)
+    }
+    await layoutNewNodes(nodes, createdNodes, edges)
     setShowLibraryPicker(false)
   }
 
@@ -99,8 +116,7 @@ function MainApp() {
     const idByLibraryId = new Map<string, string>()
     for (const existing of nodes) idByLibraryId.set(existing.libraryId, existing.id)
 
-    const contextNodes = nodes.map((existing) => ({ x: existing.x, y: existing.y }))
-    const occupied = [...contextNodes]
+    const createdNodes: GraphNode[] = []
 
     for (const n of accepted.nodes) {
       const existingId = idByLibraryId.get(n.libraryId)
@@ -109,24 +125,21 @@ function MainApp() {
         await incrementNodeProficiency(existingId, accepted.trainedAt)
         continue
       }
-      const { x, y } = placeNearContext(
-        contextNodes,
-        { x: 0, y: 0 },
-        occupied,
-        { type: n.type, libraryId: n.libraryId },
-        nodes
-      )
-      occupied.push({ x, y })
       const created = await addNode({
         libraryId: n.libraryId,
         type: n.type,
         label: n.label,
-        x,
-        y,
+        x: 0,
+        y: 0,
         trainedAt: accepted.trainedAt,
       })
-      if (created) idByLibraryId.set(n.libraryId, created.id)
+      if (created) {
+        idByLibraryId.set(n.libraryId, created.id)
+        createdNodes.push(created)
+      }
     }
+
+    const createdEdges: Array<{ sourceId: string; targetId: string }> = []
 
     for (const e of accepted.edges) {
       const sourceId = idByLibraryId.get(e.sourceLibraryId)
@@ -144,7 +157,10 @@ function MainApp() {
       }
 
       await addEdge({ sourceId, targetId, label: e.label, bidirectional: e.bidirectional, trainedAt: accepted.trainedAt })
+      createdEdges.push({ sourceId, targetId })
     }
+
+    await layoutNewNodes(nodes, createdNodes, [...edges, ...createdEdges])
 
     setNlResult(null)
   }
@@ -240,9 +256,17 @@ function MainApp() {
               Auto-Layout
             </button>
 
-            {/* Mobile: while connect mode is active, keep the button visible so
-                the user can see the "select source/target" state and cancel it.
-                Otherwise all four actions collapse into one menu (issue #7). */}
+            {/* Mobile: Auto-Layout stays visible outside the menu — most useful action.
+                While connect mode is active, keep that button visible too so the
+                user can see the "select source/target" state and cancel it.
+                Everything else collapses into one menu (issue #7). */}
+            <button
+              onClick={() => setAutoLayoutToken((t) => t + 1)}
+              className="border border-node-submission bg-bg-surface px-3 py-1.5 text-[11px] font-medium uppercase text-node-submission hover:bg-bg-elevated sm:hidden"
+            >
+              Auto-Layout
+            </button>
+
             {connectMode ? (
               <button
                 onClick={() => {
@@ -261,7 +285,6 @@ function MainApp() {
                     { label: 'Add Transition', onClick: () => setConnectMode(true) },
                     { label: 'Add Position', onClick: () => setShowLibraryPicker(true) },
                     { label: 'Reset View', onClick: () => setResetViewToken((t) => t + 1) },
-                    { label: 'Auto-Layout', onClick: () => setAutoLayoutToken((t) => t + 1) },
                   ]}
                 />
               </div>

@@ -14,6 +14,8 @@ interface SimNode {
   x: number
   y: number
   index?: number
+  fx?: number | null // d3-force: pins the node in place when set
+  fy?: number | null
 }
 
 export interface NodeDimensions {
@@ -135,91 +137,86 @@ export function computeAutoLayout(
   return result
 }
 
-const MIN_NODE_SPACING = 130
-
 /**
- * Same relative-column x used by computeAutoLayout, but derived only from
- * nodes already on the graph — inserting one more node must never shift
- * where existing nodes' columns land, so this does not add the new node's
- * own advantage value into the lookup before reading it back out.
- *
- * When no existing node shares this exact advantage, the new node gets a
- * fractional x strictly between its neighboring columns (or just outside
- * the first/last column if it's more extreme than anything on the graph)
- * rather than snapping onto an adjacent column's exact x, which would
- * visually overlap that column as if it belonged there. Auto-layout will
- * normalize this into a real column next time it runs.
+ * Same force-directed layout as computeAutoLayout, but only returns new
+ * positions for newNodeIds — every other node is pinned in place (d3-force
+ * fx/fy) so it still participates in collision/link forces (new nodes push
+ * off of and connect to it normally) without ever being moved itself. This
+ * is what backs "auto-layout new nodes on add": a user's manual
+ * arrangement of their existing graph is never disturbed, but nodes that
+ * just got added land in a sensible, non-overlapping spot via the same
+ * column/force logic as a full auto-layout run.
  */
-function columnXForExisting(existingNodes: GraphNode[], advantage: number): number {
-  const columnOf = buildColumnLookup(existingNodes)
-  if (columnOf.size === 0) return 0
-  if (columnOf.has(advantage)) {
-    return (columnOf.get(advantage) ?? 0) * COLUMN_WIDTH
-  }
+export function computeAutoLayoutForNewNodes(
+  nodes: GraphNode[],
+  edges: Array<{ sourceId: string; targetId: string }>,
+  newNodeIds: Set<string>,
+  dimensions?: Map<string, NodeDimensions>
+): Map<string, { x: number; y: number }> {
+  const newNodes = nodes.filter((n) => newNodeIds.has(n.id))
+  if (newNodes.length === 0) return new Map()
 
-  const sorted = [...columnOf.keys()].sort((a, b) => a - b)
-  const lowerCount = sorted.filter((a) => a < advantage).length
-  const higherCount = sorted.length - lowerCount
+  const columnOf = buildColumnLookup(nodes)
+  const columnCount = columnOf.size
 
-  if (lowerCount === 0) return -0.5 * COLUMN_WIDTH
-  if (higherCount === 0) return (sorted.length - 1 + 0.5) * COLUMN_WIDTH
-  return (lowerCount - 0.5) * COLUMN_WIDTH
-}
+  const simNodes: SimNode[] = nodes.map((n) => {
+    const dims = dimensions?.get(n.id)
+    const width = dims?.width ?? DEFAULT_NODE_WIDTH
+    const height = dims?.height ?? DEFAULT_NODE_HEIGHT
+    const isNew = newNodeIds.has(n.id)
 
-/**
- * Placement for a single new node. Positions are pinned to their
- * advantage column (matching auto-layout's left=disadvantageous,
- * right=advantageous convention) and only search vertically for a free
- * spot near their connected context. Submissions have no column (they can
- * be reached from anywhere) and search radially near context in both
- * axes, same as before. Existing nodes are never moved — the column is
- * computed purely from the current graph, and collision avoidance only
- * ever repositions the new node being placed.
- */
-export function placeNearContext(
-  contextNodes: Array<{ x: number; y: number }>,
-  fallback: { x: number; y: number },
-  occupied: Array<{ x: number; y: number }> = [],
-  newNode?: { type: 'position' | 'submission'; libraryId: string },
-  existingNodes: GraphNode[] = []
-): { x: number; y: number } {
-  const baseY = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.y, 0) / contextNodes.length : fallback.y
-
-  if (newNode && newNode.type === 'position') {
-    const entry = getLibraryEntry(newNode.libraryId)
-    const columnX = columnXForExisting(existingNodes, entry?.advantage ?? 0)
-
-    for (let attempt = 0; attempt < 24; attempt++) {
-      const offset = attempt === 0 ? 0 : Math.ceil(attempt / 2) * 70 * (attempt % 2 === 0 ? 1 : -1)
-      const candidate = { x: columnX, y: baseY + offset }
-      const collides = occupied.some(
-        (o) => Math.hypot(o.x - candidate.x, o.y - candidate.y) < MIN_NODE_SPACING
-      )
-      if (!collides) return candidate
+    let columnX: number | null = null
+    if (n.type !== 'submission') {
+      const entry = getLibraryEntry(n.libraryId)
+      const column = columnOf.get(entry?.advantage ?? 0) ?? 0
+      columnX = column * COLUMN_WIDTH
     }
 
-    return { x: columnX, y: baseY + occupied.length * 70 }
-  }
-
-  const baseX = contextNodes.length > 0 ? contextNodes.reduce((sum, n) => sum + n.x, 0) / contextNodes.length : fallback.x
-  const hasBase = contextNodes.length > 0
-
-  for (let attempt = 0; attempt < 24; attempt++) {
-    const angle = Math.random() * Math.PI * 2
-    const distance = hasBase ? 140 + Math.random() * 40 : attempt * 45 + Math.random() * 40
-    const candidate = {
-      x: baseX + Math.cos(angle) * distance,
-      y: baseY + Math.sin(angle) * distance,
+    return {
+      id: n.id,
+      columnX,
+      radius: Math.max(width, height) * 0.75,
+      x: isNew ? (columnX ?? ((columnCount - 1) / 2) * COLUMN_WIDTH) : n.x,
+      y: isNew ? (Math.random() - 0.5) * 60 + n.y : n.y,
+      // Existing nodes are pinned at their current position; only new
+      // nodes are free to move.
+      fx: isNew ? undefined : n.x,
+      fy: isNew ? undefined : n.y,
     }
+  })
 
-    const collides = occupied.some(
-      (o) => Math.hypot(o.x - candidate.x, o.y - candidate.y) < MIN_NODE_SPACING
+  const nodeIds = new Set(nodes.map((n) => n.id))
+  const links = edges
+    .filter((e) => nodeIds.has(e.sourceId) && nodeIds.has(e.targetId) && e.sourceId !== e.targetId)
+    .map((e) => ({ source: e.sourceId, target: e.targetId }))
+
+  const simulation = forceSimulation(simNodes)
+    .force('charge', forceManyBody().strength(-300))
+    .force(
+      'link',
+      forceLink(links)
+        .id((d) => (d as SimNode).id)
+        .distance(150)
+        .strength(0.3)
     )
-    if (!collides) return candidate
-  }
+    .force(
+      'collide',
+      forceCollide<SimNode>((d) => d.radius).strength(1)
+    )
+    .force(
+      'x',
+      forceX<SimNode>((d) => d.columnX ?? d.x).strength((d) => (d.columnX === null ? 0 : 1))
+    )
+    .force('y', forceY(0).strength(0.02))
+    .stop()
 
-  // Give up avoiding collisions after enough attempts; spread out along a ring instead.
-  const angle = Math.random() * Math.PI * 2
-  const distance = MIN_NODE_SPACING * (1 + occupied.length * 0.15)
-  return { x: baseX + Math.cos(angle) * distance, y: baseY + Math.sin(angle) * distance }
+  for (let i = 0; i < SIMULATION_TICKS; i++) simulation.tick()
+
+  const result = new Map<string, { x: number; y: number }>()
+  for (const n of simNodes) {
+    if (!newNodeIds.has(n.id)) continue
+    result.set(n.id, { x: n.columnX ?? n.x, y: n.y })
+  }
+  return result
 }
+

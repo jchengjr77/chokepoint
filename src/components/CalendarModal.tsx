@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useTrainingLog } from '../hooks/useTrainingLog'
+import { useTrainingLog, type TrainingLogEntry } from '../hooks/useTrainingLog'
 import type { GraphEdge, GraphNode } from '../types'
 
 interface CalendarModalProps {
@@ -32,6 +32,69 @@ function summarizeEdge(edge: GraphEdge, sourceLabel: string, targetLabel: string
   }
   const arrow = edge.bidirectional ? '↔' : '→'
   return edge.label ? `${edge.label}: ${sourceLabel} ${arrow} ${targetLabel}` : `${sourceLabel} ${arrow} ${targetLabel}`
+}
+
+/**
+ * Concise, chronological "what happened" summary for a day, e.g.
+ * "Top Side Control → Mount → Armbar" — not a list of separate sentences
+ * like the per-entry log rows below it. Entries are walked in trained
+ * order; a node entry starts (or continues, if its node matches wherever
+ * the current chain left off) a sequence, and an edge entry extends the
+ * chain from source to target. Whenever the next entry doesn't connect
+ * to where the current chain left off, that chain ends and a new one
+ * starts — multiple same-day sessions on unrelated things show as
+ * separate arrow-chains joined with "; " rather than being forced into
+ * one sequence or silently dropped.
+ */
+function buildDaySequenceSummary(
+  entries: TrainingLogEntry[],
+  nodeById: Map<string, GraphNode>,
+  edgeById: Map<string, GraphEdge>
+): string {
+  const chronological = [...entries].sort(
+    (a, b) => new Date(a.trainedAt).getTime() - new Date(b.trainedAt).getTime()
+  )
+
+  const chains: string[][] = []
+  let currentChain: string[] = []
+  let currentEndNodeId: string | null = null
+
+  const pushChain = () => {
+    if (currentChain.length > 0) chains.push(currentChain)
+    currentChain = []
+    currentEndNodeId = null
+  }
+
+  for (const entry of chronological) {
+    if (entry.nodeId) {
+      const node = nodeById.get(entry.nodeId)
+      if (!node) continue
+
+      if (entry.nodeId === currentEndNodeId) continue // already the current chain's last step
+
+      pushChain()
+      currentChain = [node.label]
+      currentEndNodeId = node.id
+      continue
+    }
+
+    const edge = entry.edgeId ? edgeById.get(entry.edgeId) : undefined
+    if (!edge) continue
+    const sourceNode = nodeById.get(edge.sourceId)
+    const targetNode = nodeById.get(edge.targetId)
+    if (!sourceNode || !targetNode) continue
+
+    if (currentEndNodeId !== edge.sourceId) {
+      // Doesn't continue where the current chain left off — start fresh.
+      pushChain()
+      currentChain = [sourceNode.label]
+    }
+    currentChain.push(targetNode.label)
+    currentEndNodeId = targetNode.id
+  }
+  pushChain()
+
+  return chains.map((chain) => chain.join(' → ')).join('; ')
 }
 
 export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdge }: CalendarModalProps) {
@@ -108,14 +171,10 @@ export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdg
     [selectedEntries, nodeById, edgeById]
   )
 
-  const daySummary = useMemo(() => {
-    // De-dupe in case the same item was trained more than once that day.
-    const unique = [...new Set(selectedSummaries)]
-    if (unique.length === 0) return ''
-    if (unique.length === 1) return unique[0]
-    if (unique.length === 2) return `${unique[0]} and ${unique[1]}`
-    return `${unique.slice(0, -1).join(', ')}, and ${unique[unique.length - 1]}`
-  }, [selectedSummaries])
+  const daySummary = useMemo(
+    () => buildDaySequenceSummary(selectedEntries, nodeById, edgeById),
+    [selectedEntries, nodeById, edgeById]
+  )
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
