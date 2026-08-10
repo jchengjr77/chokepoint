@@ -78,7 +78,7 @@ export function Toolbar({
 
       <span className="shrink-0 text-[14px] font-bold uppercase tracking-wide text-text-primary">Chokepoint</span>
 
-      {/* Ruleset: segmented control on desktop, dropdown on mobile (issue #7) */}
+      {/* Ruleset: segmented control on desktop; folded into the mobile menu below */}
       <div className="hidden shrink-0 border border-border text-[11px] font-medium uppercase sm:flex">
         {RULESET_OPTIONS.map((r) => (
           <button
@@ -94,13 +94,6 @@ export function Toolbar({
           </button>
         ))}
       </div>
-      <Dropdown
-        value={rulesetFilter}
-        options={RULESET_OPTIONS.map((r) => ({ value: r, label: r }))}
-        onChange={onRulesetFilterChange}
-        ariaLabel="Ruleset filter"
-        className="w-20 shrink-0 sm:hidden"
-      />
 
       {/* Search isn't essential on small screens and eats too much of the toolbar's width there */}
       <input
@@ -126,7 +119,7 @@ export function Toolbar({
           About
         </button>
 
-        {/* Theme picker stays visible outside the collapsed menu at every size */}
+        {/* Theme picker and dark/light switch stay visible outside the collapsed menu at every size */}
         <Dropdown
           value={theme}
           options={THEMES.map((t) => ({ value: t.id, label: t.label }))}
@@ -135,9 +128,7 @@ export function Toolbar({
           className="w-24 sm:w-32"
         />
 
-        <div className="hidden sm:block">
-          <ThemeModeSwitch themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
-        </div>
+        <ThemeModeSwitch themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
 
         <span className="hidden text-[11px] text-text-secondary sm:inline">{user?.email}</span>
 
@@ -151,7 +142,7 @@ export function Toolbar({
           />
         </div>
 
-        {/* Mobile: About, dark/light, and account actions collapse into one menu (issue #7) */}
+        {/* Mobile: ruleset, About, and account actions collapse into one menu (issue #7) */}
         <div className="sm:hidden">
           <OverflowMenu
             ariaLabel="Menu"
@@ -162,11 +153,15 @@ export function Toolbar({
               { label: 'Sign Out', onClick: () => setConfirmingSignOut(true), danger: true },
             ]}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase text-text-secondary">
-                {themeMode === 'dark' ? 'Dark mode' : 'Light mode'}
-              </span>
-              <ThemeModeSwitch themeMode={themeMode} onThemeModeChange={onThemeModeChange} />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] uppercase text-text-secondary">Ruleset</span>
+              <Dropdown
+                value={rulesetFilter}
+                options={RULESET_OPTIONS.map((r) => ({ value: r, label: r }))}
+                onChange={onRulesetFilterChange}
+                ariaLabel="Ruleset filter"
+                className="w-24"
+              />
             </div>
           </OverflowMenu>
         </div>
