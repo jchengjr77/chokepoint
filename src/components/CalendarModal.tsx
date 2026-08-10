@@ -36,15 +36,27 @@ function summarizeEdge(edge: GraphEdge, sourceLabel: string, targetLabel: string
 
 /**
  * Concise, chronological "what happened" summary for a day, e.g.
- * "Top Side Control → Mount → Armbar" — not a list of separate sentences
- * like the per-entry log rows below it. Entries are walked in trained
- * order; a node entry starts (or continues, if its node matches wherever
- * the current chain left off) a sequence, and an edge entry extends the
- * chain from source to target. Whenever the next entry doesn't connect
- * to where the current chain left off, that chain ends and a new one
- * starts — multiple same-day sessions on unrelated things show as
- * separate arrow-chains joined with "; " rather than being forced into
- * one sequence or silently dropped.
+ * "Top Side Control → Top Mount → Armbar" — not a list of separate
+ * sentences like the per-entry log rows below it.
+ *
+ * A day's log usually has more entries than the sequence it represents:
+ * adding a node writes its own log row, and connecting two nodes writes
+ * another — so "add A, add B, connect A→B" is three log rows for what is
+ * really just one step. Building the summary by streaming those rows in
+ * order and greedily deciding right away whether each one starts a new
+ * chain doesn't work, because whether a standalone node-add entry turns
+ * out to be a lone chain or the start of a longer one isn't known until
+ * a later entry (possibly several rows later) either does or doesn't
+ * extend it.
+ *
+ * So instead: build the day's activity into a small graph first — every
+ * distinct node and edge touched that day, regardless of how many times
+ * or in what order — then walk it. A node with no incoming edge touched
+ * that day is a chain start; walking its outgoing edges (in the order
+ * nodes were first touched, so the result still reads chronologically)
+ * produces the full chain in one pass, with no separate handling needed
+ * for whether a given node's log entry happened to arrive before or
+ * after the edge that uses it.
  */
 function buildDaySequenceSummary(
   entries: TrainingLogEntry[],
@@ -55,46 +67,62 @@ function buildDaySequenceSummary(
     (a, b) => new Date(a.trainedAt).getTime() - new Date(b.trainedAt).getTime()
   )
 
-  const chains: string[][] = []
-  let currentChain: string[] = []
-  let currentEndNodeId: string | null = null
+  const touchedNodeIds: string[] = []
+  const seenNode = new Set<string>()
+  const outEdges = new Map<string, string[]>() // nodeId -> distinct target ids touched today
+  const hasIncoming = new Set<string>()
 
-  const pushChain = () => {
-    if (currentChain.length > 0) chains.push(currentChain)
-    currentChain = []
-    currentEndNodeId = null
+  const touchNode = (id: string) => {
+    if (!seenNode.has(id)) {
+      seenNode.add(id)
+      touchedNodeIds.push(id)
+    }
   }
 
   for (const entry of chronological) {
     if (entry.nodeId) {
-      const node = nodeById.get(entry.nodeId)
-      if (!node) continue
-
-      if (entry.nodeId === currentEndNodeId) continue // already the current chain's last step
-
-      pushChain()
-      currentChain = [node.label]
-      currentEndNodeId = node.id
+      touchNode(entry.nodeId)
       continue
     }
-
     const edge = entry.edgeId ? edgeById.get(entry.edgeId) : undefined
     if (!edge) continue
-    const sourceNode = nodeById.get(edge.sourceId)
-    const targetNode = nodeById.get(edge.targetId)
-    if (!sourceNode || !targetNode) continue
-
-    if (currentEndNodeId !== edge.sourceId) {
-      // Doesn't continue where the current chain left off — start fresh.
-      pushChain()
-      currentChain = [sourceNode.label]
-    }
-    currentChain.push(targetNode.label)
-    currentEndNodeId = targetNode.id
+    touchNode(edge.sourceId)
+    touchNode(edge.targetId)
+    const targets = outEdges.get(edge.sourceId) ?? []
+    if (!targets.includes(edge.targetId)) targets.push(edge.targetId)
+    outEdges.set(edge.sourceId, targets)
+    hasIncoming.add(edge.targetId)
   }
-  pushChain()
 
-  return chains.map((chain) => chain.join(' → ')).join('; ')
+  const consumed = new Set<string>()
+  const chains: string[][] = []
+
+  const walkFrom = (startId: string) => {
+    const chain = [startId]
+    consumed.add(startId)
+    let current = startId
+    for (;;) {
+      const next = outEdges.get(current)?.find((id) => !consumed.has(id))
+      if (!next) break
+      chain.push(next)
+      consumed.add(next)
+      current = next
+    }
+    chains.push(chain)
+  }
+
+  for (const id of touchedNodeIds) {
+    if (consumed.has(id) || hasIncoming.has(id)) continue
+    walkFrom(id)
+  }
+  // Anything left over (e.g. a same-day cycle) still gets shown.
+  for (const id of touchedNodeIds) {
+    if (!consumed.has(id)) walkFrom(id)
+  }
+
+  return chains
+    .map((chain) => chain.map((id) => nodeById.get(id)?.label ?? '?').join(' → '))
+    .join('; ')
 }
 
 export function CalendarModal({ nodes, edges, onClose, onSelectNode, onSelectEdge }: CalendarModalProps) {
