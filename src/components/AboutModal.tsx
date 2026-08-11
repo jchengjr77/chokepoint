@@ -22,13 +22,13 @@ function AboutTab() {
         The modern grappler's training journal.
       </p>
       <p className="mb-6 text-[12px] leading-relaxed text-text-primary">
-        Build your map with positions and submissions, connected by techniques.
+        Track your knowledge of positions and submissions, connected by techniques.
       </p>
 
       <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-2">
         <Feature title="Natural language input">
-          Type what you trained in plain English — "scissor sweep from closed guard to mount, then armbar" — and
-          Chokepoint updates your map for you.
+          Type what you trained in <b>plain English</b> (e.g. "scissor sweep from closed guard to mount, then mounted armbar") and
+          your map automatically updates itself.
         </Feature>
 
         <Feature title="Calendar">
@@ -36,20 +36,16 @@ function AboutTab() {
         </Feature>
 
         <Feature title="Positions & Techniques">
-          Positions and <span className="text-node-submission">Submissions</span> are nodes in the map, and
-          Techniques connect them. Don't see something you know? Define your own!
+          <b>Positions</b> and <b>Submissions</b> are nodes in the map, and
+          <b>Techniques</b> connect them. Don't see something you know? Define your own!
         </Feature>
 
-        <Feature title="Layout">
-          The map runs left to right by advantage: disadvantageous positions on the left, advantageous ones on the
-          right.
+        <Feature title="Smart Layout">
+          The map runs left to right by advantage: bad positions on the left, good ones on the
+          right. Use <b>Auto-Layout</b> to clean up your map.
         </Feature>
 
-        <Feature title="Auto-Layout">
-          Automatically re-arranges your map while preserving the advantage ordering.
-        </Feature>
-
-        <Feature title="Themes">Pick a color theme and light or dark mode from the toolbar!</Feature>
+        <Feature title="Themes">Pick from popular color themes and light or dark mode from the toolbar!</Feature>
       </div>
     </>
   )
@@ -120,11 +116,10 @@ export function AboutModal({ onClose }: AboutModalProps) {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 py-2 text-[11px] font-medium uppercase ${
-                tab === t
-                  ? 'border-b-2 border-text-primary text-text-primary'
-                  : 'text-text-secondary hover:bg-bg-elevated'
-              }`}
+              className={`flex-1 py-2 text-[11px] font-medium uppercase ${tab === t
+                ? 'border-b-2 border-text-primary text-text-primary'
+                : 'text-text-secondary hover:bg-bg-elevated'
+                }`}
             >
               {label}
             </button>
