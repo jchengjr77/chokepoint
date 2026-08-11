@@ -7,6 +7,7 @@ import { Dropdown } from './Dropdown'
 import { ConfirmModal } from './ConfirmModal'
 import { AboutModal } from './AboutModal'
 import { OverflowMenu } from './OverflowMenu'
+import { Logo } from './Logo'
 
 const REPORT_BUG_URL = 'https://github.com/jchengjr77/chokepoint/issues/new'
 const RULESET_OPTIONS: RulesetFilter[] = ['all', 'gi', 'nogi']
@@ -78,7 +79,10 @@ export function Toolbar({
   return (
     <div className="flex h-12 shrink-0 items-center gap-3 overflow-x-auto border-b border-border bg-bg-surface px-3 sm:gap-4">
 
-      <span className="shrink-0 text-[14px] font-bold uppercase tracking-wide text-text-primary">Chokepoint</span>
+      <div className="flex shrink-0 items-center gap-2">
+        <Logo size={10} />
+        <span className="text-[14px] font-bold uppercase tracking-wide text-text-primary">Chokepoint</span>
+      </div>
 
       {/* Ruleset: segmented control on desktop; folded into the mobile menu below */}
       <div className="hidden shrink-0 border border-border text-[11px] font-medium uppercase sm:flex">

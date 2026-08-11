@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { AboutModal } from './AboutModal'
+import { Logo } from './Logo'
 
 export function LoginScreen() {
   const { signInWithPassword, signUpWithPassword, signInWithGoogle } = useAuth()
@@ -34,19 +35,23 @@ export function LoginScreen() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-bg-primary px-4">
       <div className="w-full max-w-sm border border-border bg-bg-surface p-6">
+        <div className="mb-3 flex justify-center">
+          <Logo size={14} />
+        </div>
         <h1 className="mb-1 text-center text-[14px] font-bold uppercase tracking-wide text-text-primary">
           Chokepoint
         </h1>
-        <p className="mb-6 text-center text-[11px] text-text-secondary">
-          A training journal for the modern grappler.{' '}
-          <button
-            type="button"
-            onClick={() => setShowAbout(true)}
-            className="text-text-primary underline underline-offset-2 hover:text-node-submission"
-          >
-            What is this?
-          </button>
+        <p className="mb-4 text-center text-[11px] text-text-secondary">
+          A training journal for the modern grappler.
         </p>
+
+        <button
+          type="button"
+          onClick={() => setShowAbout(true)}
+          className="mb-4 w-full border border-node-submission bg-transparent px-3 py-2 text-[11px] font-bold uppercase text-node-submission transition-colors hover:bg-node-submission hover:text-black"
+        >
+          What is Chokepoint?
+        </button>
 
         <button
           type="button"
