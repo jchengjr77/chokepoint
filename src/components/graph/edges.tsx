@@ -30,7 +30,7 @@ function ArrowMarker({
       refX="7"
       refY="4"
       orient={reverse ? 'auto-start-reverse' : 'auto'}
-      markerUnits="userSpaceOnUse"
+      markerUnits="strokeWidth"
     >
       <path d="M0,0 L8,4 L0,8 Z" fill={color} fillOpacity={opacity} />
     </marker>
@@ -58,7 +58,7 @@ export function TransitionEdge({
     curvature: 0.35,
   })
   const isSubmission = data?.isSubmissionEntry
-  const color = isSubmission ? 'var(--edge-submission)' : 'var(--edge-default)'
+  const color = isSubmission ? 'var(--edge-submission, #00cc66)' : 'var(--edge-default, #444444)'
   const opacity = data?.searchMatch === false ? 0.3 : 1
   const strokeWidth = selected ? Math.max(4, getTechniqueCountStrokeWidth(data?.techniqueCount ?? 1)) : getTechniqueCountStrokeWidth(data?.techniqueCount ?? 1)
   const startMarkerId = `arrow-start-${id}`
