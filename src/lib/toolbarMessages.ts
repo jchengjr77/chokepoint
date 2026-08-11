@@ -7,20 +7,18 @@ export const TOOLBAR_MESSAGES: string[] = [
   'Move of the day: brazilian tap',
   'That was more of a crank',
   'instagram moves > strong fundamentals',
-  'Oss',
+  'Oss!',
   'Those dirty leglockers...',
-  'Just flow, bro.',
-  "It's not a leglock, it's a leg entanglement.",
+  'Just flow, bro. (goes 100%)',
   'Tap early, tap often.',
   'New gi, who dis?',
-  'Rolling light today (narrator: they were not rolling light)',
-  "Don't worry, I went easy on you.",
+  "So, to finish the armbar from here...",
   "I'm just here for the cardio.",
-  'The best technique is the one you never see coming — or ever remember.',
   'Competition team when?',
   'One more roll, I promise.',
   'Death by berimbolo.',
-  'Certified guard passer (citation needed)',
+  'Certified passer',
+  "Do not mother's milk me. I will throw up."
 ]
 
 export function randomToolbarMessage(): string {

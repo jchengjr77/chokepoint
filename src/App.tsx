@@ -65,6 +65,7 @@ function MainApp() {
   const [connectMode, setConnectMode] = useState(false)
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null)
   const [nlResult, setNlResult] = useState<NLParseResult | null>(null)
+  const [nlClearToken, setNlClearToken] = useState(0)
   const [showOnboarding, setShowOnboarding] = useState(!hasSeenOnboarding())
 
   const dismissOnboarding = () => {
@@ -168,6 +169,7 @@ function MainApp() {
     await layoutNewNodes(nodes, createdNodes, [...edges, ...createdEdges])
 
     setNlResult(null)
+    setNlClearToken((t) => t + 1)
   }
 
   if (loading) {
@@ -324,6 +326,7 @@ function MainApp() {
         existingLibraryIds={nodes.map((n) => n.libraryId)}
         customEntries={customLibraryEntries}
         onResult={setNlResult}
+        clearToken={nlClearToken}
       />
 
       {showLibraryPicker && (

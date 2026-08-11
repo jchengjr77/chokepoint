@@ -23,11 +23,6 @@ export function SubmissionNode({ data, selected }: NodeProps<GraphNodeData>) {
           className="!bg-node-submission !border-0 !h-1 !w-1"
         />
       ))}
-      <span
-        aria-hidden
-        className="chokepoint-sharp absolute -right-1 -top-1 h-2 w-2"
-        style={{ background: 'var(--node-submission)' }}
-      />
       <span className="select-none text-[12px] font-medium text-text-primary">{data.label}</span>
       {HANDLE_POSITIONS.map((pos) => (
         <Handle

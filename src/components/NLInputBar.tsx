@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { parseNaturalLanguage } from '../lib/nlParse'
 import type { LibraryEntry, NLParseResult } from '../types'
 
@@ -6,12 +6,21 @@ interface NLInputBarProps {
   existingLibraryIds: string[]
   customEntries: LibraryEntry[]
   onResult: (result: NLParseResult) => void
+  /** Bumped by the parent once the previewed result is actually applied
+   * (confirmed, not canceled) — only then is the input cleared. If the
+   * user cancels the preview instead, the text stays so they can tweak
+   * and resubmit without retyping everything. */
+  clearToken: number
 }
 
-export function NLInputBar({ existingLibraryIds, customEntries, onResult }: NLInputBarProps) {
+export function NLInputBar({ existingLibraryIds, customEntries, onResult, clearToken }: NLInputBarProps) {
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setText('')
+  }, [clearToken])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -27,8 +36,10 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult }: NLIn
         setError("Didn't recognize any grappling training in that — try describing what you trained.")
         return
       }
+      // Text is intentionally kept until the parent confirms the result
+      // was applied (see clearToken) — canceling the preview should let
+      // the user edit and resubmit, not retype from scratch.
       onResult(result)
-      setText('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to parse input')
     } finally {
