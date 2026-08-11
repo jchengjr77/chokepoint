@@ -15,6 +15,7 @@ import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './comp
 import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
 import { CalendarButton } from './components/CalendarButton'
+import { TrainingSummaryModal } from './components/TrainingSummaryModal'
 import { OverflowMenu } from './components/OverflowMenu'
 import { computeAutoLayoutForNewNodes } from './lib/layout'
 import { defaultEdgeLabel } from './lib/edgeLabel'
@@ -57,6 +58,7 @@ function MainApp() {
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
+  const [showTrainingSummary, setShowTrainingSummary] = useState(false)
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [selectedEdgePair, setSelectedEdgePair] = useState<{ sourceId: string; targetId: string } | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -188,6 +190,7 @@ function MainApp() {
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         onOpenImportExport={() => setShowImportExport(true)}
+        onOpenTrainingSummary={() => setShowTrainingSummary(true)}
         theme={theme}
         themeMode={themeMode}
         onThemeChange={(t) => void setTheme(t)}
@@ -362,6 +365,10 @@ function MainApp() {
             }
           }}
         />
+      )}
+
+      {showTrainingSummary && (
+        <TrainingSummaryModal nodes={nodes} edges={edges} onClose={() => setShowTrainingSummary(false)} />
       )}
 
       {nlResult && (
