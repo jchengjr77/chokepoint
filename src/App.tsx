@@ -20,6 +20,7 @@ import { TrainingSummaryModal } from './components/TrainingSummaryModal'
 import { OverflowMenu } from './components/OverflowMenu'
 import { computeAutoLayoutForNewNodes } from './lib/layout'
 import { defaultEdgeLabel } from './lib/edgeLabel'
+import { toTitleCase } from './lib/titleCase'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
 function OfflineBanner() {
@@ -162,9 +163,9 @@ function MainApp() {
         continue
       }
 
-      const label =
-        e.label.trim() ||
-        defaultEdgeLabel(nodeById.get(sourceId)?.label ?? '?', nodeById.get(targetId)?.label ?? '?')
+      const label = e.label.trim()
+        ? toTitleCase(e.label)
+        : defaultEdgeLabel(nodeById.get(sourceId)?.label ?? '?', nodeById.get(targetId)?.label ?? '?')
       await addEdge({ sourceId, targetId, label, bidirectional: e.bidirectional, trainedAt: accepted.trainedAt })
       createdEdges.push({ sourceId, targetId })
     }

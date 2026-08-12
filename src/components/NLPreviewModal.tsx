@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CreateLibraryEntryForm } from './CreateLibraryEntryForm'
+import { toTitleCase } from '../lib/titleCase'
 import type { Advantage, GraphEdge, GraphNode, LibraryEntry, NLParseResult, NodeType, Ruleset } from '../types'
 
 interface NLPreviewModalProps {
@@ -202,7 +203,7 @@ export function NLPreviewModal({
                       <span>
                         {sourceLabel} {e.bidirectional ? '↔' : '→'} {targetLabel}
                       </span>
-                      {e.label && <span className="text-[10px] text-text-tertiary">({e.label})</span>}
+                      {e.label && <span className="text-[10px] text-text-tertiary">({toTitleCase(e.label)})</span>}
                       {alreadyExists && (
                         <span className="ml-auto text-[10px] uppercase text-node-submission">+1 session</span>
                       )}
