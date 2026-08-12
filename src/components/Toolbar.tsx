@@ -18,6 +18,7 @@ interface ToolbarProps {
   searchQuery: string
   onSearchQueryChange: (query: string) => void
   onOpenImportExport: () => void
+  onOpenTutorial: () => void
   theme: ThemeId
   themeMode: ThemeMode
   onThemeChange: (theme: ThemeId) => void
@@ -64,6 +65,7 @@ export function Toolbar({
   searchQuery,
   onSearchQueryChange,
   onOpenImportExport,
+  onOpenTutorial,
   theme,
   themeMode,
   onThemeChange,
@@ -139,6 +141,7 @@ export function Toolbar({
         <div className="hidden sm:block">
           <OverflowMenu
             items={[
+              { label: 'Tutorial', onClick: onOpenTutorial },
               { label: 'Import / Export', onClick: onOpenImportExport },
               { label: 'Report Bug', onClick: () => window.open(REPORT_BUG_URL, '_blank', 'noopener,noreferrer') },
               { label: 'Sign Out', onClick: () => setConfirmingSignOut(true), danger: true },
@@ -152,6 +155,7 @@ export function Toolbar({
             ariaLabel="Menu"
             items={[
               { label: 'About', onClick: () => setShowAbout(true) },
+              { label: 'Tutorial', onClick: onOpenTutorial },
               { label: 'Import / Export', onClick: onOpenImportExport },
               { label: 'Report Bug', onClick: () => window.open(REPORT_BUG_URL, '_blank', 'noopener,noreferrer') },
               { label: 'Sign Out', onClick: () => setConfirmingSignOut(true), danger: true },

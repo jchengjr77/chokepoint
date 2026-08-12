@@ -11,7 +11,7 @@ import { DetailPanel } from './components/DetailPanel'
 import { NLInputBar } from './components/NLInputBar'
 import { NLPreviewModal } from './components/NLPreviewModal'
 import { ImportExportModal } from './components/ImportExportModal'
-import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './components/OnboardingOverlay'
+import { TutorialModal, hasSeenTutorial, markTutorialSeen } from './components/TutorialModal'
 import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
 import { CalendarButton } from './components/CalendarButton'
@@ -70,11 +70,11 @@ function MainApp() {
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null)
   const [nlResult, setNlResult] = useState<NLParseResult | null>(null)
   const [nlClearToken, setNlClearToken] = useState(0)
-  const [showOnboarding, setShowOnboarding] = useState(!hasSeenOnboarding())
+  const [showTutorial, setShowTutorial] = useState(!hasSeenTutorial())
 
-  const dismissOnboarding = () => {
-    markOnboardingSeen()
-    setShowOnboarding(false)
+  const closeTutorial = () => {
+    markTutorialSeen()
+    setShowTutorial(false)
   }
 
   const handleNodeClick = (node: GraphNode) => {
@@ -192,6 +192,7 @@ function MainApp() {
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         onOpenImportExport={() => setShowImportExport(true)}
+        onOpenTutorial={() => setShowTutorial(true)}
         theme={theme}
         themeMode={themeMode}
         onThemeChange={(t) => void setTheme(t)}
@@ -225,8 +226,6 @@ function MainApp() {
             resetViewToken={resetViewToken}
             autoLayoutToken={autoLayoutToken}
           />
-
-          {showOnboarding && nodes.length === 0 && <OnboardingOverlay onDismiss={dismissOnboarding} />}
 
           <div
             className={`absolute bottom-4 left-4 flex items-center gap-2 ${
@@ -372,6 +371,8 @@ function MainApp() {
       {showTrainingSummary && (
         <TrainingSummaryModal nodes={nodes} edges={edges} onClose={() => setShowTrainingSummary(false)} />
       )}
+
+      {showTutorial && <TutorialModal onClose={closeTutorial} />}
 
       {nlResult && (
         <NLPreviewModal
