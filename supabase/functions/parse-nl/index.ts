@@ -12,6 +12,23 @@ import libraryJson from '../_shared/library.json' with { type: 'json' }
 const CLAUDE_MODEL = 'claude-haiku-4-5-20251001'
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
 
+// This is the only endpoint in the app that costs real money per call
+// (everything else is free Postgres reads/writes), so it's rate-limited
+// per user per calendar week to bound worst-case cost. The account below
+// is exempt — the developer's own account, used for ongoing testing.
+const WEEKLY_PARSE_LIMIT = 40
+const UNLIMITED_EMAILS = new Set(['jonathanchengjr77@gmail.com'])
+
+function currentWeekStart(): string {
+  // Monday-anchored calendar week, as a YYYY-MM-DD date (matches the
+  // nlp_usage.week_start column type).
+  const now = new Date()
+  const day = now.getUTCDay() // 0 = Sunday
+  const diffToMonday = day === 0 ? 6 : day - 1
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diffToMonday))
+  return monday.toISOString().slice(0, 10)
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -115,6 +132,35 @@ Deno.serve(async (req: Request) => {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
+    }
+
+    // Weekly usage cap — this is the only endpoint in the app that costs
+    // real money per call. Increment first (atomic, via the DB function)
+    // and reject if that push crossed the limit, rather than
+    // read-then-write, so two concurrent requests from the same user
+    // can't both read a count under the cap and both proceed.
+    if (!user.email || !UNLIMITED_EMAILS.has(user.email)) {
+      const { data: newCount, error: usageError } = await supabaseClient.rpc('increment_nlp_usage', {
+        p_user_id: user.id,
+        p_week_start: currentWeekStart(),
+      })
+      if (usageError) {
+        return new Response(JSON.stringify({ error: `Usage tracking error: ${usageError.message}` }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      if (typeof newCount === 'number' && newCount > WEEKLY_PARSE_LIMIT) {
+        return new Response(
+          JSON.stringify({
+            error: `You've used all ${WEEKLY_PARSE_LIMIT} free AI parses for this week. It resets Monday — in the meantime you can still add positions and transitions manually.`,
+          }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        )
+      }
     }
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
