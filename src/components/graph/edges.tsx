@@ -11,40 +11,15 @@ export interface GraphEdgeData {
   searchMatch: boolean | null
 }
 
-function ArrowMarker({
-  id,
-  color,
-  reverse,
-  opacity,
-}: {
-  id: string
-  color: string
-  reverse?: boolean
-  opacity: number
-}) {
-  return (
-    <marker
-      id={id}
-      markerWidth="8"
-      markerHeight="8"
-      refX="7"
-      refY="4"
-      orient={reverse ? 'auto-start-reverse' : 'auto'}
-      markerUnits="strokeWidth"
-    >
-      <path d="M0,0 L8,4 L0,8 Z" fill={color} fillOpacity={opacity} />
-    </marker>
-  )
-}
-
 export function TransitionEdge({
-  id,
   sourceX,
   sourceY,
   sourcePosition,
   targetX,
   targetY,
   targetPosition,
+  markerStart,
+  markerEnd,
   data,
   selected,
 }: EdgeProps<GraphEdgeData>) {
@@ -61,23 +36,24 @@ export function TransitionEdge({
   const color = isSubmission ? 'var(--edge-submission, #00cc66)' : 'var(--edge-default, #444444)'
   const opacity = data?.searchMatch === false ? 0.3 : 1
   const strokeWidth = selected ? Math.max(4, getTechniqueCountStrokeWidth(data?.techniqueCount ?? 1)) : getTechniqueCountStrokeWidth(data?.techniqueCount ?? 1)
-  const startMarkerId = `arrow-start-${id}`
-  const endMarkerId = `arrow-end-${id}`
 
   const displayLabel =
     (data?.techniqueCount ?? 1) > 1 ? `${data?.techniqueCount} techniques` : data?.soleLabel
 
   return (
     <>
-      <defs>
-        <ArrowMarker id={endMarkerId} color={color} opacity={opacity} />
-        {data?.bidirectional && <ArrowMarker id={startMarkerId} color={color} reverse opacity={opacity} />}
-      </defs>
+      {/* Arrowheads come from React Flow's own marker system (markerStart/
+          markerEnd set on the edge object in GraphCanvas), which de-dupes
+          markers by prop signature into one shared <defs> at the SVG root.
+          Hand-rolling a <defs>/<marker> per edge instance here used to hit
+          a WebKit bug on mobile Safari/iOS Chrome where duplicate/reused
+          marker ids across mount-unmount cycles resolve to the wrong (or
+          no) element — arrowheads would render invisible while the edge
+          stayed otherwise interactive. */}
       <BaseEdge
-        id={id}
         path={edgePath}
-        markerEnd={`url(#${endMarkerId})`}
-        markerStart={data?.bidirectional ? `url(#${startMarkerId})` : undefined}
+        markerStart={markerStart}
+        markerEnd={markerEnd}
         style={{
           stroke: color,
           strokeWidth,

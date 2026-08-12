@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactFlow, {
   Background,
   BackgroundVariant,
+  MarkerType,
   Position,
   useReactFlow,
   type Connection,
@@ -210,6 +211,18 @@ export function GraphCanvas({
           soleLabel = ''
         }
 
+        // React Flow's built-in marker system (as opposed to hand-rolled
+        // <marker> defs inside the custom edge component) de-dupes markers
+        // by their exact prop signature and renders them once in a single
+        // shared <defs> at the SVG root. Per-edge <defs> with dynamically
+        // generated ids was hitting a WebKit bug on mobile Safari/iOS
+        // Chrome where duplicate/reused marker ids across mount-unmount
+        // cycles resolve to the wrong (or no) element, leaving arrowheads
+        // invisible while the edge stayed otherwise interactive.
+        const markerColor = isSubmissionEntry ? 'var(--edge-submission, #00cc66)' : 'var(--edge-default, #444444)'
+        const markerEnd = { type: MarkerType.ArrowClosed, color: markerColor, width: 16, height: 16 }
+        const markerStart = group.bidirectional ? markerEnd : undefined
+
         return {
           id: groupId,
           source: group.sourceId,
@@ -217,6 +230,8 @@ export function GraphCanvas({
           sourceHandle,
           targetHandle,
           type: 'transition',
+          markerEnd,
+          markerStart,
           data: {
             soleLabel,
             techniqueCount: group.techniques.length,
