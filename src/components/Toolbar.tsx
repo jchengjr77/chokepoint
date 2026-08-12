@@ -18,7 +18,6 @@ interface ToolbarProps {
   searchQuery: string
   onSearchQueryChange: (query: string) => void
   onOpenImportExport: () => void
-  onOpenTrainingSummary: () => void
   theme: ThemeId
   themeMode: ThemeMode
   onThemeChange: (theme: ThemeId) => void
@@ -65,7 +64,6 @@ export function Toolbar({
   searchQuery,
   onSearchQueryChange,
   onOpenImportExport,
-  onOpenTrainingSummary,
   theme,
   themeMode,
   onThemeChange,
@@ -125,15 +123,6 @@ export function Toolbar({
           About
         </button>
 
-        <button
-          onClick={onOpenTrainingSummary}
-          aria-label="Training Summary"
-          title="Training Summary"
-          className="hidden shrink-0 border border-border px-2 py-1 text-[11px] font-medium uppercase text-text-primary hover:bg-bg-elevated sm:block"
-        >
-          Stats
-        </button>
-
         {/* Theme picker and dark/light switch stay visible outside the collapsed menu at every size */}
         <Dropdown
           value={theme}
@@ -163,7 +152,6 @@ export function Toolbar({
             ariaLabel="Menu"
             items={[
               { label: 'About', onClick: () => setShowAbout(true) },
-              { label: 'Training Summary', onClick: onOpenTrainingSummary },
               { label: 'Import / Export', onClick: onOpenImportExport },
               { label: 'Report Bug', onClick: () => window.open(REPORT_BUG_URL, '_blank', 'noopener,noreferrer') },
               { label: 'Sign Out', onClick: () => setConfirmingSignOut(true), danger: true },

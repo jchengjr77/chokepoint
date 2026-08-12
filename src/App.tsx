@@ -15,6 +15,7 @@ import { OnboardingOverlay, hasSeenOnboarding, markOnboardingSeen } from './comp
 import { Legend } from './components/Legend'
 import { CalendarModal } from './components/CalendarModal'
 import { CalendarButton } from './components/CalendarButton'
+import { TrainingStatsButton } from './components/TrainingStatsButton'
 import { TrainingSummaryModal } from './components/TrainingSummaryModal'
 import { OverflowMenu } from './components/OverflowMenu'
 import { computeAutoLayoutForNewNodes } from './lib/layout'
@@ -190,7 +191,6 @@ function MainApp() {
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         onOpenImportExport={() => setShowImportExport(true)}
-        onOpenTrainingSummary={() => setShowTrainingSummary(true)}
         theme={theme}
         themeMode={themeMode}
         onThemeChange={(t) => void setTheme(t)}
@@ -302,10 +302,11 @@ function MainApp() {
           </div>
 
           <div
-            className={`absolute bottom-4 right-4 flex items-center gap-2 ${
+            className={`absolute bottom-4 right-4 flex flex-col items-end gap-2 ${
               selectedNode || selectedEdgePair ? 'max-sm:hidden' : ''
             }`}
           >
+            <TrainingStatsButton onClick={() => setShowTrainingSummary(true)} />
             <CalendarButton onClick={() => setShowCalendar(true)} />
           </div>
         </div>
