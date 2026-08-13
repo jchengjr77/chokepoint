@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { parseNaturalLanguage } from '../lib/nlParse'
+import { useNlpUsage } from '../hooks/useNlpUsage'
 import type { LibraryEntry, NLParseResult } from '../types'
 
 interface NLInputBarProps {
@@ -17,6 +18,8 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult, clearT
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [usageRefreshToken, setUsageRefreshToken] = useState(0)
+  const { used, limit, unlimited } = useNlpUsage(usageRefreshToken)
 
   useEffect(() => {
     setText('')
@@ -29,6 +32,9 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult, clearT
     setError(null)
     try {
       const result = await parseNaturalLanguage(text, existingLibraryIds, customEntries)
+      // A parse call counts against the weekly quota whether or not the
+      // user goes on to confirm the preview, so refresh right away.
+      setUsageRefreshToken((t) => t + 1)
       const nothingFound = result.nodes.length === 0 && result.edges.length === 0 && result.unrecognized.length === 0
       if (nothingFound) {
         // Off-topic or unrelated input (e.g. a random question) — don't
@@ -55,6 +61,11 @@ export function NLInputBar({ existingLibraryIds, customEntries, onResult, clearT
           style={{ color: '#ff5555' }}
         >
           {error}
+        </p>
+      )}
+      {!error && !unlimited && used !== null && (
+        <p className="px-3 pt-1.5 text-[10px] text-text-tertiary">
+          {Math.max(limit - used, 0)} of {limit} free AI parses left this week
         </p>
       )}
       <form onSubmit={(e) => void handleSubmit(e)} className="flex h-14 items-center gap-2 px-3">
