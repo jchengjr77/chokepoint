@@ -41,8 +41,8 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
             Chokepoint adds it to your map for you.
           </Step>
 
-          <Step title="Add manually">
-            Use <b>Add Position</b> and <b>Add Transition</b> to build your map by hand instead.
+          <Step title="Calendar">
+            Bottom-right: <b>Calendar</b> shows what you trained each day.
           </Step>
 
           <Step title="Layout">
@@ -50,9 +50,12 @@ export function TutorialModal({ onClose }: TutorialModalProps) {
             <b>Auto-Layout</b> to tidy things up anytime.
           </Step>
 
-          <Step title="Calendar & Training Stats">
-            Bottom-right: <b>Calendar</b> shows what you trained each day, <b>Training Stats</b> shows your overall
-            progress.
+          <Step title="Training Stats">
+            Bottom-right: <b>Training Stats</b> shows your overall progress.
+          </Step>
+
+          <Step title="Add manually">
+            Use <b>Add Position</b> and <b>Add Transition</b> to build your map by hand instead.
           </Step>
         </div>
 
