@@ -10,15 +10,28 @@ import {
 import { AuthProvider, useAuth } from '@chokepoint/shared';
 import { colors } from './theme/tokens';
 import { monoFont } from './theme/typography';
+import { LoginScreen } from './screens/LoginScreen';
+import { getOAuthRedirectUrl, openOAuthUrl } from './lib/oauth';
 
 function Root({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator color={colors.textPrimary} />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen fontsLoaded={fontsLoaded} />;
+  }
+
   return (
     <View style={styles.container}>
       <Text style={[styles.title, monoFont('bold', fontsLoaded)]}>Chokepoint</Text>
-      <Text style={[styles.subtext, monoFont('regular', fontsLoaded)]}>
-        {loading ? 'Loading session...' : user ? `Signed in as ${user.email}` : 'Not signed in'}
-      </Text>
+      <Text style={[styles.subtext, monoFont('regular', fontsLoaded)]}>Signed in as {user.email}</Text>
       <StatusBar style="light" />
     </View>
   );
@@ -41,7 +54,7 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
+    <AuthProvider getOAuthRedirectUrl={getOAuthRedirectUrl} openOAuthUrl={openOAuthUrl}>
       <Root fontsLoaded={fontsLoaded} />
     </AuthProvider>
   );
