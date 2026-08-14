@@ -3,6 +3,7 @@ import { ReactFlowProvider } from 'reactflow'
 import { useAuth } from './hooks/useAuth'
 import { GraphStoreProvider, useGraphStore } from './hooks/useGraphStore'
 import { useCustomLibrary } from './hooks/useCustomLibrary'
+import { useTrainingLog } from './hooks/useTrainingLog'
 import { LoginScreen } from './components/LoginScreen'
 import { Toolbar } from './components/Toolbar'
 import { GraphCanvas } from './components/graph/GraphCanvas'
@@ -18,9 +19,11 @@ import { CalendarButton } from './components/CalendarButton'
 import { TrainingStatsButton } from './components/TrainingStatsButton'
 import { TrainingSummaryModal } from './components/TrainingSummaryModal'
 import { OverflowMenu } from './components/OverflowMenu'
+import { ShareCardModal } from './components/ShareCardModal'
 import { computeAutoLayoutForNewNodes } from './lib/layout'
 import { defaultEdgeLabel } from './lib/edgeLabel'
 import { toTitleCase } from './lib/titleCase'
+import { buildSessionShareData, type SessionShareData } from './lib/shareCard'
 import type { GraphEdge, GraphNode, NLParseResult } from './types'
 
 function OfflineBanner() {
@@ -51,6 +54,10 @@ function MainApp() {
   } = useGraphStore()
 
   const { entries: customLibraryEntries, createEntry: createCustomLibraryEntry } = useCustomLibrary()
+  // Kept loaded at all times (not lazily inside a modal) so streak/pace
+  // data is ready synchronously the moment an NL-parsed session is
+  // confirmed, for the post-log share card.
+  const { entries: trainingLogEntries, refresh: refreshTrainingLog } = useTrainingLog(true)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -70,6 +77,7 @@ function MainApp() {
   const [connectSourceId, setConnectSourceId] = useState<string | null>(null)
   const [nlResult, setNlResult] = useState<NLParseResult | null>(null)
   const [nlClearToken, setNlClearToken] = useState(0)
+  const [shareCardData, setShareCardData] = useState<SessionShareData | null>(null)
   const [showTutorial, setShowTutorial] = useState(!hasSeenTutorial())
 
   const closeTutorial = () => {
@@ -174,6 +182,11 @@ function MainApp() {
 
     setNlResult(null)
     setNlClearToken((t) => t + 1)
+
+    if (accepted.nodes.length > 0 || accepted.edges.length > 0) {
+      setShareCardData(buildSessionShareData(accepted, trainingLogEntries))
+    }
+    void refreshTrainingLog()
   }
 
   if (loading) {
@@ -384,6 +397,8 @@ function MainApp() {
           onCancel={() => setNlResult(null)}
         />
       )}
+
+      {shareCardData && <ShareCardModal data={shareCardData} onClose={() => setShareCardData(null)} />}
     </div>
   )
 }

@@ -48,6 +48,54 @@ export interface WeekdayStat {
 const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 export { WEEKDAY_NAMES }
 
+export interface SessionShareStats {
+  /** Consecutive active days ending on (and including) the session date — breaks on the first gap day looking backward. */
+  streakDays: number
+  /** Sessions per week over the trailing window, as of the session date. */
+  recentSessionsPerWeek: number
+  /** Distinct active days within the trailing window. */
+  recentActiveDays: number
+}
+
+function dayStartMs(iso: string): number {
+  const d = new Date(iso)
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+
+/**
+ * Rolling, "as of this session" stats meant for a single-session share
+ * card — deliberately windowed rather than lifetime, so the numbers stay
+ * meaningful (and shareable) every time, not just the first time.
+ */
+export function computeSessionShareStats(
+  entries: TrainingLogEntry[],
+  sessionTrainedAt: string,
+  windowDays = 28
+): SessionShareStats {
+  const sessionDayMs = dayStartMs(sessionTrainedAt)
+  // The session this card is for always counts as active on its own day,
+  // even if `entries` hasn't caught up with an in-flight write yet (the
+  // caller typically calls this right after applying a session, before
+  // the training log has been refetched from the server).
+  const activeDayMsSet = new Set(
+    entries.filter((e) => dayStartMs(e.trainedAt) <= sessionDayMs).map((e) => dayStartMs(e.trainedAt))
+  )
+  activeDayMsSet.add(sessionDayMs)
+
+  let streakDays = 0
+  for (let offset = 0; ; offset++) {
+    const ms = sessionDayMs - offset * 24 * 60 * 60 * 1000
+    if (!activeDayMsSet.has(ms)) break
+    streakDays++
+  }
+
+  const windowStartMs = sessionDayMs - (windowDays - 1) * 24 * 60 * 60 * 1000
+  const recentActiveDays = [...activeDayMsSet].filter((ms) => ms >= windowStartMs && ms <= sessionDayMs).length
+  const recentSessionsPerWeek = (recentActiveDays / windowDays) * 7
+
+  return { streakDays, recentSessionsPerWeek, recentActiveDays }
+}
+
 function toRankedItem(node: GraphNode): RankedItem {
   return { id: node.id, label: node.label, proficiency: node.proficiency }
 }
