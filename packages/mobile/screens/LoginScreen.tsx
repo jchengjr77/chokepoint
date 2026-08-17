@@ -12,6 +12,8 @@ import {
 import { useAuth } from '@chokepoint/shared';
 import { colors, radius } from '../theme/tokens';
 import { monoFont } from '../theme/typography';
+import { Logo } from '../components/Logo';
+import { AboutModal } from '../components/AboutModal';
 
 export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { signInWithPassword, signUpWithPassword, signInWithGoogle } = useAuth();
@@ -20,6 +22,7 @@ export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const handleLogin = async () => {
     setError(null);
@@ -60,8 +63,15 @@ export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.card}>
+          <View style={styles.logoRow}>
+            <Logo size={12} />
+          </View>
           <Text style={[styles.title, font('bold')]}>Chokepoint</Text>
           <Text style={[styles.tagline, font('regular')]}>A training journal for the modern grappler.</Text>
+
+          <Pressable style={styles.aboutButton} onPress={() => setShowAbout(true)}>
+            <Text style={[styles.aboutButtonText, font('semiBold')]}>What is Chokepoint?</Text>
+          </Pressable>
 
           <Pressable style={styles.googleButton} onPress={() => void handleGoogle()} disabled={busy}>
             <Text style={[styles.googleButtonText, font('semiBold')]}>Continue with Google</Text>
@@ -116,6 +126,8 @@ export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
           </View>
         </View>
       </ScrollView>
+
+      <AboutModal visible={showAbout} onClose={() => setShowAbout(false)} fontsLoaded={fontsLoaded} />
     </KeyboardAvoidingView>
   );
 }
@@ -144,6 +156,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 20,
+  },
+  logoRow: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  aboutButton: {
+    borderWidth: 1,
+    borderColor: colors.nodeSubmission,
+    borderRadius: radius,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  aboutButtonText: {
+    color: colors.nodeSubmission,
+    fontSize: 11,
+    textTransform: 'uppercase',
   },
   googleButton: {
     borderWidth: 1,

@@ -9,7 +9,10 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "dev.chokepoint.app"
+      "bundleIdentifier": "dev.chokepoint.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "dev.chokepoint.app",
@@ -27,6 +30,11 @@
     "plugins": [
       "expo-web-browser",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "011f76c3-51a3-4c77-9a1c-efe058573625"
+      }
+    }
   }
 }
