@@ -1,4 +1,5 @@
 import { fontMono, fontMonoFallback } from './tokens'
+import { useFontsLoaded } from './FontsContext'
 
 type FontWeight = keyof typeof fontMono
 
@@ -9,4 +10,10 @@ type FontWeight = keyof typeof fontMono
  */
 export function monoFont(weight: FontWeight, fontsLoaded: boolean): { fontFamily: string } {
   return { fontFamily: fontsLoaded ? fontMono[weight] : fontMonoFallback }
+}
+
+/** Same as monoFont, but reads fontsLoaded from context instead of a prop — for screens mounted under FontsProvider (see app/_layout.tsx) rather than passed it explicitly. */
+export function useMonoFont() {
+  const fontsLoaded = useFontsLoaded()
+  return (weight: FontWeight = 'regular') => monoFont(weight, fontsLoaded)
 }

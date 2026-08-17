@@ -10,6 +10,7 @@ export * from './lib/shareCard'
 export * from './lib/proficiency'
 export * from './lib/themes'
 export * from './lib/nlParse'
+export * from './lib/applyNlResult'
 
 export * from './hooks/useAuth'
 export * from './hooks/useGraphStore'

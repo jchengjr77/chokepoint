@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView, StyleSheet, Linking } from 'react-native';
 import { colors, radius } from '../theme/tokens';
-import { monoFont } from '../theme/typography';
+import { monoFont, useMonoFont } from '../theme/typography';
 
 interface AboutModalProps {
   visible: boolean;
   onClose: () => void;
-  fontsLoaded: boolean;
 }
 
 type Tab = 'about' | 'team';
@@ -89,9 +88,9 @@ function TeamTab({ font }: { font: (weight?: Parameters<typeof monoFont>[0]) => 
   );
 }
 
-export function AboutModal({ visible, onClose, fontsLoaded }: AboutModalProps) {
+export function AboutModal({ visible, onClose }: AboutModalProps) {
   const [tab, setTab] = useState<Tab>('about');
-  const font = (weight: Parameters<typeof monoFont>[0] = 'regular') => monoFont(weight, fontsLoaded);
+  const font = useMonoFont();
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>

@@ -21,8 +21,7 @@ import { TrainingSummaryModal } from './components/TrainingSummaryModal'
 import { OverflowMenu } from './components/OverflowMenu'
 import { ShareCardModal } from './components/ShareCardModal'
 import { computeAutoLayoutForNewNodes } from '@chokepoint/shared'
-import { defaultEdgeLabel } from '@chokepoint/shared'
-import { toTitleCase } from '@chokepoint/shared'
+import { applyNlResult } from '@chokepoint/shared'
 import { buildSessionShareData, type SessionShareData } from '@chokepoint/shared'
 import type { GraphEdge, GraphNode, NLParseResult } from '@chokepoint/shared'
 
@@ -127,58 +126,15 @@ function MainApp() {
   }
 
   const handleApplyNlResult = async (accepted: NLParseResult) => {
-    const idByLibraryId = new Map<string, string>()
-    for (const existing of nodes) idByLibraryId.set(existing.libraryId, existing.id)
-
-    const createdNodes: GraphNode[] = []
-
-    for (const n of accepted.nodes) {
-      const existingId = idByLibraryId.get(n.libraryId)
-      if (existingId) {
-        // Already on the graph — training it again bumps its proficiency.
-        await incrementNodeProficiency(existingId, accepted.trainedAt)
-        continue
-      }
-      const created = await addNode({
-        libraryId: n.libraryId,
-        type: n.type,
-        label: n.label,
-        x: 0,
-        y: 0,
-        trainedAt: accepted.trainedAt,
-      })
-      if (created) {
-        idByLibraryId.set(n.libraryId, created.id)
-        createdNodes.push(created)
-      }
-    }
-
-    const createdEdges: Array<{ sourceId: string; targetId: string }> = []
-    const nodeById = new Map([...nodes, ...createdNodes].map((n) => [n.id, n]))
-
-    for (const e of accepted.edges) {
-      const sourceId = idByLibraryId.get(e.sourceLibraryId)
-      const targetId = idByLibraryId.get(e.targetLibraryId)
-      if (!sourceId || !targetId) continue
-
-      const existingEdge = edges.find(
-        (edge) =>
-          (edge.sourceId === sourceId && edge.targetId === targetId) ||
-          (edge.bidirectional && edge.sourceId === targetId && edge.targetId === sourceId)
-      )
-      if (existingEdge) {
-        await incrementEdgeProficiency(existingEdge.id, accepted.trainedAt)
-        continue
-      }
-
-      const label = e.label.trim()
-        ? toTitleCase(e.label)
-        : defaultEdgeLabel(nodeById.get(sourceId)?.label ?? '?', nodeById.get(targetId)?.label ?? '?')
-      await addEdge({ sourceId, targetId, label, bidirectional: e.bidirectional, trainedAt: accepted.trainedAt })
-      createdEdges.push({ sourceId, targetId })
-    }
-
-    await layoutNewNodes(nodes, createdNodes, [...edges, ...createdEdges])
+    await applyNlResult(accepted, {
+      nodes,
+      edges,
+      addNode,
+      addEdge,
+      incrementNodeProficiency,
+      incrementEdgeProficiency,
+      onNodesCreated: (createdNodes, createdEdges) => layoutNewNodes(nodes, createdNodes, [...edges, ...createdEdges]),
+    })
 
     setNlResult(null)
     setNlClearToken((t) => t + 1)

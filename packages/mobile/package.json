@@ -1,7 +1,7 @@
 {
   "name": "@chokepoint/mobile",
   "version": "0.1.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "dependencies": {
     "@chokepoint/shared": "*",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
@@ -9,15 +9,19 @@
     "@react-native-community/netinfo": "12.0.1",
     "expo": "~57.0.13",
     "expo-auth-session": "~57.0.7",
+    "expo-constants": "~57.0.12",
     "expo-crypto": "~57.0.1",
     "expo-dev-client": "~57.0.12",
     "expo-font": "~57.0.1",
     "expo-linking": "~57.0.6",
+    "expo-router": "~57.0.14",
     "expo-status-bar": "~57.0.1",
     "expo-web-browser": "~57.0.2",
     "react": "19.2.3",
     "react-native": "0.86.2",
     "react-native-get-random-values": "~1.11.0",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
     "react-native-url-polyfill": "^4.0.0"
   },
   "devDependencies": {

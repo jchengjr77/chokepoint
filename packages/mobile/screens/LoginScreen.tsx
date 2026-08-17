@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import { useAuth } from '@chokepoint/shared';
 import { colors, radius } from '../theme/tokens';
-import { monoFont } from '../theme/typography';
+import { useMonoFont } from '../theme/typography';
 import { Logo } from '../components/Logo';
 import { AboutModal } from '../components/AboutModal';
 
-export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
+export function LoginScreen() {
   const { signInWithPassword, signUpWithPassword, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,7 +54,7 @@ export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
     }
   };
 
-  const font = (weight: Parameters<typeof monoFont>[0] = 'regular') => monoFont(weight, fontsLoaded);
+  const font = useMonoFont();
 
   return (
     <KeyboardAvoidingView
@@ -127,7 +127,7 @@ export function LoginScreen({ fontsLoaded }: { fontsLoaded: boolean }) {
         </View>
       </ScrollView>
 
-      <AboutModal visible={showAbout} onClose={() => setShowAbout(false)} fontsLoaded={fontsLoaded} />
+      <AboutModal visible={showAbout} onClose={() => setShowAbout(false)} />
     </KeyboardAvoidingView>
   );
 }
